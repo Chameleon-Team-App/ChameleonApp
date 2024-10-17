@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">CalendarTest</string>
+    <string name="left"><![CDATA[<-]]></string>
+    <string name="right"><![CDATA[->]]></string>
+</resources>
