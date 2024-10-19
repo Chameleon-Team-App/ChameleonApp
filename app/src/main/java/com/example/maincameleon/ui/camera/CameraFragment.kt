@@ -7,7 +7,6 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
 import android.widget.Toast
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageCapture
@@ -17,6 +16,7 @@ import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import com.example.maincameleon.R
 import com.example.maincameleon.databinding.FragmentCameraBinding
@@ -34,6 +34,7 @@ class CameraFragment : Fragment() {
     private lateinit var imageCapture: ImageCapture
     private lateinit var outputDirectory: File
     private lateinit var cameraExecutor: ExecutorService
+    private lateinit var cameraViewModel: CameraViewModel
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -42,6 +43,9 @@ class CameraFragment : Fragment() {
     ): View {
         _binding = FragmentCameraBinding.inflate(inflater, container, false)
         val root: View = binding.root
+
+        // Initialize ViewModel
+        cameraViewModel = ViewModelProvider(requireActivity()).get(CameraViewModel::class.java)
 
         // Request camera permissions
         if (allPermissionsGranted()) {
@@ -81,7 +85,7 @@ class CameraFragment : Fragment() {
         // Create output options object which contains file + metadata
         val outputOptions = ImageCapture.OutputFileOptions.Builder(photoFile).build()
 
-        // Set up image capture listener, which is triggered after photo has been taken
+        // Set up image capture listener, which is triggered after the photo has been taken
         imageCapture.takePicture(
             outputOptions,
             ContextCompat.getMainExecutor(requireContext()),
@@ -94,6 +98,9 @@ class CameraFragment : Fragment() {
                     val msg = "Photo capture succeeded: ${photoFile.absolutePath}"
                     Toast.makeText(requireContext(), msg, Toast.LENGTH_SHORT).show()
                     Log.d(TAG, msg)
+
+                    // Notify the ViewModel about the new photo path
+                    cameraViewModel.addImagePath(photoFile.absolutePath)
                 }
             }
         )
