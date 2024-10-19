@@ -56,9 +56,15 @@ class CameraFragment : Fragment() {
     private fun takePhoto() {
         val imageCapture = this.imageCapture
 
-        // Create time-stamped output file
+        // Create a folder for images if it doesn't exist
+        val storageDir = File(requireContext().getExternalFilesDir(null), "MyCameraImages")
+        if (!storageDir.exists()) {
+            storageDir.mkdirs() // Create the directory if it doesn't exist
+        }
+
+        // Create time-stamped output file within the new directory
         val photoFile = File(
-            requireContext().externalMediaDirs.firstOrNull(),
+            storageDir,
             "${SimpleDateFormat(FILENAME_FORMAT, Locale.US).format(System.currentTimeMillis())}.jpg"
         )
 
@@ -78,6 +84,7 @@ class CameraFragment : Fragment() {
             }
         )
     }
+
 
     private fun startCamera() {
         val cameraProviderFuture = ProcessCameraProvider.getInstance(requireContext())

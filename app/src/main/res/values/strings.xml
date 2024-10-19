@@ -2,5 +2,9 @@
     <string name="app_name">MainCameleon</string>
     <string name="title_home">Home</string>
     <string name="title_dashboard">Dashboard</string>
-    <string name="title_camera">Camera</string>
+    <string name="title_photo_gallery">Photo Gallery</string>
+    <string name="this_is_the_photo_gallery_fragment">This is the photo gallery Fragment</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="camera">Camera</string>
 </resources>
