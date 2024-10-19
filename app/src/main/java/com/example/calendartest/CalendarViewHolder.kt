@@ -1,26 +1,19 @@
-package com.example.calendartest;
+package com.example.calendartest
 
-import android.view.View;
-import android.widget.TextView;
+import android.view.View
+import android.widget.TextView
+import androidx.recyclerview.widget.RecyclerView
+import com.example.calendartest.CalendarAdapter.OnItemListener
 
-import androidx.annotation.NonNull;
-import androidx.recyclerview.widget.RecyclerView;
+class CalendarViewHolder(itemView: View, private val onItemListener: OnItemListener) :
+    RecyclerView.ViewHolder(itemView), View.OnClickListener {
+    val dayOfMonth: TextView = itemView.findViewById(R.id.cellDayText)
 
-public class CalendarViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener
-{
-    public final TextView dayOfMonth;
-    private final CalendarAdapter.OnItemListener onItemListener;
-    public CalendarViewHolder(@NonNull View itemView, CalendarAdapter.OnItemListener onItemListener)
-    {
-        super(itemView);
-        dayOfMonth = itemView.findViewById(R.id.cellDayText);
-        this.onItemListener = onItemListener;
-        itemView.setOnClickListener(this);
+    init {
+        itemView.setOnClickListener(this)
     }
 
-    @Override
-    public void onClick(View view)
-    {
-        onItemListener.onItemClick(getAdapterPosition(), (String) dayOfMonth.getText());
+    override fun onClick(view: View) {
+        onItemListener.onItemClick(bindingAdapterPosition, dayOfMonth.text.toString())
     }
 }
