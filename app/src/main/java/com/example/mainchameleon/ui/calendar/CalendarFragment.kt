@@ -1,32 +1,51 @@
-package com.example.calendartest
+package com.example.mainchameleon.ui.calendar
 
 import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.calendartest.CalendarAdapter.OnItemListener
+import com.example.mainchameleon.R
+import com.example.mainchameleon.ui.calendar.CalendarAdapter.OnDayClickListener
 import java.time.LocalDate
 import java.time.YearMonth
 import java.time.format.DateTimeFormatter
 
-class MainActivity : AppCompatActivity(), OnItemListener {
+class CalendarFragment : Fragment(), OnDayClickListener {
     private lateinit var monthYearText: TextView
     private lateinit var calendarRecyclerView: RecyclerView
     private lateinit var selectedDate: LocalDate
+    private lateinit var previousMonthButton: Button
+    private lateinit var nextMonthButton: Button
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
-        initWidgets()
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        val rootView = inflater.inflate(R.layout.fragment_calendar, container, false)
+
+        calendarRecyclerView = rootView.findViewById(R.id.calendarRecyclerView)
+        monthYearText = rootView.findViewById(R.id.monthYearTV)
+        previousMonthButton = rootView.findViewById(R.id.previousMonthButton)
+        nextMonthButton = rootView.findViewById(R.id.nextMonthButton)
+
+        previousMonthButton.setOnClickListener {
+            previousMonthAction()
+        }
+
+        nextMonthButton.setOnClickListener {
+            nextMonthAction()
+        }
+
         selectedDate = LocalDate.now()
         setMonthView()
-    }
 
-    private fun initWidgets() {
-        calendarRecyclerView = findViewById(R.id.calendarRecyclerView)
-        monthYearText = findViewById(R.id.monthYearTV)
+        return rootView
     }
 
     private fun setMonthView() {
@@ -34,10 +53,9 @@ class MainActivity : AppCompatActivity(), OnItemListener {
         val daysInMonth = daysInMonthArray(selectedDate)
 
         calendarRecyclerView.apply {
-            layoutManager = GridLayoutManager(applicationContext, 7)
-            adapter = CalendarAdapter(daysInMonth, this@MainActivity)
+            layoutManager = GridLayoutManager(requireContext(), 7)  // Use requireContext() in fragments
+            adapter = CalendarAdapter(daysInMonth, this@CalendarFragment)
         }
-
     }
 
     private fun daysInMonthArray(date: LocalDate?): ArrayList<String> {
@@ -45,7 +63,6 @@ class MainActivity : AppCompatActivity(), OnItemListener {
         val yearMonth = YearMonth.from(date)
 
         val daysInMonth = yearMonth.lengthOfMonth()
-
         val firstOfMonth = selectedDate.withDayOfMonth(1)
         val dayOfWeek = firstOfMonth.dayOfWeek.value
 
@@ -64,12 +81,12 @@ class MainActivity : AppCompatActivity(), OnItemListener {
         return date.format(formatter)
     }
 
-    fun previousMonthAction() {
+    private fun previousMonthAction() {
         selectedDate = selectedDate.minusMonths(1)
         setMonthView()
     }
 
-    fun nextMonthAction() {
+    private fun nextMonthAction() {
         selectedDate = selectedDate.plusMonths(1)
         setMonthView()
     }
@@ -77,7 +94,7 @@ class MainActivity : AppCompatActivity(), OnItemListener {
     override fun onItemClick(position: Int, dayText: String?) {
         if (!dayText.isNullOrEmpty()) {
             val message = "Selected Date $dayText ${monthYearFromDate(selectedDate)}"
-            Toast.makeText(this, message, Toast.LENGTH_LONG).show()
+            Toast.makeText(requireContext(), message, Toast.LENGTH_LONG).show()
         }
     }
 }
