@@ -19,7 +19,7 @@
 
     <fragment
         android:id="@+id/navigation_notifications"
-        android:name="com.example.maincameleon.ui.camera.NotificationsFragment"
-        android:label="@string/title_notifications"
+        android:name="com.example.maincameleon.ui.camera.CameraFragment"
+        android:label="@string/title_camera"
         tools:layout="@layout/fragment_camera" />
 </navigation>
