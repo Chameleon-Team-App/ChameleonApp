@@ -16,4 +16,8 @@
         android:icon="@android:drawable/ic_menu_camera"
         android:title="@string/title_photo_gallery" />
 
+    <item
+        android:id="@+id/navigation_calendar"
+        android:icon="@drawable/ic_calendar_black_24dp"
+        android:title="@string/title_calendar" />
 </menu>
