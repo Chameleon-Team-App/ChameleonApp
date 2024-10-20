@@ -1,6 +1,9 @@
 <resources>
-    <string name="app_name">MainCameleon</string>
+    <string name="app_name">CalendarTest</string>
+    <string name="left"><![CDATA[<-]]></string>
+    <string name="right"><![CDATA[->]]></string>
     <string name="title_home">Home</string>
     <string name="title_dashboard">Dashboard</string>
     <string name="title_notifications">Notifications</string>
+    <string name="title_calendar">Calendar</string>
 </resources>
