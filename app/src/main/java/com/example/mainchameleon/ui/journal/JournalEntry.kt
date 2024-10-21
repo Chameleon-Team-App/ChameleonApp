@@ -1,4 +1,3 @@
 package com.example.mainchameleon.ui.journal
 
-class JournalEntry {
-}
+data class JournalEntry(val title: String, val entry: String)
