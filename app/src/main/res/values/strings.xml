@@ -12,4 +12,11 @@
     <string name="title_camera" />
     <string name="title_calendar">Calendar</string>
 
+    <!-- Journal section -->
+    <string name="journal">Journal</string>
+    <string name="journal_label">Journal</string>
+    <string name="title_entry">Input title here</string>
+    <string name="text_entry">Input text here</string>
+    <string name="save_text">Save</string>
+
 </resources>
