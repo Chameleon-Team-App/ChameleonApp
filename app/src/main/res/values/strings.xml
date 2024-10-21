@@ -1,10 +1,9 @@
 <resources>
-    <string name="app_name">CalendarTest</string>
+    <string name="app_name">Chameleon</string>
     <string name="left"><![CDATA[<-]]></string>
     <string name="right"><![CDATA[->]]></string>
     <string name="title_home">Home</string>
     <string name="title_dashboard">Dashboard</string>
-
     <string name="title_photo_gallery">Photo Gallery</string>
     <string name="this_is_the_photo_gallery_fragment">This is the photo gallery Fragment</string>
     <!-- TODO: Remove or change this placeholder text -->

@@ -21,6 +21,7 @@ navigationFragment = "2.8.3"
 constraintlayout = "2.1.4"
 lifecycleLivedataKtx = "2.8.6"
 lifecycleViewmodelKtx = "2.8.6"
+camerax = "1.2.0"
 
 materialVersion = "1.9.0"
 

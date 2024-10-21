@@ -1,4 +1,4 @@
-package com.example.maincameleon.ui.photo_gallery
+package com.example.mainchameleon.ui.photo_gallery
 
 import android.graphics.BitmapFactory
 import android.os.Bundle
@@ -12,9 +12,9 @@ import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
-import com.example.maincameleon.R
-import com.example.maincameleon.databinding.FragmentGalleryBinding
-import com.example.maincameleon.ui.camera.CameraViewModel
+import com.example.mainchameleon.R
+import com.example.mainchameleon.databinding.FragmentGalleryBinding
+import com.example.mainchameleon.ui.camera.CameraViewModel
 
 class PhotoGalleryFragment : Fragment() {
 

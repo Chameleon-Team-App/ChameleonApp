@@ -1,4 +1,4 @@
-package com.example.maincameleon.ui.camera
+package com.example.mainchameleon.ui.camera
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
