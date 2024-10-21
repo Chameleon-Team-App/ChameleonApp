@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/mobile_navigation"
+    app:startDestination="@+id/navigation_home">
+
+    <action
+        android:id="@+id/action_photoGalleryFragment_to_cameraFragment"
+        app:destination="@id/navigation_camera" />
+
+    <fragment
+        android:id="@+id/navigation_journal"
+        android:name="com.example.mainchameleon.ui.journal.JournalFragment"
+        android:label="@string/journal"
+        tools:layout="@layout/fragment_journal" />
+
+    <fragment
+        android:id="@+id/navigation_home"
+        android:name="com.example.mainchameleon.ui.home.HomeFragment"
+        android:label="@string/title_home"
+        tools:layout="@layout/fragment_home" />
+
+    <fragment
+        android:id="@+id/navigation_dashboard"
+        android:name="com.example.mainchameleon.ui.dashboard.DashboardFragment"
+        android:label="@string/title_dashboard"
+        tools:layout="@layout/fragment_dashboard" />
+
+    <fragment
+        android:id="@+id/navigation_photo_gallery"
+        android:name="com.example.mainchameleon.ui.photo_gallery.PhotoGalleryFragment"
+        android:label="@string/title_photo_gallery"
+        tools:layout="@layout/fragment_gallery" />
+
+    <fragment
+        android:id="@+id/navigation_camera"
+        android:name="com.example.mainchameleon.ui.camera.CameraFragment"
+        android:label="@string/title_camera"
+        tools:layout="@layout/fragment_camera" />
+
+    <fragment
+        android:id="@+id/navigation_calendar"
+        android:name="com.example.mainchameleon.ui.calendar.CalendarFragment"
+        android:label="@string/title_calendar"
+        tools:layout="@layout/fragment_calendar" />
+
+
+</navigation>
