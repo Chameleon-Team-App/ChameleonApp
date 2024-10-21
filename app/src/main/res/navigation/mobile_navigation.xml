@@ -5,6 +5,10 @@
     android:id="@+id/mobile_navigation"
     app:startDestination="@+id/navigation_home">
 
+    <action
+        android:id="@+id/action_photoGalleryFragment_to_cameraFragment"
+        app:destination="@id/navigation_camera" />
+
     <fragment
         android:id="@+id/navigation_home"
         android:name="com.example.mainchameleon.ui.home.HomeFragment"
@@ -18,10 +22,16 @@
         tools:layout="@layout/fragment_dashboard" />
 
     <fragment
-        android:id="@+id/navigation_notifications"
-        android:name="com.example.mainchameleon.ui.notifications.NotificationsFragment"
-        android:label="@string/title_notifications"
-        tools:layout="@layout/fragment_notifications" />
+        android:id="@+id/navigation_photo_gallery"
+        android:name="com.example.mainchameleon.ui.photo_gallery.PhotoGalleryFragment"
+        android:label="@string/title_photo_gallery"
+        tools:layout="@layout/fragment_gallery" />
+
+    <fragment
+        android:id="@+id/navigation_camera"
+        android:name="com.example.mainchameleon.ui.camera.CameraFragment"
+        android:label="@string/title_camera"
+        tools:layout="@layout/fragment_camera" />
 
     <fragment
         android:id="@+id/navigation_calendar"
