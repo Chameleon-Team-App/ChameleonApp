@@ -29,4 +29,10 @@
         android:label="@string/title_calendar"
         tools:layout="@layout/fragment_calendar" />
 
+    <fragment
+        android:id="@+id/navigation_journal"
+        android:name="com.example.mainchameleon.ui.journal.JournalFragment"
+        android:label="@string/journal_label"
+        tools:layout="@layout/fragment_journal" />
+
 </navigation>

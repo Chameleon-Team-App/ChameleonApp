@@ -1,9 +1,15 @@
 <resources>
-    <string name="app_name">CalendarTest</string>
+    <string name="app_name">Chameleon</string>
     <string name="left"><![CDATA[<-]]></string>
     <string name="right"><![CDATA[->]]></string>
     <string name="title_home">Home</string>
     <string name="title_dashboard">Dashboard</string>
     <string name="title_notifications">Notifications</string>
     <string name="title_calendar">Calendar</string>
+    <string name="title_journal">Journal</string>
+    <string name="journal_label">Journal</string>
+    <string name="title_entry">Input title here</string>
+    <string name="text_entry">Input text here</string>
+    <string name="save_text">Save</string>
+    <!-- TODO ORDER THESE -->
 </resources>
