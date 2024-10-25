@@ -5,7 +5,6 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
-import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.example.mainchameleon.databinding.ActivityMainBinding
 
@@ -29,7 +28,7 @@ class MainActivity : AppCompatActivity() {
                 R.id.navigation_journal, R.id.navigation_home, R.id.navigation_dashboard, R.id.navigation_photo_gallery, R.id.navigation_calendar
             )
         )
-        setupActionBarWithNavController(navController, appBarConfiguration)
+        //removed navbar header
         navView.setupWithNavController(navController)
 
         navView.setOnItemSelectedListener { item ->
