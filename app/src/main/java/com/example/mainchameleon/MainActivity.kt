@@ -7,6 +7,7 @@ import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupWithNavController
 import com.example.mainchameleon.databinding.ActivityMainBinding
+import com.google.firebase.auth.FirebaseAuth
 
 class MainActivity : AppCompatActivity() {
 
@@ -44,5 +45,6 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
+        FirebaseAuth.getInstance().createUserWithEmailAndPassword("james.madison@examplepetstore.com", "AAA1234565");
     }
 }

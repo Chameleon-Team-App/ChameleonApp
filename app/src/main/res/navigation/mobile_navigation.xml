@@ -31,7 +31,7 @@
         android:id="@+id/navigation_photo_gallery"
         android:name="com.example.mainchameleon.ui.photo_gallery.PhotoGalleryFragment"
         android:label="@string/title_photo_gallery"
-        tools:layout="@layout/fragment_gallery" />
+        tools:layout="@layout/fragment_photo_gallery" />
 
     <fragment
         android:id="@+id/navigation_camera"
