@@ -33,7 +33,6 @@ class CameraFragment : Fragment() {
 
     private var _binding: FragmentCameraBinding? = null
     private val binding get() = _binding!!
-
     private lateinit var imageCapture: ImageCapture
     private lateinit var cameraExecutor: ExecutorService
     private lateinit var cameraViewModel: CameraViewModel
@@ -46,8 +45,10 @@ class CameraFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
         _binding = FragmentCameraBinding.inflate(inflater, container, false)
-
-        cameraViewModel = ViewModelProvider(requireActivity()).get(CameraViewModel::class.java)
+        
+        // Initialize ViewModel
+        // .get was deprecated -> cameraViewModel = ViewModelProvider(requireActivity()).get(CameraViewModel::class.java)
+        cameraViewModel = ViewModelProvider(requireActivity())[CameraViewModel::class.java]
 
         // Check if permissions are granted
         if (allPermissionsGranted()) {
@@ -166,6 +167,7 @@ class CameraFragment : Fragment() {
         } else {
             Toast.makeText(requireContext(), "User not authenticated.", Toast.LENGTH_SHORT).show()
         }
+        return mediaDir ?: requireContext().filesDir
     }
 
     // Check if all permissions are granted
