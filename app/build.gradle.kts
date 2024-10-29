@@ -1,6 +1,8 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
+    id("com.android.application")
+    id("com.google.gms.google-services")
     id("kotlin-kapt")
 }
 
@@ -40,27 +42,38 @@ android {
 }
 
 dependencies {
+    implementation libs.androidx.core.ktx
+    implementation libs.androidx.appcompat
+    implementation libs.material
+    implementation libs.androidx.constraintlayout
+    implementation libs.androidx.lifecycle.livedata.ktx
+    implementation libs.androidx.lifecycle.viewmodel.ktx
+    implementation libs.androidx.navigation.fragment.ktx
+    implementation libs.androidx.navigation.ui.ktx
+    implementation libs.firebase.storage.ktx
+    testImplementation libs.junit
+    androidTestImplementation libs.androidx.junit
+    androidTestImplementation libs.androidx.espresso.core
 
-    implementation(libs.androidx.core.ktx)
-    implementation(libs.androidx.appcompat)
-    implementation(libs.material)
-    implementation(libs.androidx.constraintlayout)
-    implementation(libs.androidx.lifecycle.livedata.ktx)
-    implementation(libs.androidx.lifecycle.viewmodel.ktx)
-    implementation(libs.androidx.navigation.fragment.ktx)
-    implementation(libs.androidx.navigation.ui.ktx)
-    testImplementation(libs.junit)
-    androidTestImplementation(libs.androidx.junit)
-    androidTestImplementation(libs.androidx.espresso.core)
-    implementation 'com.google.guava:guava:31.1-android'
-    implementation (libs.androidx.camera.camera2)
-    implementation (libs.androidx.camera.lifecycle)
-    implementation (libs.androidx.camera.view)
-    implementation (libs.androidx.core.ktx.v190)
-    implementation (libs.androidx.appcompat.v161)
-    implementation (libs.material.v190)
-    implementation 'com.google.dagger:hilt-android:2.42'
-    kapt 'com.google.dagger:hilt-android-compiler:2.42'
+    // Firebase BOM for consistent Firebase dependency versions
+    implementation platform("com.google.firebase:firebase-bom:33.5.1")
+    implementation libs.firebase.auth
+    implementation libs.firebase.firestore.ktx
+    implementation libs.firebase.storage
+
+    // Additional AndroidX dependencies
+    implementation libs.androidx.camera.camera2
+    implementation libs.androidx.camera.lifecycle
+    implementation libs.androidx.camera.view
+
+    // Other dependencies
+    implementation libs.guava
+    implementation libs.hilt.android
+    kapt libs.hilt.android.compiler
+
+    // Glide
+    implementation libs.glide
+
+    // Apply Google services plugin for Firebase
+    apply plugin: 'com.google.gms.google-services'
 }
-
-apply plugin: 'com.google.gms.google-services'
