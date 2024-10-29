@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
+    id("kotlin-kapt")
 }
 
 android {
@@ -61,4 +62,9 @@ dependencies {
     implementation libs.androidx.camera.view.v120
     implementation libs.androidx.lifecycle.viewmodel.ktx.v280
     implementation libs.androidx.lifecycle.runtime.ktx
+    implementation libs.guava
+    implementation libs.hilt.android
+    kapt libs.hilt.android.compiler
 }
+
+apply plugin: 'com.google.gms.google-services'

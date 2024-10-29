@@ -16,7 +16,6 @@ class CameraViewModel : ViewModel() {
 
     // Function to add a photo path
     fun addImagePath(photoPath: String) {
-        _photos.value?.add(photoPath)
-        _photos.value = _photos.value // Notify observers
+        _photos.value = _photos.value?.toMutableList()?.apply { add(photoPath) }
     }
 }

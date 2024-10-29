@@ -61,7 +61,6 @@ class CalendarFragment : Fragment(), OnDayClickListener {
     private fun daysInMonthArray(date: LocalDate?): ArrayList<String> {
         val daysInMonthArray = ArrayList<String>()
         val yearMonth = YearMonth.from(date)
-
         val daysInMonth = yearMonth.lengthOfMonth()
         val firstOfMonth = selectedDate.withDayOfMonth(1)
         val dayOfWeek = firstOfMonth.dayOfWeek.value

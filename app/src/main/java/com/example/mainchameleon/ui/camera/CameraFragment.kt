@@ -30,7 +30,6 @@ class CameraFragment : Fragment() {
 
     private var _binding: FragmentCameraBinding? = null
     private val binding get() = _binding!!
-
     private lateinit var imageCapture: ImageCapture
     private lateinit var outputDirectory: File
     private lateinit var cameraExecutor: ExecutorService
@@ -42,10 +41,9 @@ class CameraFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentCameraBinding.inflate(inflater, container, false)
-        val root: View = binding.root
 
         // Initialize ViewModel
-        cameraViewModel = ViewModelProvider(requireActivity()).get(CameraViewModel::class.java)
+        cameraViewModel = ViewModelProvider(requireActivity())[CameraViewModel::class.java]
 
         // Request camera permissions
         if (allPermissionsGranted()) {
@@ -69,7 +67,7 @@ class CameraFragment : Fragment() {
         outputDirectory = getOutputDirectory()
         cameraExecutor = Executors.newSingleThreadExecutor()
 
-        return root
+        return binding.root
     }
 
     private fun takePhoto() {
@@ -144,8 +142,7 @@ class CameraFragment : Fragment() {
         val mediaDir = requireContext().externalMediaDirs.firstOrNull()?.let {
             File(it, resources.getString(R.string.app_name)).apply { mkdirs() }
         }
-        return if (mediaDir != null && mediaDir.exists())
-            mediaDir else requireContext().filesDir
+        return mediaDir ?: requireContext().filesDir
     }
 
     private fun allPermissionsGranted() = REQUIRED_PERMISSIONS.all {
