@@ -19,4 +19,12 @@
     <string name="text_entry">Input text here</string>
     <string name="save_text">Save</string>
 
+    <string name="error_email_required">Email is required</string>
+    <string name="error_email_invalid">Invalid email format</string>
+    <string name="error_password_required">Password is required</string>
+    <string name="error_first_name_required">First name is required</string>
+    <string name="error_user_not_found">User not found</string>
+    <string name="error_wrong_password">Wrong password</string>
+    <string name="error_authentication_failed">Authentication failed</string>
+
 </resources>

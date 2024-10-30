@@ -15,7 +15,8 @@ class JournalAdapter : RecyclerView.Adapter<JournalAdapter.JournalViewHolder>() 
     private var journalList: List<JournalEntry> = listOf()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): JournalViewHolder {
-        val view = LayoutInflater.from(parent.context).inflate(R.layout.fragment_journal_entry, parent, false)
+        val view = LayoutInflater.from(parent.context)
+            .inflate(R.layout.fragment_journal_entry, parent, false)
         return JournalViewHolder(view)
     }
 
