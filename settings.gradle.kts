@@ -19,6 +19,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "MainChameleon"
+rootProject.name = "MainCameleon"
 include(":app")
- 

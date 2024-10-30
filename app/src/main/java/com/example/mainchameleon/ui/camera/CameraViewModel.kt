@@ -14,7 +14,6 @@ class CameraViewModel : ViewModel() {
         _photos.value = emptyList()
     }
 
-    // Unified function to add a photo path
     fun addPhoto(photoPath: String) {
         val updatedPhotos = _photos.value?.toMutableList() ?: mutableListOf()
         updatedPhotos.add(photoPath)
@@ -31,6 +30,8 @@ class CameraViewModel : ViewModel() {
                     fileRef.downloadUrl.addOnSuccessListener { uri ->
                         urls.add(uri.toString())
                         _photos.value = urls
+                    }.addOnFailureListener {
+                        // Handle errors
                     }
                 }
             }
