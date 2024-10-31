@@ -8,10 +8,10 @@
             <InsightsFilterSettings>
               <option name="connection">
                 <ConnectionSetting>
-                  <option name="appId" value="PLACEHOLDER" />
-                  <option name="mobileSdkAppId" value="" />
-                  <option name="projectId" value="" />
-                  <option name="projectNumber" value="" />
+                  <option name="appId" value="com.example.mainchameleon" />
+                  <option name="mobileSdkAppId" value="1:1071494277251:android:6da1375b3a7fb0e11c13b6" />
+                  <option name="projectId" value="chameleon-72714" />
+                  <option name="projectNumber" value="1071494277251" />
                 </ConnectionSetting>
               </option>
               <option name="signal" value="SIGNAL_UNSPECIFIED" />

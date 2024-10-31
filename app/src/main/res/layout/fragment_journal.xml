@@ -1,80 +1,91 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#292929"
-    android:orientation="vertical">
+    android:background="#292929">
 
-    <!--TITLE TEXT-->
 
-    <!--YELLOW BACKGROUND CARD VIEW-->
-    <androidx.cardview.widget.CardView
-        android:id="@+id/myCardView"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="252dp"
-        android:layout_gravity="center"
-        android:layout_margin="16dp"
-        app:cardBackgroundColor="#E9CC35"
-        app:cardCornerRadius="20dp">
+        android:layout_height="wrap_content"
+        android:background="#292929"
+        android:orientation="vertical">
 
-        <!--WHITE BACKGROUND CARD VIEW-->
+        <!--TITLE TEXT-->
+
+        <!--YELLOW BACKGROUND CARD VIEW-->
         <androidx.cardview.widget.CardView
+            android:id="@+id/myCardView"
             android:layout_width="match_parent"
-            android:layout_height="55dp">
+            android:layout_height="252dp"
+            android:layout_gravity="center"
+            android:layout_margin="16dp"
+            app:cardBackgroundColor="#E9CC35"
+            app:cardCornerRadius="20dp">
+
+
+            <!--WHITE BACKGROUND CARD VIEW-->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="55dp">
+
+                <!-- TITLE INPUT TEXT -->
+                <EditText
+                    android:id="@+id/titleEntryBox"
+                    android:layout_width="match_parent"
+                    android:layout_height="55dp"
+                    android:autofillHints=""
+                    android:hint="@string/title_entry"
+                    android:inputType="text"
+                    android:textAlignment="center"
+                    android:textColor="#000000"
+                    android:textColorHint="#000000"
+                    tools:ignore="VisualLintTextFieldSize" />
+
+                <!--DATE BACKGROUND CARD VIEW-->
+                <!-- TODO -->
+
+            </androidx.cardview.widget.CardView>
 
             <EditText
-                android:id="@+id/titleEntryBox"
+                android:id="@+id/journalEntryText"
                 android:layout_width="match_parent"
-                android:layout_height="55dp"
+                android:layout_height="wrap_content"
                 android:autofillHints=""
-                android:hint="@string/title_entry"
-                android:inputType="text"
-                android:textAlignment="center"
-                android:textColor="#000000"
-                android:textColorHint="#000000"
+                android:ems="10"
+                android:hint="@string/text_entry"
+                android:inputType="textMultiLine"
+                android:minHeight="48dp"
+                android:textAlignment="textStart"
+                android:translationY="55dp"
                 tools:ignore="VisualLintTextFieldSize" />
-            <!--DATE BACKGROUND CARD VIEW-->
 
         </androidx.cardview.widget.CardView>
 
-        <EditText
-            android:id="@+id/journalEntryText"
-            android:layout_width="match_parent"
+        <Button
+            android:id="@+id/button2"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:autofillHints=""
-            android:ems="10"
-            android:inputType="textMultiLine"
-            android:minHeight="48dp"
-            android:hint="@string/text_entry"
-            android:textAlignment="textStart"
-            android:translationY="55dp"
-            tools:ignore="VisualLintTextFieldSize" />
+            android:layout_gravity="center"
+            android:layout_margin="0dp"
+            android:backgroundTint="#FFFFFF"
+            android:elevation="4dp"
+            android:padding="5dp"
+            android:text="@string/save_text"
+            android:textColor="#000000"
+            android:textSize="16sp" />
 
-    </androidx.cardview.widget.CardView>
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="282dp"
+            android:layout_marginTop="20dp"
+            android:padding="16dp" />
 
-    <Button
-        android:id="@+id/button2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:layout_margin="16dp"
-        android:backgroundTint="#FFFFFF"
-        android:elevation="4dp"
-        android:padding="16dp"
-        android:text="@string/save_text"
-        android:textColor="#000000"
-        android:textSize="16sp" />
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerView"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:padding="16dp"
-        android:layout_marginTop="20dp"/>
-
-</LinearLayout>
-
+    </LinearLayout>
+</ScrollView>
 
 
