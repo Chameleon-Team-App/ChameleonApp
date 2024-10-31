@@ -1,8 +1,8 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:fillViewport="true"
     android:padding="16dp"
     android:background="#292929">
 
@@ -30,12 +30,22 @@
                 android:textSize="16sp" />
         </androidx.cardview.widget.CardView>
 
+        <!-- Image Preview for Selected or Captured Photo -->
+        <ImageView
+            android:id="@+id/imageViewPlaceholder"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:adjustViewBounds="true"
+            android:scaleType="fitCenter"
+            android:visibility="gone" />
+
         <!-- Buttons for Image Selection -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:gravity="center">
+            android:gravity="center"
+            android:layout_marginTop="8dp">
 
             <Button
                 android:id="@+id/uploadFromGalleryButton"
@@ -49,15 +59,6 @@
                 android:layout_height="wrap_content"
                 android:text="Camera" />
         </LinearLayout>
-
-        <!-- Image Preview Placeholder -->
-        <ImageView
-            android:id="@+id/imageViewPlaceholder"
-            android:layout_width="match_parent"
-            android:layout_height="200dp"
-            android:layout_marginTop="8dp"
-            android:scaleType="centerCrop"
-            android:visibility="gone" />
 
         <!-- Text Entry -->
         <androidx.cardview.widget.CardView
@@ -81,10 +82,15 @@
         <!-- Save Button -->
         <Button
             android:id="@+id/saveJournalButton"
-            android:layout_width="345dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:text="SAVE" />
+
+        <!-- Extra Space -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="100dp" /> <!-- Adds extra space at the bottom -->
 
     </LinearLayout>
 </ScrollView>

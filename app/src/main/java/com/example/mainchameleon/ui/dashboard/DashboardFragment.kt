@@ -1,5 +1,6 @@
 package com.example.mainchameleon.ui.dashboard
 
+import DashboardViewModel
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -9,53 +10,30 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.mainchameleon.databinding.FragmentDashboardBinding
 import com.example.mainchameleon.ui.journal.JournalAdapter
-import com.example.mainchameleon.ui.journal.JournalEntry
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.database.*
 
 class DashboardFragment : Fragment() {
 
     private lateinit var dashboardViewModel: DashboardViewModel
     private lateinit var binding: FragmentDashboardBinding
-    private lateinit var database: DatabaseReference
-    private lateinit var adapter: JournalAdapter
-    private val currentUser = FirebaseAuth.getInstance().currentUser
+    private lateinit var journalAdapter: JournalAdapter
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         binding = FragmentDashboardBinding.inflate(inflater, container, false)
         dashboardViewModel = ViewModelProvider(this).get(DashboardViewModel::class.java)
 
-        // Initialize Firebase database reference for the current user
-        database = FirebaseDatabase.getInstance().reference.child("Users").child(currentUser?.uid ?: "").child("journals")
-
-        adapter = JournalAdapter()
+        // Initialize the adapter and set it to RecyclerView
+        journalAdapter = JournalAdapter()
         binding.recyclerView.layoutManager = LinearLayoutManager(requireContext())
-        binding.recyclerView.adapter = adapter
+        binding.recyclerView.adapter = journalAdapter
 
-        fetchJournalEntries()
+        // Observe the journal entries and update the adapter when data changes
+        dashboardViewModel.journalEntries.observe(viewLifecycleOwner) { entries ->
+            journalAdapter.submitList(entries)
+        }
 
         return binding.root
-    }
-
-    private fun fetchJournalEntries() {
-        database.addValueEventListener(object : ValueEventListener {
-            override fun onDataChange(snapshot: DataSnapshot) {
-                val journalEntries = mutableListOf<JournalEntry>()
-                for (data in snapshot.children) {
-                    val entry = data.getValue(JournalEntry::class.java)
-                    if (entry != null) {
-                        journalEntries.add(entry)
-                    }
-                }
-                adapter.submitList(journalEntries)
-            }
-
-            override fun onCancelled(error: DatabaseError) {
-                // Handle errors
-            }
-        })
     }
 }

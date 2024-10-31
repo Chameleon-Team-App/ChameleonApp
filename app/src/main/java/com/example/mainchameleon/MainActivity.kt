@@ -45,6 +45,5 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
-        FirebaseAuth.getInstance().createUserWithEmailAndPassword("james.madison@examplepetstore.com", "AAA1234565");
     }
 }

@@ -1,28 +1,33 @@
-package com.example.mainchameleon.ui.dashboard
-
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.mainchameleon.ui.journal.JournalEntry
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.FirebaseDatabase
 
 class DashboardViewModel : ViewModel() {
 
-    // LiveData to hold the list of journal entries
     private val _journalEntries = MutableLiveData<List<JournalEntry>>()
     val journalEntries: LiveData<List<JournalEntry>> = _journalEntries
 
     init {
-        // Load journal entries (for now, we will use a placeholder)
         loadJournalEntries()
     }
 
-    // Function to load the journal entries
     private fun loadJournalEntries() {
-        // Sample journal entries (you should replace this with data from Firebase or another source)
-        val sampleEntries = listOf(
-            JournalEntry(title = "First Entry", text = "This is the first journal entry."),
-            JournalEntry(title = "Second Entry", text = "This is the second journal entry.")
-        )
-        _journalEntries.value = sampleEntries
+        val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return
+        val databaseRef = FirebaseDatabase.getInstance().getReference("users/$userId/journals")
+
+        databaseRef.get().addOnSuccessListener { dataSnapshot ->
+            val entries = mutableListOf<JournalEntry>()
+            for (entrySnapshot in dataSnapshot.children) {
+                val journalEntry = entrySnapshot.getValue(JournalEntry::class.java)
+                journalEntry?.let { entries.add(it) }
+            }
+            _journalEntries.value = entries
+        }.addOnFailureListener {
+            Log.e("DashboardViewModel", "Failed to fetch journal entries", it)
+        }
     }
 }

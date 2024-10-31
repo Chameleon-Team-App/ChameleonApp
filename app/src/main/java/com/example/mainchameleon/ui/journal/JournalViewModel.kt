@@ -1,51 +1,40 @@
-package com.example.mainchameleon.ui.journal
-
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.google.firebase.database.DatabaseReference
+import com.example.mainchameleon.ui.journal.JournalEntry
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
 
 class JournalViewModel : ViewModel() {
 
-    private val databaseRef: DatabaseReference = FirebaseDatabase.getInstance().getReference("journals")
     private val _journalEntries = MutableLiveData<List<JournalEntry>>()
-    val journalEntries: LiveData<List<JournalEntry>> = _journalEntries
+    val journalEntries: LiveData<List<JournalEntry>> get() = _journalEntries
 
     init {
         loadJournalEntries()
     }
 
-    // Create or Update journal entry
-    fun saveJournalEntry(journalEntry: JournalEntry) {
-        val key = journalEntry.id ?: databaseRef.push().key
-        key?.let {
-            databaseRef.child(it).setValue(journalEntry).addOnCompleteListener {
-                if (it.isSuccessful) {
-                    loadJournalEntries()
-                }
-            }
-        }
-    }
-
-    // Delete journal entry
-    fun deleteJournalEntry(journalId: String) {
-        databaseRef.child(journalId).removeValue().addOnCompleteListener {
-            if (it.isSuccessful) {
-                loadJournalEntries()
-            }
-        }
-    }
-
-    // Load journal entries from Firebase
     private fun loadJournalEntries() {
-        databaseRef.get().addOnSuccessListener { dataSnapshot ->
-            val entries = mutableListOf<JournalEntry>()
-            for (entrySnapshot in dataSnapshot.children) {
-                val journalEntry = entrySnapshot.getValue(JournalEntry::class.java)
-                journalEntry?.let { entries.add(it) }
+        val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return
+        val databaseRef = FirebaseDatabase.getInstance().getReference("users/$userId/journals")
+
+        databaseRef.addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val entries = mutableListOf<JournalEntry>()
+                for (entrySnapshot in snapshot.children) {
+                    val entry = entrySnapshot.getValue(JournalEntry::class.java)
+                    entry?.let { entries.add(it) }
+                }
+                _journalEntries.value = entries
             }
-            _journalEntries.value = entries
-        }
+
+            override fun onCancelled(error: DatabaseError) {
+                Log.e("JournalViewModel", "Failed to load data.", error.toException())
+            }
+        })
     }
 }

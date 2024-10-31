@@ -3,44 +3,53 @@ package com.example.mainchameleon.ui.journal
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
+import android.widget.TextView
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.example.mainchameleon.databinding.FragmentJournalEntryBinding
+import com.example.mainchameleon.R
+import com.example.mainchameleon.ui.journal.JournalAdapter.JournalViewHolder
+import com.example.mainchameleon.ui.journal.JournalEntry
 import com.squareup.picasso.Picasso
 
-class JournalAdapter : RecyclerView.Adapter<JournalAdapter.JournalViewHolder>() {
-
-    private var journalEntries: List<JournalEntry> = listOf()
+class JournalAdapter : ListAdapter<JournalEntry, JournalViewHolder>(JournalDiffCallback()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): JournalViewHolder {
-        val binding =
-            FragmentJournalEntryBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-        return JournalViewHolder(binding)
+        val view = LayoutInflater.from(parent.context).inflate(R.layout.fragment_journal_entry, parent, false)
+        return JournalViewHolder(view)
     }
 
     override fun onBindViewHolder(holder: JournalViewHolder, position: Int) {
-        val journalEntry = journalEntries[position]
+        val journalEntry = getItem(position)
         holder.bind(journalEntry)
     }
 
-    override fun getItemCount(): Int = journalEntries.size
+    class JournalViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        private val titleTextView: TextView = itemView.findViewById(R.id.titleTextView)
+        private val entryTextView: TextView = itemView.findViewById(R.id.entryTextView)
+        private val imageView: ImageView = itemView.findViewById(R.id.imageView)
 
-    fun submitList(entries: List<JournalEntry>) {
-        journalEntries = entries
-        notifyDataSetChanged()
-    }
-
-    class JournalViewHolder(private val binding: FragmentJournalEntryBinding) : RecyclerView.ViewHolder(binding.root) {
         fun bind(journalEntry: JournalEntry) {
-            binding.titleTextView.text = journalEntry.title
-            binding.entryTextView.text = journalEntry.text
+            titleTextView.text = journalEntry.title
+            entryTextView.text = journalEntry.text
 
-            if (!journalEntry.imageUrl.isNullOrEmpty()) {
-                binding.imageView.visibility = View.VISIBLE
-                Picasso.get().load(journalEntry.imageUrl).into(binding.imageView)
+            if (journalEntry.imageUrl != null) {
+                imageView.visibility = View.VISIBLE
+                Picasso.get().load(journalEntry.imageUrl).into(imageView)
             } else {
-                binding.imageView.visibility = View.GONE
+                imageView.visibility = View.GONE
             }
         }
     }
 
+    class JournalDiffCallback : DiffUtil.ItemCallback<JournalEntry>() {
+        override fun areItemsTheSame(oldItem: JournalEntry, newItem: JournalEntry): Boolean {
+            return oldItem.id == newItem.id
+        }
+
+        override fun areContentsTheSame(oldItem: JournalEntry, newItem: JournalEntry): Boolean {
+            return oldItem == newItem
+        }
+    }
 }

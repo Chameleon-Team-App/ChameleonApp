@@ -1,7 +1,8 @@
 package com.example.mainchameleon.ui.camera
 
-import android.Manifest
 import android.content.pm.PackageManager
+import android.graphics.BitmapFactory
+import android.graphics.Matrix
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
@@ -13,20 +14,26 @@ import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCaptureException
 import androidx.camera.core.Preview
+import androidx.camera.core.impl.utils.MatrixExt.postRotate
 import androidx.camera.lifecycle.ProcessCameraProvider
-import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.os.bundleOf
+import androidx.exifinterface.media.ExifInterface
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.setFragmentResult
 import androidx.navigation.fragment.findNavController
-import com.example.mainchameleon.R
 import com.example.mainchameleon.databinding.FragmentCameraBinding
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.storage.FirebaseStorage
 import java.io.File
+import java.io.FileInputStream
+import java.io.FileOutputStream
 import java.text.SimpleDateFormat
 import java.util.Locale
+import java.util.UUID
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
+import android.graphics.Bitmap
 
 class CameraFragment : Fragment() {
 
@@ -37,23 +44,17 @@ class CameraFragment : Fragment() {
     private lateinit var cameraExecutor: ExecutorService
 
     private val TAG = "CameraFragment"
-    private val REQUEST_CODE_PERMISSIONS = 10
-    private val REQUIRED_PERMISSIONS = arrayOf(Manifest.permission.CAMERA)
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
     ): View {
         _binding = FragmentCameraBinding.inflate(inflater, container, false)
 
-        // Check if permissions are granted
         if (allPermissionsGranted()) {
             startCamera()
         } else {
-            ActivityCompat.requestPermissions(
-                requireActivity(),
-                REQUIRED_PERMISSIONS,
-                REQUEST_CODE_PERMISSIONS
-            )
+            // Request camera permissions if not granted
         }
 
         binding.cameraCaptureButton.setOnClickListener {
@@ -72,19 +73,19 @@ class CameraFragment : Fragment() {
         val cameraProviderFuture = ProcessCameraProvider.getInstance(requireContext())
 
         cameraProviderFuture.addListener({
-            val cameraProvider: ProcessCameraProvider = cameraProviderFuture.get()
+            val cameraProvider = cameraProviderFuture.get()
+
             val preview = Preview.Builder().build().also {
                 it.setSurfaceProvider(binding.viewFinder.surfaceProvider)
             }
+
+            imageCapture = ImageCapture.Builder().build()
 
             val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
 
             try {
                 cameraProvider.unbindAll()
-                imageCapture = ImageCapture.Builder().build()
-                cameraProvider.bindToLifecycle(
-                    this, cameraSelector, preview, imageCapture
-                )
+                cameraProvider.bindToLifecycle(this, cameraSelector, preview, imageCapture)
             } catch (exc: Exception) {
                 Log.e(TAG, "Use case binding failed", exc)
             }
@@ -93,6 +94,7 @@ class CameraFragment : Fragment() {
 
     private fun takePhoto() {
         val imageCapture = imageCapture ?: return
+
         val photoFile = File(
             requireContext().externalMediaDirs.firstOrNull(),
             SimpleDateFormat(FILENAME_FORMAT, Locale.US).format(System.currentTimeMillis()) + ".jpg"
@@ -110,50 +112,54 @@ class CameraFragment : Fragment() {
 
                 override fun onImageSaved(output: ImageCapture.OutputFileResults) {
                     val savedUri = Uri.fromFile(photoFile)
-                    Toast.makeText(requireContext(), "Photo saved: $savedUri", Toast.LENGTH_SHORT).show()
-                    Log.d(TAG, "Photo capture succeeded: $savedUri")
-
-                    uploadPhotoToFirebaseStorage(savedUri)
+                    val rotatedFile = rotateImageIfRequired(photoFile)
+                    uploadCapturedImageToFirebase(Uri.fromFile(rotatedFile))
                 }
             }
         )
     }
 
-    private fun uploadPhotoToFirebaseStorage(uri: Uri) {
+    private fun rotateImageIfRequired(photoFile: File): File {
+        val exif = ExifInterface(FileInputStream(photoFile))
+        val orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL)
+        val rotation = when (orientation) {
+            ExifInterface.ORIENTATION_ROTATE_90 -> 90f
+            ExifInterface.ORIENTATION_ROTATE_180 -> 180f
+            ExifInterface.ORIENTATION_ROTATE_270 -> 270f
+            else -> 0f
+        }
+
+        if (rotation != 0f) {
+            // Rotate the bitmap and save to a new file
+            val bitmap = BitmapFactory.decodeFile(photoFile.absolutePath)
+            val matrix = Matrix().apply { postRotate(rotation) }
+            val rotatedBitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true)
+            val rotatedFile = File(requireContext().externalCacheDir, "rotated_${photoFile.name}")
+            FileOutputStream(rotatedFile).use { out ->
+                rotatedBitmap.compress(Bitmap.CompressFormat.JPEG, 100, out)
+            }
+            return rotatedFile
+        }
+        return photoFile
+    }
+
+    private fun uploadCapturedImageToFirebase(photoUri: Uri) {
         val user = FirebaseAuth.getInstance().currentUser
         if (user != null) {
             val storageRef = FirebaseStorage.getInstance().reference
-            val userPhotoRef = storageRef.child("users/${user.uid}/photos/${uri.lastPathSegment}")
+            val userPhotoRef = storageRef.child("users/${user.uid}/photos/${UUID.randomUUID()}.jpg")
 
-            userPhotoRef.putFile(uri)
+            userPhotoRef.putFile(photoUri)
                 .addOnSuccessListener {
                     userPhotoRef.downloadUrl.addOnSuccessListener { downloadUri ->
-                        Log.d(TAG, "File successfully uploaded. Download URL: $downloadUri")
-                        // Pass the download URL back to JournalFragment
-                        findNavController().previousBackStackEntry?.savedStateHandle?.set("photoUrl", downloadUri.toString())
-                        findNavController().navigateUp()
+                        setFragmentResult("photoResult", bundleOf("photoUrl" to downloadUri.toString()))
+                        Toast.makeText(requireContext(), "Photo captured and uploaded successfully", Toast.LENGTH_SHORT).show()
+                        findNavController().navigateUp() // Go back to JournalFragment
                     }
                 }
-                .addOnFailureListener { exception ->
-                    Log.e(TAG, "File upload failed: ${exception.message}")
+                .addOnFailureListener {
+                    Toast.makeText(requireContext(), "Failed to upload captured image", Toast.LENGTH_SHORT).show()
                 }
-        } else {
-            Toast.makeText(requireContext(), "User not authenticated.", Toast.LENGTH_SHORT).show()
-        }
-    }
-
-    private fun allPermissionsGranted() = REQUIRED_PERMISSIONS.all {
-        ContextCompat.checkSelfPermission(requireContext(), it) == PackageManager.PERMISSION_GRANTED
-    }
-
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
-        if (requestCode == REQUEST_CODE_PERMISSIONS) {
-            if (allPermissionsGranted()) {
-                startCamera()
-            } else {
-                Toast.makeText(requireContext(), "Camera permission not granted", Toast.LENGTH_SHORT).show()
-                requireActivity().finish()
-            }
         }
     }
 
@@ -162,6 +168,9 @@ class CameraFragment : Fragment() {
         _binding = null
         cameraExecutor.shutdown()
     }
+
+    private fun allPermissionsGranted() = ContextCompat.checkSelfPermission(
+        requireContext(), android.Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED
 
     companion object {
         private const val FILENAME_FORMAT = "yyyy-MM-dd-HH-mm-ss-SSS"
