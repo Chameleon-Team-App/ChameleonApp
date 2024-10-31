@@ -52,7 +52,7 @@ class LoginViewModel : ViewModel() {
                     _loginResult.value = Result.success("Login successful")
                 } else {
                     val errorMessageResId = when ((task.exception as? FirebaseAuthException)?.errorCode) {
-                        "ERROR_USER_NOT_FOUND" -> R.string.error_user_not_found
+                        "ERROR_USER_NOT_FOUND" -> R.string.error_User_not_found
                         "ERROR_WRONG_PASSWORD" -> R.string.error_wrong_password
                         else -> R.string.error_authentication_failed
                     }

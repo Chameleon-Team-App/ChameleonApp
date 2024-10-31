@@ -22,29 +22,33 @@
             android:src="@drawable/ic_account_circle" />
 
         <EditText
+            android:id="@+id/usernameInput"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Username"
+            android:background="@drawable/ic_rounded_corner"
+            android:hint="Username/Email"
+            android:inputType="text"
+            android:padding="18dp"
+            android:text="ohmy@gmail.com"
             android:textColor="@color/white"
             android:textColorHint="@color/white"
             android:textSize="20sp"
-            android:background="@drawable/ic_rounded_corner"
-            android:padding="18dp"
-            android:inputType="text"
-            android:id="@+id/usernameInput"/>
+            tools:text="ohmy@gmail.com" />
 
         <EditText
+            android:id="@+id/passwordInput"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
+            android:background="@drawable/ic_rounded_corner"
             android:hint="Password"
+            android:inputType="textPassword"
+            android:padding="18dp"
+            android:text="alexiscool"
             android:textColor="@color/white"
             android:textColorHint="@color/white"
             android:textSize="20sp"
-            android:background="@drawable/ic_rounded_corner"
-            android:padding="18dp"
-            android:inputType="textPassword"
-            android:id="@+id/passwordInput"/>
+            tools:text="alexiscool" />
 
         <Button
             android:layout_width="match_parent"

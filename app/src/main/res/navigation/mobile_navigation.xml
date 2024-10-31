@@ -5,45 +5,58 @@
     android:id="@+id/mobile_navigation"
     app:startDestination="@+id/navigation_home">
 
-    <action
-        android:id="@+id/action_photoGalleryFragment_to_cameraFragment"
-        app:destination="@id/navigation_camera" />
-
-    <fragment
-        android:id="@+id/navigation_journal"
-        android:name="com.example.mainchameleon.ui.journal.JournalFragment"
-        android:label="@string/journal"
-        tools:layout="@layout/fragment_journal" />
-
+    <!-- Home Fragment -->
     <fragment
         android:id="@+id/navigation_home"
         android:name="com.example.mainchameleon.ui.home.HomeFragment"
         android:label="@string/title_home"
         tools:layout="@layout/fragment_home" />
 
+    <!-- Journal Fragment -->
+    <fragment
+        android:id="@+id/navigation_journal"
+        android:name="com.example.mainchameleon.ui.journal.JournalFragment"
+        android:label="@string/journal"
+        tools:layout="@layout/fragment_journal">
+
+        <!-- Action to navigate from JournalFragment to CameraFragment -->
+        <action
+            android:id="@+id/action_journalFragment_to_cameraFragment"
+            app:destination="@id/navigation_camera" />
+    </fragment>
+
+    <!-- Dashboard Fragment -->
     <fragment
         android:id="@+id/navigation_dashboard"
         android:name="com.example.mainchameleon.ui.dashboard.DashboardFragment"
         android:label="@string/title_dashboard"
         tools:layout="@layout/fragment_dashboard" />
 
+    <!-- Photo Gallery Fragment -->
     <fragment
         android:id="@+id/navigation_photo_gallery"
         android:name="com.example.mainchameleon.ui.photo_gallery.PhotoGalleryFragment"
         android:label="@string/title_photo_gallery"
-        tools:layout="@layout/fragment_photo_gallery" />
+        tools:layout="@layout/fragment_photo_gallery">
 
+        <!-- Action to navigate from PhotoGalleryFragment to CameraFragment -->
+        <action
+            android:id="@+id/action_photoGalleryFragment_to_cameraFragment"
+            app:destination="@id/navigation_camera" />
+    </fragment>
+
+    <!-- Camera Fragment -->
     <fragment
         android:id="@+id/navigation_camera"
         android:name="com.example.mainchameleon.ui.camera.CameraFragment"
         android:label="@string/title_camera"
         tools:layout="@layout/fragment_camera" />
 
+    <!-- Calendar Fragment -->
     <fragment
         android:id="@+id/navigation_calendar"
         android:name="com.example.mainchameleon.ui.calendar.CalendarFragment"
         android:label="@string/title_calendar"
         tools:layout="@layout/fragment_calendar" />
-
 
 </navigation>

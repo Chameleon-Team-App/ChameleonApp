@@ -10,6 +10,7 @@
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
 
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
 
     <application
         android:name=".FirebaseInit"
@@ -33,7 +34,7 @@
         </activity>
 
         <activity
-            android:name=".ui.loginScreen.RegisterScreen"/>
+            android:name=".ui.loginScreen.registerScreen"/>
 
         <activity android:name=".MainActivity" />
     </application>
