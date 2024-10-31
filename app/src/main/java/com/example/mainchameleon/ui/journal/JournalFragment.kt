@@ -72,8 +72,33 @@ class JournalFragment : Fragment() {
         if (resultCode == Activity.RESULT_OK) {
             if (requestCode == GALLERY_REQUEST_CODE && data != null) {
                 imageUri = data.data
-                binding.imageViewPlaceholder.setImageURI(imageUri)
+                binding.imageViewPlaceholder.setImageURI(imageUri) // Display the selected image in the placeholder
+
+                // Call method to upload the selected image to Firebase Storage
+                uploadImageToFirebase(imageUri)
             }
+        }
+    }
+
+    private fun uploadImageToFirebase(uri: Uri?) {
+        if (uri == null) return
+        val user = FirebaseAuth.getInstance().currentUser
+        if (user != null) {
+            val storageRef = FirebaseStorage.getInstance().reference
+            val userPhotoRef = storageRef.child("users/${user.uid}/photos/${UUID.randomUUID()}.jpg")
+
+            userPhotoRef.putFile(uri)
+                .addOnSuccessListener {
+                    userPhotoRef.downloadUrl.addOnSuccessListener { downloadUri ->
+                        photoUrl = downloadUri.toString() // Save the download URL for use in the journal entry
+                        Toast.makeText(requireContext(), "Image uploaded successfully", Toast.LENGTH_SHORT).show()
+                    }
+                }
+                .addOnFailureListener {
+                    Toast.makeText(requireContext(), "Failed to upload image", Toast.LENGTH_SHORT).show()
+                }
+        } else {
+            Toast.makeText(requireContext(), "User not authenticated.", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -89,7 +114,7 @@ class JournalFragment : Fragment() {
         val journalEntry = JournalEntry(
             title = title,
             text = text,
-            imageUrl = photoUrl // Save the photo URL with the journal entry
+            imageUrl = photoUrl // Include the photo URL if available
         )
 
         val noteId = database.child("journals").push().key ?: UUID.randomUUID().toString()
@@ -102,6 +127,8 @@ class JournalFragment : Fragment() {
                 }
             }
     }
+
+
 
     companion object {
         private const val GALLERY_REQUEST_CODE = 1

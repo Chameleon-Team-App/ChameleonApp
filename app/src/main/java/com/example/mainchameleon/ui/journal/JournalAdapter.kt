@@ -29,8 +29,7 @@ class JournalAdapter : RecyclerView.Adapter<JournalAdapter.JournalViewHolder>() 
         notifyDataSetChanged()
     }
 
-    class JournalViewHolder(private val binding: FragmentJournalEntryBinding) :
-        RecyclerView.ViewHolder(binding.root) {
+    class JournalViewHolder(private val binding: FragmentJournalEntryBinding) : RecyclerView.ViewHolder(binding.root) {
         fun bind(journalEntry: JournalEntry) {
             binding.titleTextView.text = journalEntry.title
             binding.entryTextView.text = journalEntry.text
@@ -43,4 +42,5 @@ class JournalAdapter : RecyclerView.Adapter<JournalAdapter.JournalViewHolder>() 
             }
         }
     }
+
 }
