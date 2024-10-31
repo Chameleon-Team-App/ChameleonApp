@@ -33,7 +33,7 @@
         </activity>
 
         <activity
-            android:name=".ui.loginScreen.RegisterScreen"/>
+            android:name=".ui.loginScreen.registerScreen"/>
 
         <activity android:name=".MainActivity" />
     </application>
