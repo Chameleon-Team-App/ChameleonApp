@@ -1,53 +1,45 @@
 package com.example.mainchameleon.ui.journal
 
-import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-import com.example.mainchameleon.R
-import kotlin.random.Random
-import androidx.cardview.widget.CardView
+import com.example.mainchameleon.databinding.FragmentJournalEntryBinding
+import com.squareup.picasso.Picasso
 
 class JournalAdapter : RecyclerView.Adapter<JournalAdapter.JournalViewHolder>() {
 
-    private var journalList: List<JournalEntry> = listOf()
+    private var journalEntries: List<JournalEntry> = listOf()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): JournalViewHolder {
-        val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.fragment_journal_entry, parent, false)
-        return JournalViewHolder(view)
+        val binding = FragmentJournalEntryBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        return JournalViewHolder(binding)
     }
 
     override fun onBindViewHolder(holder: JournalViewHolder, position: Int) {
-        val journalEntry = journalList[position]
+        val journalEntry = journalEntries[position]
         holder.bind(journalEntry)
     }
 
-    override fun getItemCount(): Int {
-        return journalList.size
-    }
+    override fun getItemCount(): Int = journalEntries.size
 
-    fun submitList(list: List<JournalEntry>) {
-        journalList = list
+    fun submitList(entries: List<JournalEntry>) {
+        journalEntries = entries
         notifyDataSetChanged()
     }
 
-    class JournalViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        private val titleTextView: TextView = itemView.findViewById(R.id.titleTextView)
-        private val entryTextView: TextView = itemView.findViewById(R.id.entryTextView)
-        private val cardView: CardView = itemView.findViewById(R.id.cardView)
-
+    class JournalViewHolder(private val binding: FragmentJournalEntryBinding) : RecyclerView.ViewHolder(binding.root) {
         fun bind(journalEntry: JournalEntry) {
-            titleTextView.text = journalEntry.title
-            entryTextView.text = journalEntry.entry
-            cardView.setBackgroundColor(generateRandomColor())
-        }
+            binding.titleTextView.text = journalEntry.title
+            binding.entryTextView.text = journalEntry.text
 
-        private fun generateRandomColor(): Int {
-            val random = Random
-            return Color.rgb(random.nextInt(256), random.nextInt(256), random.nextInt(256))
+            // If there's an image, load it, otherwise hide the ImageView
+            if (journalEntry.imageUrl != null) {
+                Picasso.get().load(journalEntry.imageUrl).into(binding.imageView)
+                binding.imageView.visibility = View.VISIBLE
+            } else {
+                binding.imageView.visibility = View.GONE
+            }
         }
     }
 }

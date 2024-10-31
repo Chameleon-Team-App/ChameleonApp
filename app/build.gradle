@@ -65,5 +65,6 @@ dependencies {
     implementation libs.firebase.storage
     implementation libs.glide
     implementation libs.androidx.core.ktx.v1101 // Check for the latest version
+    implementation libs.picasso
 
 }

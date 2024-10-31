@@ -62,6 +62,7 @@ dependencies {
     implementation (libs.androidx.appcompat.v161)
     implementation (libs.material.v190)
     implementation "androidx.core:core-ktx:1.10.1" // Ensure you have the latest version
+    implementation 'com.squareup.picasso:picasso:2.71828'
 
 
 }
