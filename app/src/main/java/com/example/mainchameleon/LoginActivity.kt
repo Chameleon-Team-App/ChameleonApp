@@ -38,7 +38,7 @@ class LoginActivity : AppCompatActivity() {
                     // If input is an email, log in with email
                     loginWithEmail(input, password)
                 } else {
-                    // If input is not an email, assume it's a username
+                    // If input is not an email, assume it's a Username
                     loginWithUsername(input, password)
                 }
             }
@@ -61,10 +61,10 @@ class LoginActivity : AppCompatActivity() {
             }
     }
 
-    private fun loginWithUsername(username: String, password: String) {
-        // Query the database to find the email associated with the username
-        val userRef = database.getReference("Users")
-        userRef.orderByChild("username").equalTo(username).get()
+    private fun loginWithUsername(Username: String, password: String) {
+        // Query the database to find the email associated with the Username
+        val UserRef = database.getReference("Users")
+        UserRef.orderByChild("Username").equalTo(Username).get()
             .addOnSuccessListener { dataSnapshot ->
                 if (dataSnapshot.exists()) {
                     for (child in dataSnapshot.children) {

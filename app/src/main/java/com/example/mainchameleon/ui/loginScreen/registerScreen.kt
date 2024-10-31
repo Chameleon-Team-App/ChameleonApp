@@ -26,14 +26,14 @@ class registerScreen : AppCompatActivity() {
         binding.registerButton.setOnClickListener {
             val firstName = binding.fnameEdit.text.toString().trim()
             val lastName = binding.lnameEdit.text.toString().trim()
-            val username = binding.usernameEdit.text.toString().trim() // Add username field
+            val Username = binding.usernameEdit.text.toString().trim() // Add Username field
             val email = binding.emailEdit.text.toString().trim()
             val password = binding.passwordEdit.text.toString().trim()
 
-            if (firstName.isEmpty() || lastName.isEmpty() || username.isEmpty() || email.isEmpty() || password.isEmpty()) {
+            if (firstName.isEmpty() || lastName.isEmpty() || Username.isEmpty() || email.isEmpty() || password.isEmpty()) {
                 Toast.makeText(this, "Please fill in all fields", Toast.LENGTH_SHORT).show()
             } else {
-                registerUser(firstName, lastName, username, email, password)
+                registerUser(firstName, lastName, Username, email, password)
             }
         }
 
@@ -42,22 +42,22 @@ class registerScreen : AppCompatActivity() {
         }
     }
 
-    private fun registerUser(firstName: String, lastName: String, username: String, email: String, password: String) {
+    private fun registerUser(firstName: String, lastName: String, Username: String, email: String, password: String) {
         auth.createUserWithEmailAndPassword(email, password)
             .addOnCompleteListener(this) { task ->
                 if (task.isSuccessful) {
-                    val userId = auth.currentUser?.uid ?: ""
-                    val userRef = database.getReference("Users").child(userId)
+                    val UserId = auth.currentUser?.uid ?: ""
+                    val UserRef = database.getReference("Users").child(UserId)
 
-                    // Store user info, including username
-                    val userMap = mapOf(
+                    // Store User info, including Username
+                    val UserMap = mapOf(
                         "firstName" to firstName,
                         "lastName" to lastName,
-                        "username" to username,
+                        "Username" to Username,
                         "email" to email
                     )
 
-                    userRef.setValue(userMap).addOnCompleteListener { dbTask ->
+                    UserRef.setValue(UserMap).addOnCompleteListener { dbTask ->
                         if (dbTask.isSuccessful) {
                             Toast.makeText(this, "Registration successful", Toast.LENGTH_SHORT).show()
                             startActivity(Intent(this, MainActivity::class.java))

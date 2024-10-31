@@ -16,8 +16,8 @@ class DashboardViewModel : ViewModel() {
     }
 
     private fun loadJournalEntries() {
-        val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return
-        val databaseRef = FirebaseDatabase.getInstance().getReference("users/$userId/journals")
+        val UserId = FirebaseAuth.getInstance().currentUser?.uid ?: return
+        val databaseRef = FirebaseDatabase.getInstance().getReference("Users/$UserId/journals")
 
         databaseRef.get().addOnSuccessListener { dataSnapshot ->
             val entries = mutableListOf<JournalEntry>()

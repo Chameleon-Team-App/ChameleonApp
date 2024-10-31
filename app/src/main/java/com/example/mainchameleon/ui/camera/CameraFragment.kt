@@ -144,14 +144,14 @@ class CameraFragment : Fragment() {
     }
 
     private fun uploadCapturedImageToFirebase(photoUri: Uri) {
-        val user = FirebaseAuth.getInstance().currentUser
-        if (user != null) {
+        val User = FirebaseAuth.getInstance().currentUser
+        if (User != null) {
             val storageRef = FirebaseStorage.getInstance().reference
-            val userPhotoRef = storageRef.child("users/${user.uid}/photos/${UUID.randomUUID()}.jpg")
+            val UserPhotoRef = storageRef.child("Users/${User.uid}/photos/${UUID.randomUUID()}.jpg")
 
-            userPhotoRef.putFile(photoUri)
+            UserPhotoRef.putFile(photoUri)
                 .addOnSuccessListener {
-                    userPhotoRef.downloadUrl.addOnSuccessListener { downloadUri ->
+                    UserPhotoRef.downloadUrl.addOnSuccessListener { downloadUri ->
                         setFragmentResult("photoResult", bundleOf("photoUrl" to downloadUri.toString()))
                         Toast.makeText(requireContext(), "Photo captured and uploaded successfully", Toast.LENGTH_SHORT).show()
                         findNavController().navigateUp() // Go back to JournalFragment

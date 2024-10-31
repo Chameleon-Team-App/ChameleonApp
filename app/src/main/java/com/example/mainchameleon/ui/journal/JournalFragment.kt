@@ -80,7 +80,7 @@ class JournalFragment : Fragment() {
         val user = FirebaseAuth.getInstance().currentUser
         if (user != null) {
             val storageRef = FirebaseStorage.getInstance().reference
-            val userPhotoRef = storageRef.child("users/${user.uid}/photos/${UUID.randomUUID()}.jpg")
+            val userPhotoRef = storageRef.child("Users/${user.uid}/photos/${UUID.randomUUID()}.jpg")
 
             userPhotoRef.putFile(uri)
                 .addOnSuccessListener {
@@ -121,9 +121,9 @@ class JournalFragment : Fragment() {
         }
 
         val database = FirebaseDatabase.getInstance().reference
-        val noteId = database.child("users").child(userId).child("journals").push().key ?: UUID.randomUUID().toString()
+        val noteId = database.child("Users").child(userId).child("journals").push().key ?: UUID.randomUUID().toString()
 
-        database.child("users").child(userId).child("journals").child(noteId).setValue(journalEntry)
+        database.child("Users").child(userId).child("journals").child(noteId).setValue(journalEntry)
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     Log.d(TAG, "Journal entry saved successfully")

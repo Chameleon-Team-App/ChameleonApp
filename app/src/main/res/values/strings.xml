@@ -26,5 +26,6 @@
     <string name="error_user_not_found">User not found</string>
     <string name="error_wrong_password">Wrong password</string>
     <string name="error_authentication_failed">Authentication failed</string>
+    <string name="error_User_not_found">ree</string>
 
 </resources>
