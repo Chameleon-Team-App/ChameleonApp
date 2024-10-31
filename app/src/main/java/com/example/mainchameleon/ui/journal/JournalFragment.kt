@@ -28,6 +28,7 @@ class JournalFragment : Fragment() {
     private val storageRef = FirebaseStorage.getInstance().reference.child("journalImages")
     private lateinit var database: DatabaseReference
     private val currentUser = FirebaseAuth.getInstance().currentUser
+    private var photoUrl: String? = null // to store the photo URL
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -39,25 +40,21 @@ class JournalFragment : Fragment() {
         // Initialize Firebase database reference for the current user
         database = FirebaseDatabase.getInstance().reference.child("Users").child(currentUser?.uid ?: "")
 
-        // Handle photo returned from CameraFragment
-        findNavController().currentBackStackEntry?.savedStateHandle?.getLiveData<String>("photoUri")
-            ?.observe(viewLifecycleOwner) { photoUri ->
-                val uri = Uri.parse(photoUri)
-                imageUri = uri
-                binding.imageViewPlaceholder.setImageURI(uri)
+        // Handle photo URL returned from CameraFragment
+        findNavController().currentBackStackEntry?.savedStateHandle?.getLiveData<String>("photoUrl")
+            ?.observe(viewLifecycleOwner) { url ->
+                photoUrl = url // Store the photo URL
+                binding.imageViewPlaceholder.setImageURI(Uri.parse(url)) // Display the image
             }
 
-        // Button to open the camera
         binding.openCameraButton.setOnClickListener {
             findNavController().navigate(R.id.action_journalFragment_to_cameraFragment)
         }
 
-        // Button to open gallery
         binding.uploadFromGalleryButton.setOnClickListener {
             openGallery()
         }
 
-        // Button to save the journal entry
         binding.saveJournalButton.setOnClickListener {
             saveJournalEntry()
         }
@@ -89,29 +86,13 @@ class JournalFragment : Fragment() {
             return
         }
 
-        if (imageUri != null) {
-            // Upload image to Firebase Storage
-            val imageRef = storageRef.child(UUID.randomUUID().toString())
-            imageRef.putFile(imageUri!!).addOnSuccessListener {
-                imageRef.downloadUrl.addOnSuccessListener { uri ->
-                    saveNoteToDatabase(title, text, uri.toString())
-                }
-            }
-        } else {
-            // Save entry without an image
-            saveNoteToDatabase(title, text, null)
-        }
-    }
-
-    private fun saveNoteToDatabase(title: String, text: String, imageUrl: String?) {
-        val noteId = database.child("journals").push().key ?: UUID.randomUUID().toString()
         val journalEntry = JournalEntry(
             title = title,
             text = text,
-            imageUrl = imageUrl
+            imageUrl = photoUrl // Save the photo URL with the journal entry
         )
 
-        // Save the journal entry under the user's "journals" node
+        val noteId = database.child("journals").push().key ?: UUID.randomUUID().toString()
         database.child("journals").child(noteId).setValue(journalEntry)
             .addOnCompleteListener {
                 if (it.isSuccessful) {

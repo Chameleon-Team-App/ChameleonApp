@@ -56,18 +56,15 @@ class CameraFragment : Fragment() {
             )
         }
 
-        // Set up the capture button listener
         binding.cameraCaptureButton.setOnClickListener {
             takePhoto()
         }
 
-        // Set up the back button listener
         binding.backButton.setOnClickListener {
-            findNavController().navigateUp() // Navigate back to the previous fragment
+            findNavController().navigateUp()
         }
 
         cameraExecutor = Executors.newSingleThreadExecutor()
-
         return binding.root
     }
 
@@ -116,26 +113,25 @@ class CameraFragment : Fragment() {
                     Toast.makeText(requireContext(), "Photo saved: $savedUri", Toast.LENGTH_SHORT).show()
                     Log.d(TAG, "Photo capture succeeded: $savedUri")
 
-                    uploadPhotoToFirebaseStorage(photoFile)
-
-                    // Navigate back to JournalFragment and pass the savedUri
-                    findNavController().previousBackStackEntry?.savedStateHandle?.set("photoUri", savedUri.toString())
-                    findNavController().navigateUp()
+                    uploadPhotoToFirebaseStorage(savedUri)
                 }
             }
         )
     }
 
-    private fun uploadPhotoToFirebaseStorage(photoFile: File) {
+    private fun uploadPhotoToFirebaseStorage(uri: Uri) {
         val user = FirebaseAuth.getInstance().currentUser
         if (user != null) {
             val storageRef = FirebaseStorage.getInstance().reference
-            val userPhotoRef = storageRef.child("users/${user.uid}/photos/${photoFile.name}")
+            val userPhotoRef = storageRef.child("users/${user.uid}/photos/${uri.lastPathSegment}")
 
-            userPhotoRef.putFile(Uri.fromFile(photoFile))
+            userPhotoRef.putFile(uri)
                 .addOnSuccessListener {
                     userPhotoRef.downloadUrl.addOnSuccessListener { downloadUri ->
                         Log.d(TAG, "File successfully uploaded. Download URL: $downloadUri")
+                        // Pass the download URL back to JournalFragment
+                        findNavController().previousBackStackEntry?.savedStateHandle?.set("photoUrl", downloadUri.toString())
+                        findNavController().navigateUp()
                     }
                 }
                 .addOnFailureListener { exception ->

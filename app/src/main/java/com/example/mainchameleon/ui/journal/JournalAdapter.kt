@@ -12,7 +12,8 @@ class JournalAdapter : RecyclerView.Adapter<JournalAdapter.JournalViewHolder>() 
     private var journalEntries: List<JournalEntry> = listOf()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): JournalViewHolder {
-        val binding = FragmentJournalEntryBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        val binding =
+            FragmentJournalEntryBinding.inflate(LayoutInflater.from(parent.context), parent, false)
         return JournalViewHolder(binding)
     }
 
@@ -28,15 +29,15 @@ class JournalAdapter : RecyclerView.Adapter<JournalAdapter.JournalViewHolder>() 
         notifyDataSetChanged()
     }
 
-    class JournalViewHolder(private val binding: FragmentJournalEntryBinding) : RecyclerView.ViewHolder(binding.root) {
+    class JournalViewHolder(private val binding: FragmentJournalEntryBinding) :
+        RecyclerView.ViewHolder(binding.root) {
         fun bind(journalEntry: JournalEntry) {
             binding.titleTextView.text = journalEntry.title
             binding.entryTextView.text = journalEntry.text
 
-            // If there's an image, load it, otherwise hide the ImageView
             if (!journalEntry.imageUrl.isNullOrEmpty()) {
-                Picasso.get().load(journalEntry.imageUrl).into(binding.imageView)
                 binding.imageView.visibility = View.VISIBLE
+                Picasso.get().load(journalEntry.imageUrl).into(binding.imageView)
             } else {
                 binding.imageView.visibility = View.GONE
             }
