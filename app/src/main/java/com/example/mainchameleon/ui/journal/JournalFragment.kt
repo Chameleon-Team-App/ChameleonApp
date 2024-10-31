@@ -11,7 +11,12 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.fragment.findNavController
+import com.example.mainchameleon.R
 import com.example.mainchameleon.databinding.FragmentJournalBinding
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.DatabaseReference
+import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.storage.FirebaseStorage
 import java.util.*
 
@@ -21,6 +26,8 @@ class JournalFragment : Fragment() {
     private lateinit var journalViewModel: JournalViewModel
     private var imageUri: Uri? = null
     private val storageRef = FirebaseStorage.getInstance().reference.child("journalImages")
+    private lateinit var database: DatabaseReference
+    private val currentUser = FirebaseAuth.getInstance().currentUser
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -29,14 +36,25 @@ class JournalFragment : Fragment() {
         binding = FragmentJournalBinding.inflate(inflater, container, false)
         journalViewModel = ViewModelProvider(this).get(JournalViewModel::class.java)
 
+        // Initialize Firebase database reference for the current user
+        database = FirebaseDatabase.getInstance().reference.child("Users").child(currentUser?.uid ?: "")
+
+        // Handle photo returned from CameraFragment
+        findNavController().currentBackStackEntry?.savedStateHandle?.getLiveData<String>("photoUri")
+            ?.observe(viewLifecycleOwner) { photoUri ->
+                val uri = Uri.parse(photoUri)
+                imageUri = uri
+                binding.imageViewPlaceholder.setImageURI(uri)
+            }
+
+        // Button to open the camera
+        binding.openCameraButton.setOnClickListener {
+            findNavController().navigate(R.id.action_journalFragment_to_cameraFragment)
+        }
+
         // Button to open gallery
         binding.uploadFromGalleryButton.setOnClickListener {
             openGallery()
-        }
-
-        // Button to open camera
-        binding.openCameraButton.setOnClickListener {
-            openCamera()
         }
 
         // Button to save the journal entry
@@ -52,18 +70,12 @@ class JournalFragment : Fragment() {
         startActivityForResult(intent, GALLERY_REQUEST_CODE)
     }
 
-    private fun openCamera() {
-        val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-        startActivityForResult(intent, CAMERA_REQUEST_CODE)
-    }
-
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (resultCode == Activity.RESULT_OK) {
             if (requestCode == GALLERY_REQUEST_CODE && data != null) {
                 imageUri = data.data
-            } else if (requestCode == CAMERA_REQUEST_CODE && data != null) {
-                imageUri = data.extras?.get("data") as Uri
+                binding.imageViewPlaceholder.setImageURI(imageUri)
             }
         }
     }
@@ -78,32 +90,39 @@ class JournalFragment : Fragment() {
         }
 
         if (imageUri != null) {
-            // Upload image to Firebase Storage if image is selected
+            // Upload image to Firebase Storage
             val imageRef = storageRef.child(UUID.randomUUID().toString())
             imageRef.putFile(imageUri!!).addOnSuccessListener {
                 imageRef.downloadUrl.addOnSuccessListener { uri ->
-                    val journalEntry = JournalEntry(
-                        title = title,
-                        text = text,
-                        imageUrl = uri.toString()
-                    )
-                    journalViewModel.saveJournalEntry(journalEntry)
-                    Toast.makeText(requireContext(), "Journal saved with image", Toast.LENGTH_SHORT).show()
+                    saveNoteToDatabase(title, text, uri.toString())
                 }
             }
         } else {
             // Save entry without an image
-            val journalEntry = JournalEntry(
-                title = title,
-                text = text
-            )
-            journalViewModel.saveJournalEntry(journalEntry)
-            Toast.makeText(requireContext(), "Journal saved without image", Toast.LENGTH_SHORT).show()
+            saveNoteToDatabase(title, text, null)
         }
+    }
+
+    private fun saveNoteToDatabase(title: String, text: String, imageUrl: String?) {
+        val noteId = database.child("journals").push().key ?: UUID.randomUUID().toString()
+        val journalEntry = JournalEntry(
+            title = title,
+            text = text,
+            imageUrl = imageUrl
+        )
+
+        // Save the journal entry under the user's "journals" node
+        database.child("journals").child(noteId).setValue(journalEntry)
+            .addOnCompleteListener {
+                if (it.isSuccessful) {
+                    Toast.makeText(requireContext(), "Journal saved", Toast.LENGTH_SHORT).show()
+                } else {
+                    Toast.makeText(requireContext(), "Failed to save journal", Toast.LENGTH_SHORT).show()
+                }
+            }
     }
 
     companion object {
         private const val GALLERY_REQUEST_CODE = 1
-        private const val CAMERA_REQUEST_CODE = 2
     }
 }

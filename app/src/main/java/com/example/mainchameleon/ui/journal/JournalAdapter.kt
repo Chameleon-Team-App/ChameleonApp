@@ -34,7 +34,7 @@ class JournalAdapter : RecyclerView.Adapter<JournalAdapter.JournalViewHolder>() 
             binding.entryTextView.text = journalEntry.text
 
             // If there's an image, load it, otherwise hide the ImageView
-            if (journalEntry.imageUrl != null) {
+            if (!journalEntry.imageUrl.isNullOrEmpty()) {
                 Picasso.get().load(journalEntry.imageUrl).into(binding.imageView)
                 binding.imageView.visibility = View.VISIBLE
             } else {

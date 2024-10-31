@@ -58,6 +58,15 @@
                 android:padding="16dp" />
         </LinearLayout>
 
+        <!-- IMAGE PLACEHOLDER -->
+        <ImageView
+            android:id="@+id/imageViewPlaceholder"
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            android:layout_marginBottom="16dp"
+            android:scaleType="centerCrop"
+            android:visibility="gone" />
+
         <!-- TEXT ENTRY FIELD -->
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
