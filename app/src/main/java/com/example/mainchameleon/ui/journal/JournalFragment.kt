@@ -108,10 +108,12 @@ class JournalFragment : Fragment() {
             return
         }
 
+        // Create a new JournalEntry instance with a random background color
         val journalEntry = JournalEntry(
             title = title,
             text = text,
-            imageUrl = photoUrl // Include the photo URL if available
+            imageUrl = photoUrl,
+            backgroundColor = JournalEntry.generateRandomColor() // Generate a color once here
         )
 
         val userId = FirebaseAuth.getInstance().currentUser?.uid
@@ -123,10 +125,11 @@ class JournalFragment : Fragment() {
         val database = FirebaseDatabase.getInstance().reference
         val noteId = database.child("Users").child(userId).child("journals").push().key ?: UUID.randomUUID().toString()
 
+        // Save the entry with background color included
         database.child("Users").child(userId).child("journals").child(noteId).setValue(journalEntry)
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
-                    Log.d(TAG, "Journal entry saved successfully")
+                    Log.d(TAG, "Journal entry saved successfully with background color")
                     Toast.makeText(requireContext(), "Journal saved", Toast.LENGTH_SHORT).show()
                     clearJournalForm()
                 } else {
@@ -135,6 +138,7 @@ class JournalFragment : Fragment() {
                 }
             }
     }
+
 
     private fun handleImageOrientation(uri: Uri): Bitmap? {
         val inputStream: InputStream? = requireContext().contentResolver.openInputStream(uri)

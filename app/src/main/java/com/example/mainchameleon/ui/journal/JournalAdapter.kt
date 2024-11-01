@@ -11,6 +11,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.mainchameleon.R
 import com.example.mainchameleon.ui.journal.JournalAdapter.JournalViewHolder
 import com.example.mainchameleon.ui.journal.JournalEntry
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.FirebaseDatabase
 import com.squareup.picasso.Picasso
 
 class JournalAdapter : ListAdapter<JournalEntry, JournalViewHolder>(JournalDiffCallback()) {
@@ -26,6 +28,8 @@ class JournalAdapter : ListAdapter<JournalEntry, JournalViewHolder>(JournalDiffC
     }
 
     class JournalViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        private val cardView: View = itemView.findViewById(R.id.cardView) // CardView container
+        private val usernameTextView: TextView = itemView.findViewById(R.id.usernameTextView)
         private val titleTextView: TextView = itemView.findViewById(R.id.titleTextView)
         private val entryTextView: TextView = itemView.findViewById(R.id.entryTextView)
         private val imageView: ImageView = itemView.findViewById(R.id.imageView)
@@ -34,11 +38,28 @@ class JournalAdapter : ListAdapter<JournalEntry, JournalViewHolder>(JournalDiffC
             titleTextView.text = journalEntry.title
             entryTextView.text = journalEntry.text
 
+            // Set the background color
+            cardView.setBackgroundColor(journalEntry.backgroundColor)
+
             if (journalEntry.imageUrl != null) {
                 imageView.visibility = View.VISIBLE
                 Picasso.get().load(journalEntry.imageUrl).into(imageView)
             } else {
                 imageView.visibility = View.GONE
+            }
+
+            // Retrieve the current user ID from FirebaseAuth
+            val userId = FirebaseAuth.getInstance().currentUser?.uid
+            if (userId != null) {
+                val userRef = FirebaseDatabase.getInstance().getReference("Users").child(userId)
+                userRef.child("Username").get().addOnSuccessListener { dataSnapshot ->
+                    val username = dataSnapshot.getValue(String::class.java)
+                    usernameTextView.text = username ?: "Unknown User"
+                }.addOnFailureListener {
+                    usernameTextView.text = "Error Loading User"
+                }
+            } else {
+                usernameTextView.text = "No User ID"
             }
         }
     }
