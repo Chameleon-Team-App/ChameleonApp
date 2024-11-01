@@ -5,8 +5,9 @@ data class JournalEntry(
     val title: String = "",
     val text: String = "",
     val imageUrl: String? = null,
-    var userId: String = "", // Ensure userId is a part of the data structure
-    val backgroundColor: Int = generateRandomColor()
+    var userId: String = "",
+    val backgroundColor: Int = generateRandomColor(),
+    val timestamp: Long = System.currentTimeMillis() // New timestamp field
 ) {
     companion object {
         fun generateRandomColor(): Int {
@@ -20,5 +21,6 @@ data class JournalEntry(
         }
     }
 }
+
 
 

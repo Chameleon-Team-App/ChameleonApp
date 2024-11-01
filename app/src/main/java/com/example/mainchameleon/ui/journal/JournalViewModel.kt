@@ -19,7 +19,7 @@ class JournalViewModel : ViewModel() {
     }
 
     private fun loadJournalEntries() {
-        val databaseRef = FirebaseDatabase.getInstance().getReference("Users") // Query all users
+        val databaseRef = FirebaseDatabase.getInstance().getReference("Users")
         databaseRef.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 val entries = mutableListOf<JournalEntry>()
@@ -35,7 +35,8 @@ class JournalViewModel : ViewModel() {
                         }
                     }
                 }
-                _journalEntries.value = entries // Set all entries from all users
+                _journalEntries.value =
+                    entries.sortedByDescending { it.timestamp } // Sort by timestamp
             }
 
             override fun onCancelled(error: DatabaseError) {
