@@ -1,6 +1,6 @@
 package com.example.mainchameleon.ui.dashboard
 
-import DashboardViewModel
+import JournalViewModel
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -13,27 +13,35 @@ import com.example.mainchameleon.ui.journal.JournalAdapter
 
 class DashboardFragment : Fragment() {
 
-    private lateinit var dashboardViewModel: DashboardViewModel
-    private lateinit var binding: FragmentDashboardBinding
+    private var _binding: FragmentDashboardBinding? = null
+    private val binding get() = _binding!!
+    private lateinit var journalViewModel: JournalViewModel
     private lateinit var journalAdapter: JournalAdapter
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        binding = FragmentDashboardBinding.inflate(inflater, container, false)
-        dashboardViewModel = ViewModelProvider(this).get(DashboardViewModel::class.java)
+        _binding = FragmentDashboardBinding.inflate(inflater, container, false)
 
-        // Initialize the adapter and set it to RecyclerView
+        // Initialize the ViewModel
+        journalViewModel = ViewModelProvider(this).get(JournalViewModel::class.java)
+
+        // Initialize RecyclerView adapter
         journalAdapter = JournalAdapter()
-        binding.recyclerView.layoutManager = LinearLayoutManager(requireContext())
         binding.recyclerView.adapter = journalAdapter
+        binding.recyclerView.layoutManager = LinearLayoutManager(requireContext())
 
-        // Observe the journal entries and update the adapter when data changes
-        dashboardViewModel.journalEntries.observe(viewLifecycleOwner) { entries ->
-            journalAdapter.submitList(entries)
-        }
+        // Observe the journalEntries LiveData from the ViewModel
+        journalViewModel.journalEntries.observe(viewLifecycleOwner, { entries ->
+            journalAdapter.submitList(entries) // Submit list to adapter
+        })
 
         return binding.root
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 }

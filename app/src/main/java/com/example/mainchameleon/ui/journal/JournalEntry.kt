@@ -5,15 +5,9 @@ data class JournalEntry(
     val title: String = "",
     val text: String = "",
     val imageUrl: String? = null,
-    val userId: String? = null,
-    var backgroundColor: Int = -1 // Default -1, set it only if not provided
+    var userId: String = "", // Ensure userId is a part of the data structure
+    val backgroundColor: Int = generateRandomColor()
 ) {
-    init {
-        if (backgroundColor == -1) {
-            backgroundColor = generateRandomColor() // Generate color only if it hasn’t been set
-        }
-    }
-
     companion object {
         fun generateRandomColor(): Int {
             val random = java.util.Random()

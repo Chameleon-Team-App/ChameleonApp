@@ -19,17 +19,23 @@ class JournalViewModel : ViewModel() {
     }
 
     private fun loadJournalEntries() {
-        val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return
-        val databaseRef = FirebaseDatabase.getInstance().getReference("users/$userId/journals")
-
+        val databaseRef = FirebaseDatabase.getInstance().getReference("Users") // Query all users
         databaseRef.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 val entries = mutableListOf<JournalEntry>()
-                for (entrySnapshot in snapshot.children) {
-                    val entry = entrySnapshot.getValue(JournalEntry::class.java)
-                    entry?.let { entries.add(it) }
+                for (userSnapshot in snapshot.children) {
+                    val userId = userSnapshot.key ?: continue
+                    val journalSnapshot = userSnapshot.child("journals")
+
+                    for (entrySnapshot in journalSnapshot.children) {
+                        val entry = entrySnapshot.getValue(JournalEntry::class.java)
+                        entry?.let {
+                            it.userId = userId // Ensure userId is set for each entry
+                            entries.add(it)
+                        }
+                    }
                 }
-                _journalEntries.value = entries
+                _journalEntries.value = entries // Set all entries from all users
             }
 
             override fun onCancelled(error: DatabaseError) {

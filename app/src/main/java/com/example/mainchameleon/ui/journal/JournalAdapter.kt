@@ -28,7 +28,7 @@ class JournalAdapter : ListAdapter<JournalEntry, JournalViewHolder>(JournalDiffC
     }
 
     class JournalViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        private val cardView: View = itemView.findViewById(R.id.cardView) // CardView container
+        private val cardView: View = itemView.findViewById(R.id.cardView)
         private val usernameTextView: TextView = itemView.findViewById(R.id.usernameTextView)
         private val titleTextView: TextView = itemView.findViewById(R.id.titleTextView)
         private val entryTextView: TextView = itemView.findViewById(R.id.entryTextView)
@@ -37,8 +37,6 @@ class JournalAdapter : ListAdapter<JournalEntry, JournalViewHolder>(JournalDiffC
         fun bind(journalEntry: JournalEntry) {
             titleTextView.text = journalEntry.title
             entryTextView.text = journalEntry.text
-
-            // Set the background color
             cardView.setBackgroundColor(journalEntry.backgroundColor)
 
             if (journalEntry.imageUrl != null) {
@@ -48,9 +46,8 @@ class JournalAdapter : ListAdapter<JournalEntry, JournalViewHolder>(JournalDiffC
                 imageView.visibility = View.GONE
             }
 
-            // Retrieve the current user ID from FirebaseAuth
-            val userId = FirebaseAuth.getInstance().currentUser?.uid
-            if (userId != null) {
+            // Retrieve and display the username for each entry’s userId
+            journalEntry.userId?.let { userId ->
                 val userRef = FirebaseDatabase.getInstance().getReference("Users").child(userId)
                 userRef.child("Username").get().addOnSuccessListener { dataSnapshot ->
                     val username = dataSnapshot.getValue(String::class.java)
@@ -58,11 +55,13 @@ class JournalAdapter : ListAdapter<JournalEntry, JournalViewHolder>(JournalDiffC
                 }.addOnFailureListener {
                     usernameTextView.text = "Error Loading User"
                 }
-            } else {
+            } ?: run {
                 usernameTextView.text = "No User ID"
             }
         }
     }
+
+
 
     class JournalDiffCallback : DiffUtil.ItemCallback<JournalEntry>() {
         override fun areItemsTheSame(oldItem: JournalEntry, newItem: JournalEntry): Boolean {
