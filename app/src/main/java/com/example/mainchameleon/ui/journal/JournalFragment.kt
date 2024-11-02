@@ -39,8 +39,12 @@ class JournalFragment : Fragment() {
         _binding = FragmentJournalBinding.inflate(inflater, container, false)
 
         binding.openCameraButton.setOnClickListener {
-            findNavController().navigate(R.id.action_journalFragment_to_cameraFragment)
+            val bundle = Bundle().apply {
+                putString("source", "journal")
+            }
+            findNavController().navigate(R.id.navigation_camera, bundle)
         }
+
 
         binding.uploadFromGalleryButton.setOnClickListener {
             val intent = Intent(Intent.ACTION_PICK).apply {

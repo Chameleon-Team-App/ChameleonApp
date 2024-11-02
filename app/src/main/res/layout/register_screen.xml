@@ -1,16 +1,36 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/login_background"
-    android:gravity="center"
-    android:padding="16dp">
+    android:background="@drawable/login_background">
 
+    <!-- NavHostFragment for handling fragment navigation -->
+    <androidx.fragment.app.FragmentContainerView
+        android:id="@+id/nav_host_fragment"
+        android:name="androidx.navigation.fragment.NavHostFragment"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:navGraph="@navigation/mobile_navigation"
+        app:defaultNavHost="true"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- Register Screen Layout -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:padding="16dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <!-- Form fields go here (same as before) -->
 
         <EditText
             android:id="@+id/fname_edit"
@@ -37,7 +57,6 @@
             android:padding="18dp"
             android:inputType="textPersonName" />
 
-        <!-- Username field added here -->
         <EditText
             android:id="@+id/username_edit"
             android:layout_width="match_parent"
@@ -77,6 +96,33 @@
             android:padding="18dp"
             android:inputType="textPassword" />
 
+        <ImageView
+            android:id="@+id/profile_image_preview"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:layout_gravity="center"
+            android:layout_marginTop="16dp"
+            android:contentDescription="Profile Picture Preview"
+            android:scaleType="centerCrop"
+            android:src="@drawable/default_profile" />
+
+        <!-- Button to open camera -->
+        <Button
+            android:id="@+id/button_open_camera"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="Take Photo with Camera" />
+
+        <!-- Button to open gallery -->
+        <Button
+            android:id="@+id/button_open_gallery"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="Choose from Gallery" />
+
+        <!-- Register button -->
         <Button
             android:id="@+id/registerButton"
             android:layout_width="match_parent"
@@ -88,7 +134,7 @@
             android:textColor="#3B84F1"
             android:textSize="20sp" />
 
-        <!-- Back Button -->
+        <!-- Back button -->
         <Button
             android:id="@+id/backButton"
             android:layout_width="match_parent"
@@ -99,7 +145,5 @@
             android:text="Back"
             android:textColor="#3B84F1"
             android:textSize="20sp" />
-
     </LinearLayout>
-
-</RelativeLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

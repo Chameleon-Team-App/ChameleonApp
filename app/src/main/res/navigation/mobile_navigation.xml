@@ -32,25 +32,18 @@
         android:label="@string/title_dashboard"
         tools:layout="@layout/fragment_dashboard" />
 
-    <!-- Photo Gallery Fragment -->
-    <fragment
-        android:id="@+id/navigation_photo_gallery"
-        android:name="com.example.mainchameleon.ui.photo_gallery.PhotoGalleryFragment"
-        android:label="@string/title_photo_gallery"
-        tools:layout="@layout/fragment_photo_gallery">
-
-        <!-- Action to navigate from PhotoGalleryFragment to CameraFragment -->
-        <action
-            android:id="@+id/action_photoGalleryFragment_to_cameraFragment"
-            app:destination="@id/navigation_camera" />
-    </fragment>
-
     <!-- Camera Fragment -->
     <fragment
         android:id="@+id/navigation_camera"
         android:name="com.example.mainchameleon.ui.camera.CameraFragment"
         android:label="@string/title_camera"
-        tools:layout="@layout/fragment_camera" />
+        tools:layout="@layout/fragment_camera">
+        <argument
+            android:name="source"
+            app:argType="string"
+            android:defaultValue="journal" /> <!-- Default to journal -->
+    </fragment>
+
 
     <!-- Calendar Fragment -->
     <fragment
@@ -58,5 +51,4 @@
         android:name="com.example.mainchameleon.ui.calendar.CalendarFragment"
         android:label="@string/title_calendar"
         tools:layout="@layout/fragment_calendar" />
-
 </navigation>

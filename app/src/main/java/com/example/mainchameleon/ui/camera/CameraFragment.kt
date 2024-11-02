@@ -2,7 +2,6 @@ package com.example.mainchameleon.ui.camera
 
 import android.content.pm.PackageManager
 import android.graphics.BitmapFactory
-import android.graphics.Matrix
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
@@ -14,26 +13,19 @@ import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCaptureException
 import androidx.camera.core.Preview
-import androidx.camera.core.impl.utils.MatrixExt.postRotate
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.content.ContextCompat
-import androidx.core.os.bundleOf
-import androidx.exifinterface.media.ExifInterface
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResult
 import androidx.navigation.fragment.findNavController
+import com.example.mainchameleon.MainActivity
 import com.example.mainchameleon.databinding.FragmentCameraBinding
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.storage.FirebaseStorage
 import java.io.File
-import java.io.FileInputStream
-import java.io.FileOutputStream
-import java.text.SimpleDateFormat
-import java.util.Locale
 import java.util.UUID
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
-import android.graphics.Bitmap
 
 class CameraFragment : Fragment() {
 
@@ -44,17 +36,19 @@ class CameraFragment : Fragment() {
     private lateinit var cameraExecutor: ExecutorService
 
     private val TAG = "CameraFragment"
+    private var source: String? = null // Variable to hold the source
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentCameraBinding.inflate(inflater, container, false)
+        source = arguments?.getString("source") // Retrieve the source argument
+
+        hideBottomNav() // Hide the bottom navigation bar
 
         if (allPermissionsGranted()) {
             startCamera()
-        } else {
-            // Request camera permissions if not granted
         }
 
         binding.cameraCaptureButton.setOnClickListener {
@@ -69,6 +63,21 @@ class CameraFragment : Fragment() {
         return binding.root
     }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+        cameraExecutor.shutdown()
+        showBottomNav() // Show the bottom navigation bar when exiting the fragment
+    }
+
+    private fun hideBottomNav() {
+        (activity as? MainActivity)?.navView?.visibility = View.GONE
+    }
+
+    private fun showBottomNav() {
+        (activity as? MainActivity)?.navView?.visibility = View.VISIBLE
+    }
+
     private fun startCamera() {
         val cameraProviderFuture = ProcessCameraProvider.getInstance(requireContext())
 
@@ -80,7 +89,6 @@ class CameraFragment : Fragment() {
             }
 
             imageCapture = ImageCapture.Builder().build()
-
             val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
 
             try {
@@ -94,10 +102,9 @@ class CameraFragment : Fragment() {
 
     private fun takePhoto() {
         val imageCapture = imageCapture ?: return
-
         val photoFile = File(
             requireContext().externalMediaDirs.firstOrNull(),
-            SimpleDateFormat(FILENAME_FORMAT, Locale.US).format(System.currentTimeMillis()) + ".jpg"
+            "${System.currentTimeMillis()}.jpg"
         )
 
         val outputOptions = ImageCapture.OutputFileOptions.Builder(photoFile).build()
@@ -112,49 +119,36 @@ class CameraFragment : Fragment() {
 
                 override fun onImageSaved(output: ImageCapture.OutputFileResults) {
                     val savedUri = Uri.fromFile(photoFile)
-                    val rotatedFile = rotateImageIfRequired(photoFile)
-                    uploadCapturedImageToFirebase(Uri.fromFile(rotatedFile))
+                    uploadCapturedImageToFirebase(savedUri)
                 }
             }
         )
     }
 
-    private fun rotateImageIfRequired(photoFile: File): File {
-        val exif = ExifInterface(FileInputStream(photoFile))
-        val orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL)
-        val rotation = when (orientation) {
-            ExifInterface.ORIENTATION_ROTATE_90 -> 90f
-            ExifInterface.ORIENTATION_ROTATE_180 -> 180f
-            ExifInterface.ORIENTATION_ROTATE_270 -> 270f
-            else -> 0f
-        }
-
-        if (rotation != 0f) {
-            // Rotate the bitmap and save to a new file
-            val bitmap = BitmapFactory.decodeFile(photoFile.absolutePath)
-            val matrix = Matrix().apply { postRotate(rotation) }
-            val rotatedBitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true)
-            val rotatedFile = File(requireContext().externalCacheDir, "rotated_${photoFile.name}")
-            FileOutputStream(rotatedFile).use { out ->
-                rotatedBitmap.compress(Bitmap.CompressFormat.JPEG, 100, out)
-            }
-            return rotatedFile
-        }
-        return photoFile
-    }
-
     private fun uploadCapturedImageToFirebase(photoUri: Uri) {
-        val User = FirebaseAuth.getInstance().currentUser
-        if (User != null) {
+        val user = FirebaseAuth.getInstance().currentUser
+        if (user != null) {
             val storageRef = FirebaseStorage.getInstance().reference
-            val UserPhotoRef = storageRef.child("Users/${User.uid}/photos/${UUID.randomUUID()}.jpg")
+            val userPhotoRef = storageRef.child("Users/${user.uid}/photos/${UUID.randomUUID()}.jpg")
 
-            UserPhotoRef.putFile(photoUri)
+            userPhotoRef.putFile(photoUri)
                 .addOnSuccessListener {
-                    UserPhotoRef.downloadUrl.addOnSuccessListener { downloadUri ->
-                        setFragmentResult("photoResult", bundleOf("photoUrl" to downloadUri.toString()))
+                    userPhotoRef.downloadUrl.addOnSuccessListener { downloadUri ->
+                        if (source == "register") {
+                            // Navigate back to registerScreen and pass the photo URL
+                            parentFragmentManager.setFragmentResult("photoResult", Bundle().apply {
+                                putString("photoUrl", downloadUri.toString())
+                            })
+                            requireActivity().finish() // Close CameraFragment and go back to registerScreen
+                        } else if (source == "journal") {
+                            // Navigate back to JournalFragment and pass the photo URL
+                            setFragmentResult("photoResult", Bundle().apply {
+                                putString("photoUrl", downloadUri.toString())
+                            })
+                            findNavController().navigateUp() // Go back to JournalFragment
+                        }
+
                         Toast.makeText(requireContext(), "Photo captured and uploaded successfully", Toast.LENGTH_SHORT).show()
-                        findNavController().navigateUp() // Go back to JournalFragment
                     }
                 }
                 .addOnFailureListener {
@@ -163,16 +157,6 @@ class CameraFragment : Fragment() {
         }
     }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
-        cameraExecutor.shutdown()
-    }
-
     private fun allPermissionsGranted() = ContextCompat.checkSelfPermission(
         requireContext(), android.Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED
-
-    companion object {
-        private const val FILENAME_FORMAT = "yyyy-MM-dd-HH-mm-ss-SSS"
-    }
 }
