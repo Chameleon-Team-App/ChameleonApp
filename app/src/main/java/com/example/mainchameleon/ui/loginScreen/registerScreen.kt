@@ -1,3 +1,4 @@
+// registerScreen.kt
 package com.example.mainchameleon.ui.loginScreen
 
 import android.app.Activity
@@ -5,14 +6,17 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
+import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.mainchameleon.MainActivity
 import com.example.mainchameleon.R
 import com.example.mainchameleon.databinding.RegisterScreenBinding
+import com.example.mainchameleon.ui.camera.CameraActivity
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.storage.FirebaseStorage
+import com.squareup.picasso.Picasso
 
 class registerScreen : AppCompatActivity() {
 
@@ -23,6 +27,11 @@ class registerScreen : AppCompatActivity() {
 
     private var profileImageUri: Uri? = null
 
+    companion object {
+        private const val REQUEST_GALLERY = 2
+        private const val REQUEST_CAMERA = 1
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = RegisterScreenBinding.inflate(layoutInflater)
@@ -31,15 +40,6 @@ class registerScreen : AppCompatActivity() {
         auth = FirebaseAuth.getInstance()
         database = FirebaseDatabase.getInstance()
         storage = FirebaseStorage.getInstance()
-
-        // Listen for result from CameraFragment
-        supportFragmentManager.setFragmentResultListener("photoResult", this) { _, bundle ->
-            val photoUriString = bundle.getString("photoUrl")
-            photoUriString?.let {
-                profileImageUri = Uri.parse(it)
-                binding.profileImagePreview.setImageURI(profileImageUri) // Update profile image preview
-            }
-        }
 
         binding.registerButton.setOnClickListener {
             val firstName = binding.fnameEdit.text.toString().trim()
@@ -64,13 +64,10 @@ class registerScreen : AppCompatActivity() {
     }
 
     private fun openCamera() {
-        val intent = Intent(this, MainActivity::class.java)
-        intent.putExtra("navigateToCamera", true)
+        val intent = Intent(this, CameraActivity::class.java)
         intent.putExtra("source", "register") // Specify source as "register"
-        startActivity(intent)
+        startActivityForResult(intent, REQUEST_CAMERA)
     }
-
-
 
     private fun openGallery() {
         val intent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
@@ -84,6 +81,20 @@ class registerScreen : AppCompatActivity() {
                 REQUEST_GALLERY -> {
                     profileImageUri = data?.data
                     binding.profileImagePreview.setImageURI(profileImageUri)
+                    Log.d("RegisterScreen", "Gallery image selected: $profileImageUri")
+                }
+                REQUEST_CAMERA -> {
+                    val photoUrl = data?.getStringExtra("photoUrl")
+                    photoUrl?.let {
+                        profileImageUri = Uri.parse(it)
+                        // Use Picasso to load the image from the remote URL
+                        Picasso.get()
+                            .load(profileImageUri)
+                            .placeholder(R.drawable.default_profile) // Optional placeholder
+                            .error(R.drawable.default_profile)       // Optional error image
+                            .into(binding.profileImagePreview)
+                        Log.d("RegisterScreen", "Camera image received: $profileImageUri")
+                    }
                 }
             }
         }
@@ -123,20 +134,34 @@ class registerScreen : AppCompatActivity() {
 
     private fun uploadProfilePicture(userId: String, onComplete: (String) -> Unit) {
         profileImageUri?.let { uri ->
-            val storageRef = storage.reference.child("Users/$userId/profilePictures/${uri.lastPathSegment}")
-            storageRef.putFile(uri)
-                .addOnSuccessListener { taskSnapshot ->
-                    taskSnapshot.storage.downloadUrl.addOnSuccessListener { downloadUri ->
-                        onComplete(downloadUri.toString())
-                    }
+            Log.d("RegisterScreen", "Uploading profile picture with URI: $uri and scheme: ${uri.scheme}")
+            when (uri.scheme) {
+                "content", "file" -> {
+                    // The URI is local; upload it
+                    val storageRef = storage.reference.child("Users/$userId/profilePictures/${uri.lastPathSegment}")
+                    storageRef.putFile(uri)
+                        .addOnSuccessListener { taskSnapshot ->
+                            taskSnapshot.storage.downloadUrl.addOnSuccessListener { downloadUri ->
+                                Log.d("RegisterScreen", "Profile picture uploaded: $downloadUri")
+                                onComplete(downloadUri.toString())
+                            }
+                        }
+                        .addOnFailureListener {
+                            Toast.makeText(this, "Failed to upload profile picture.", Toast.LENGTH_SHORT).show()
+                            onComplete("")
+                        }
                 }
-                .addOnFailureListener {
-                    Toast.makeText(this, "Failed to upload profile picture.", Toast.LENGTH_SHORT).show()
+                "http", "https" -> {
+                    // The URI is remote (already uploaded); use it directly
+                    Log.d("RegisterScreen", "Using existing remote profile picture URL: $uri")
+                    onComplete(uri.toString())
                 }
+                else -> {
+                    // Unknown scheme; handle accordingly
+                    Toast.makeText(this, "Invalid image URI.", Toast.LENGTH_SHORT).show()
+                    onComplete("")
+                }
+            }
         } ?: onComplete("")
-    }
-
-    companion object {
-        private const val REQUEST_GALLERY = 2
     }
 }
