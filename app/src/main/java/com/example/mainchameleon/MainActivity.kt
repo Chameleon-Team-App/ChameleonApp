@@ -7,7 +7,6 @@ import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupWithNavController
 import com.example.mainchameleon.databinding.ActivityMainBinding
-import com.google.firebase.auth.FirebaseAuth
 
 class MainActivity : AppCompatActivity() {
 
@@ -32,13 +31,13 @@ class MainActivity : AppCompatActivity() {
 
         navView.setupWithNavController(navController)
 
-        // Check if we need to navigate to CameraFragment based on the intent flag
-        val shouldNavigateToCamera = intent.getBooleanExtra("navigateToCamera", false)
-        val source = intent.getStringExtra("source") ?: "journal" // Default to "journal"
-        if (shouldNavigateToCamera) {
-            val bundle = Bundle().apply { putString("source", source) }
-            navController.navigate(R.id.navigation_camera, bundle)
-        }
+        // Remove this block:
+        // val shouldNavigateToCamera = intent.getBooleanExtra("navigateToCamera", false)
+        // val source = intent.getStringExtra("source") ?: "journal"
+        // if (shouldNavigateToCamera) {
+        //     val bundle = Bundle().apply { putString("source", source) }
+        //     navController.navigate(R.id.navigation_camera, bundle)
+        // }
 
         // Handle bottom navigation item selection
         navView.setOnItemSelectedListener { item ->
