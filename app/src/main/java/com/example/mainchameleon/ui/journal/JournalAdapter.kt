@@ -1,53 +1,75 @@
 package com.example.mainchameleon.ui.journal
 
-import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.TextView
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.mainchameleon.R
-import kotlin.random.Random
-import androidx.cardview.widget.CardView
+import com.example.mainchameleon.ui.journal.JournalAdapter.JournalViewHolder
+import com.example.mainchameleon.ui.journal.JournalEntry
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.FirebaseDatabase
+import com.squareup.picasso.Picasso
 
-class JournalAdapter : RecyclerView.Adapter<JournalAdapter.JournalViewHolder>() {
-
-    private var journalList: List<JournalEntry> = listOf()
+class JournalAdapter : ListAdapter<JournalEntry, JournalViewHolder>(JournalDiffCallback()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): JournalViewHolder {
-        val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.fragment_journal_entry, parent, false)
+        val view = LayoutInflater.from(parent.context).inflate(R.layout.fragment_journal_entry, parent, false)
         return JournalViewHolder(view)
     }
 
     override fun onBindViewHolder(holder: JournalViewHolder, position: Int) {
-        val journalEntry = journalList[position]
+        val journalEntry = getItem(position)
         holder.bind(journalEntry)
     }
 
-    override fun getItemCount(): Int {
-        return journalList.size
-    }
-
-    fun submitList(list: List<JournalEntry>) {
-        journalList = list
-        notifyDataSetChanged()
-    }
-
     class JournalViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        private val cardView: View = itemView.findViewById(R.id.cardView)
+        private val usernameTextView: TextView = itemView.findViewById(R.id.usernameTextView)
         private val titleTextView: TextView = itemView.findViewById(R.id.titleTextView)
         private val entryTextView: TextView = itemView.findViewById(R.id.entryTextView)
-        private val cardView: CardView = itemView.findViewById(R.id.cardView)
+        private val imageView: ImageView = itemView.findViewById(R.id.imageView)
 
         fun bind(journalEntry: JournalEntry) {
             titleTextView.text = journalEntry.title
-            entryTextView.text = journalEntry.entry
-            cardView.setBackgroundColor(generateRandomColor())
+            entryTextView.text = journalEntry.text
+            cardView.setBackgroundColor(journalEntry.backgroundColor)
+
+            if (journalEntry.imageUrl != null) {
+                imageView.visibility = View.VISIBLE
+                Picasso.get().load(journalEntry.imageUrl).into(imageView)
+            } else {
+                imageView.visibility = View.GONE
+            }
+
+            // Retrieve and display the username for each entry’s userId
+            journalEntry.userId?.let { userId ->
+                val userRef = FirebaseDatabase.getInstance().getReference("Users").child(userId)
+                userRef.child("Username").get().addOnSuccessListener { dataSnapshot ->
+                    val username = dataSnapshot.getValue(String::class.java)
+                    usernameTextView.text = username ?: "Unknown User"
+                }.addOnFailureListener {
+                    usernameTextView.text = "Error Loading User"
+                }
+            } ?: run {
+                usernameTextView.text = "No User ID"
+            }
+        }
+    }
+
+
+
+    class JournalDiffCallback : DiffUtil.ItemCallback<JournalEntry>() {
+        override fun areItemsTheSame(oldItem: JournalEntry, newItem: JournalEntry): Boolean {
+            return oldItem.id == newItem.id
         }
 
-        private fun generateRandomColor(): Int {
-            val random = Random
-            return Color.rgb(random.nextInt(256), random.nextInt(256), random.nextInt(256))
+        override fun areContentsTheSame(oldItem: JournalEntry, newItem: JournalEntry): Boolean {
+            return oldItem == newItem
         }
     }
 }

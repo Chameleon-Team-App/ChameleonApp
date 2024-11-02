@@ -20,8 +20,8 @@ class CameraViewModel : ViewModel() {
         _photos.value = updatedPhotos
     }
 
-    fun fetchPhotosFromFirebase(userId: String) {
-        val storageRef = FirebaseStorage.getInstance().reference.child("users/$userId/photos")
+    fun fetchPhotosFromFirebase(UserId: String) {
+        val storageRef = FirebaseStorage.getInstance().reference.child("Users/$UserId/photos")
 
         storageRef.listAll()
             .addOnSuccessListener { result ->

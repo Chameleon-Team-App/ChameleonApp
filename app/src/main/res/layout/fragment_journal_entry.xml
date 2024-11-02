@@ -1,43 +1,54 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.cardview.widget.CardView
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/cardView"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_margin="16dp"
-    app:cardBackgroundColor="#E9CC35"
-    app:cardCornerRadius="20dp">
+    android:elevation="4dp">
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="16dp">
+<LinearLayout
+android:layout_width="match_parent"
+android:layout_height="wrap_content"
+android:orientation="vertical"
+android:padding="16dp">
 
-        <!-- TITLE INPUT TEXT -->
-        <EditText
-            android:id="@+id/titleTextView"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:autofillHints=""
-            android:hint="@string/title_entry"
-            android:inputType="text"
-            android:minHeight="48dp"
-            android:textAlignment="center"
-            android:textColor="#000000"
-            android:textColorHint="#000000" />
+<!-- Username of the journal entry owner -->
+<TextView
+    android:id="@+id/usernameTextView"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:text="Username"
+    android:textSize="16sp"
+    android:textStyle="bold"
+    android:layout_marginBottom="4dp" />
 
-        <EditText
-            android:id="@+id/entryTextView"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:autofillHints=""
-            android:ems="10"
-            android:inputType="textMultiLine"
-            android:minHeight="48dp"
-            android:hint="@string/text_entry"
-            android:textAlignment="textStart"
-            android:paddingTop="8dp" />
-    </LinearLayout>
-</androidx.cardview.widget.CardView>
+<!-- Title of the journal entry -->
+<TextView
+    android:id="@+id/titleTextView"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:text="Journal Title"
+    android:textSize="18sp"
+    android:textStyle="bold" />
+
+<!-- Journal entry image -->
+<ImageView
+    android:id="@+id/imageView"
+    android:layout_width="match_parent"
+    android:layout_height="200dp"
+    android:layout_marginTop="8dp"
+    android:scaleType="centerCrop"
+    android:visibility="gone" />
+
+<!-- Journal entry text -->
+<TextView
+    android:id="@+id/entryTextView"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="8dp"
+    android:text="Journal Entry"
+    android:textSize="16sp" />
+
+</LinearLayout>
+
+    </androidx.cardview.widget.CardView>
