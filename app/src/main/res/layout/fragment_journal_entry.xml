@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.cardview.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/cardView"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_margin="16dp"
@@ -11,7 +13,36 @@
         android:orientation="vertical"
         android:padding="16dp">
 
-        <!-- Title of the journal entry -->
+        <!-- User Info Section -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="8dp">
+
+            <!-- Profile Picture -->
+            <ImageView
+                android:id="@+id/profileImageView"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_marginEnd="8dp"
+                android:contentDescription="Profile Picture"
+                android:scaleType="centerCrop"
+                android:src="@drawable/default_profile" />
+
+            <!-- Username -->
+            <TextView
+                android:id="@+id/usernameTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Username"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+        </LinearLayout>
+
+        <!-- Title -->
         <TextView
             android:id="@+id/titleTextView"
             android:layout_width="wrap_content"
@@ -20,7 +51,7 @@
             android:textSize="18sp"
             android:textStyle="bold" />
 
-        <!-- Journal entry image -->
+        <!-- Image (if any) -->
         <ImageView
             android:id="@+id/imageView"
             android:layout_width="match_parent"
@@ -29,8 +60,7 @@
             android:scaleType="centerCrop"
             android:visibility="gone" />
 
-
-        <!-- Journal entry text -->
+        <!-- Journal Entry Text -->
         <TextView
             android:id="@+id/entryTextView"
             android:layout_width="wrap_content"

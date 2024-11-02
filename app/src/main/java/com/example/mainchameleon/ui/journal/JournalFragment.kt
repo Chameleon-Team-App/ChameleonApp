@@ -39,8 +39,12 @@ class JournalFragment : Fragment() {
         _binding = FragmentJournalBinding.inflate(inflater, container, false)
 
         binding.openCameraButton.setOnClickListener {
-            findNavController().navigate(R.id.action_journalFragment_to_cameraFragment)
+            val bundle = Bundle().apply {
+                putString("source", "journal")
+            }
+            findNavController().navigate(R.id.navigation_camera, bundle)
         }
+
 
         binding.uploadFromGalleryButton.setOnClickListener {
             val intent = Intent(Intent.ACTION_PICK).apply {
@@ -108,17 +112,19 @@ class JournalFragment : Fragment() {
             return
         }
 
-        val journalEntry = JournalEntry(
-            title = title,
-            text = text,
-            imageUrl = photoUrl // Include the photo URL if available
-        )
-
         val userId = FirebaseAuth.getInstance().currentUser?.uid
         if (userId == null) {
             Toast.makeText(requireContext(), "User not authenticated.", Toast.LENGTH_SHORT).show()
             return
         }
+
+        val journalEntry = JournalEntry(
+            title = title,
+            text = text,
+            imageUrl = photoUrl,
+            backgroundColor = JournalEntry.generateRandomColor(),
+            userId = userId
+        )
 
         val database = FirebaseDatabase.getInstance().reference
         val noteId = database.child("Users").child(userId).child("journals").push().key ?: UUID.randomUUID().toString()

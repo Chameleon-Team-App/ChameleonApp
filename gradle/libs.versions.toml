@@ -25,6 +25,7 @@ lifecycleViewmodelKtx = "2.8.6"
 materialVersion = "1.9.0"
 firebaseStorageKtx = "21.0.1"
 firebaseDatabaseKtx = "21.0.0"
+firebaseAuthKtx = "23.1.0"
 
 [libraries]
 androidx-appcompat-v161 = { module = "androidx.appcompat:appcompat", version.ref = "appcompatVersion" }
@@ -55,6 +56,7 @@ material-v190 = { module = "com.google.android.material:material", version.ref =
 androidx-navigation-fragment = { group = "androidx.navigation", name = "navigation-fragment", version.ref = "navigationFragment" }
 firebase-storage-ktx = { group = "com.google.firebase", name = "firebase-storage-ktx", version.ref = "firebaseStorageKtx" }
 firebase-database-ktx = { group = "com.google.firebase", name = "firebase-database-ktx", version.ref = "firebaseDatabaseKtx" }
+firebase-auth-ktx = { group = "com.google.firebase", name = "firebase-auth-ktx", version.ref = "firebaseAuthKtx" }
 
 
 [plugins]
