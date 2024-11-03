@@ -21,11 +21,13 @@
         <!-- Profile Image -->
 
         <!-- Profile Image -->
+
+        <!-- Button to change profile picture -->
         <ImageView
             android:id="@+id/profile_image_preview"
             android:layout_width="150dp"
             android:layout_height="150dp"
-            android:layout_marginTop="32dp"
+            android:layout_marginTop="0dp"
             android:background="@drawable/ic_rounded_corner"
             android:contentDescription="Profile Picture"
             android:src="@drawable/default_profile"
@@ -33,12 +35,23 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <!-- Button to change profile picture -->
+        <EditText
+            android:id="@+id/username_edit_text"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:layout_marginTop="16dp"
+            android:inputType="textMultiLine"
+            android:padding="18dp"
+            android:textColor="@color/white"
+            android:textColorHint="@color/white"
+            android:textSize="20sp"
+            android:gravity="top|start" />
+
         <Button
             android:id="@+id/change_picture_button"
             android:layout_width="wrap_content"
             android:layout_height="60dp"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="20dp"
             android:backgroundTint="@color/white"
             android:text="@string/change_picture"
             android:textColor="#3B84F1"
