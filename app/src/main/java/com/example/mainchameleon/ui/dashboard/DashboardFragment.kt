@@ -7,7 +7,9 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.mainchameleon.R
 import com.example.mainchameleon.databinding.FragmentDashboardBinding
 import com.example.mainchameleon.ui.journal.JournalAdapter
 
@@ -36,6 +38,16 @@ class DashboardFragment : Fragment() {
         journalViewModel.journalEntries.observe(viewLifecycleOwner, { entries ->
             journalAdapter.submitList(entries) // Submit list to adapter
         })
+
+        // Set click listener for the journal button
+        binding.JournalButton.setOnClickListener {
+            // Navigate to JournalFragment
+            findNavController().navigate(R.id.navigation_journal)
+        }
+        // set click listener for the mood journal button
+        binding.moodJournalButton.setOnClickListener {
+            findNavController().navigate(R.id.navigation_home)
+        }
 
         return binding.root
     }
