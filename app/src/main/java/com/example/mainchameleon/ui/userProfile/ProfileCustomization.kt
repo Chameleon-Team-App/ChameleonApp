@@ -1,6 +1,7 @@
 package com.example.mainchameleon.ui.userProfile
 
 import android.app.DatePickerDialog
+import android.icu.text.SimpleDateFormat
 import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -16,9 +17,11 @@ import androidx.core.content.FileProvider
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.example.mainchameleon.R
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.FirebaseDatabase
+import com.squareup.picasso.Picasso
 import java.io.File
 import java.io.IOException
-import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
@@ -31,13 +34,15 @@ class ProfileCustomizationFragment : Fragment() {
     private lateinit var birthdayButton: Button
     private var photoUri: Uri? = null
     private lateinit var profileViewModel: ProfileViewModel
+    private lateinit var auth: FirebaseAuth
+    private lateinit var database: FirebaseDatabase
 
     private val takePictureLauncher = registerForActivityResult(ActivityResultContracts.TakePicture()) { success ->
         if (success) {
             profileImageView.setImageURI(photoUri)
             photoUri?.let { uri ->
                 profileViewModel.setProfileImageUri(uri)
-                profileViewModel.uploadProfilePicture(uri)  // Use 'uri' instead of 'it'
+                profileViewModel.uploadProfilePicture(uri)
             }
         } else {
             Toast.makeText(requireContext(), "Camera action failed", Toast.LENGTH_SHORT).show()
@@ -47,8 +52,8 @@ class ProfileCustomizationFragment : Fragment() {
     private val pickImageLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
         uri?.let { selectedUri ->
             profileImageView.setImageURI(selectedUri)
-            photoUri = selectedUri  // Save the URI for uploading
-            profileViewModel.uploadProfilePicture(selectedUri)  // Use the explicit 'selectedUri'
+            photoUri = selectedUri
+            profileViewModel.uploadProfilePicture(selectedUri)
         }
     }
 
@@ -59,6 +64,8 @@ class ProfileCustomizationFragment : Fragment() {
         val rootView = inflater.inflate(R.layout.fragment_profile_customization, container, false)
 
         profileViewModel = ViewModelProvider(this)[ProfileViewModel::class.java]
+        auth = FirebaseAuth.getInstance()
+        database = FirebaseDatabase.getInstance()
 
         buttonChangePicture = rootView.findViewById(R.id.change_picture_button)
         buttonSaveProfile = rootView.findViewById(R.id.save_button)
@@ -71,29 +78,32 @@ class ProfileCustomizationFragment : Fragment() {
         }
 
         birthdayButton.setOnClickListener {
-            // Open a DatePickerDialog here
             val datePickerDialog = DatePickerDialog(
                 requireContext(),
                 { _, year, month, dayOfMonth ->
-                    // Format and display the selected date
                     val selectedDate = "$dayOfMonth/${month + 1}/$year"
-                    birthdayButton.text = selectedDate // Display date on the button
-                    profileViewModel.setBirthday(selectedDate) // Save date in ViewModel
+                    birthdayButton.text = selectedDate
+                    profileViewModel.setBirthday(selectedDate)
                 },
-                2000, 0, 1 // Default date: January 1, 2000 (adjust as needed)
+                2000, 0, 1
             )
             datePickerDialog.show()
         }
 
         buttonSaveProfile.setOnClickListener {
             val bio = bioEditText.text.toString().trim()
-            val birthday = birthdayButton.text.toString() // This now holds the selected date
+            val birthday = birthdayButton.text.toString()
 
             profileViewModel.setBio(bio)
             profileViewModel.setBirthday(birthday)
 
-            val userId = "yourUserIdHere"  // Replace with actual logic to get user ID
-            profileViewModel.saveProfileDataToDatabase(userId, photoUri.toString(), bio, birthday)
+            val userId = auth.currentUser?.uid ?: ""
+            if (userId.isNotEmpty()) {
+                val profileImageUrl = photoUri?.toString() ?: ""
+                profileViewModel.saveProfileDataToDatabase(profileImageUrl, bio, birthday)
+            } else {
+                Toast.makeText(requireContext(), "User not authenticated", Toast.LENGTH_SHORT).show()
+            }
         }
 
         observeViewModel()
@@ -103,10 +113,10 @@ class ProfileCustomizationFragment : Fragment() {
 
     private fun observeViewModel() {
         profileViewModel.uploadStatus.observe(viewLifecycleOwner) { status ->
-            if (status == true) {
-                Toast.makeText(requireContext(), "Profile picture uploaded successfully", Toast.LENGTH_SHORT).show()
-            } else if (status == false) {
-                Toast.makeText(requireContext(), "Failed to upload profile picture", Toast.LENGTH_SHORT).show()
+            when (status) {
+                true -> Toast.makeText(requireContext(), "Profile picture uploaded successfully", Toast.LENGTH_SHORT).show()
+                false -> Toast.makeText(requireContext(), "Failed to upload profile picture", Toast.LENGTH_SHORT).show()
+                else -> { /* No action needed */ }
             }
         }
     }
@@ -117,8 +127,8 @@ class ProfileCustomizationFragment : Fragment() {
         builder.setTitle("Choose an option")
         builder.setItems(options) { _, which ->
             when (which) {
-                0 -> openCamera()  // User clicked "Take Photo with Camera"
-                1 -> openGallery() // User clicked "Choose from Gallery"
+                0 -> openCamera()
+                1 -> openGallery()
             }
         }
         builder.show()

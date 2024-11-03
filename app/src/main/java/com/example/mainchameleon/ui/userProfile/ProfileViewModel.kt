@@ -11,6 +11,7 @@ import com.google.firebase.database.FirebaseDatabase
 
 class ProfileViewModel : ViewModel() {
 
+    // LiveData properties for profile information
     private val _profileImageUri = MutableLiveData<Uri?>()
     val profileImageUri: LiveData<Uri?> = _profileImageUri
 
@@ -23,10 +24,12 @@ class ProfileViewModel : ViewModel() {
     private val _uploadStatus = MutableLiveData<Boolean?>()
     val uploadStatus: LiveData<Boolean?> = _uploadStatus
 
+    // Firebase instances
     private val storage = FirebaseStorage.getInstance()
     private val auth = FirebaseAuth.getInstance()
     private val database = FirebaseDatabase.getInstance()
 
+    // Setters for profile information
     fun setProfileImageUri(uri: Uri?) {
         _profileImageUri.value = uri
     }
@@ -39,8 +42,14 @@ class ProfileViewModel : ViewModel() {
         _birthday.value = birthdayText
     }
 
+    // Upload profile picture to Firebase Storage
     fun uploadProfilePicture(uri: Uri) {
-        val userId = "yourUserIdHere"  // Replace with actual user ID retrieval logic
+        val userId = auth.currentUser?.uid ?: run {
+            Log.e("ProfileViewModel", "User not authenticated")
+            _uploadStatus.value = false
+            return
+        }
+
         val storageRef = storage.reference.child("Users/$userId/profilePictures/${uri.lastPathSegment}")
 
         storageRef.putFile(uri)
@@ -54,7 +63,13 @@ class ProfileViewModel : ViewModel() {
             }
     }
 
-    fun saveProfileDataToDatabase(userId: String, profileImageUrl: String, bio: String, birthday: String) {
+    // Save or update profile data to Firebase Database
+    fun saveProfileDataToDatabase(profileImageUrl: String, bio: String, birthday: String) {
+        val userId = auth.currentUser?.uid ?: run {
+            Log.e("ProfileViewModel", "User not authenticated")
+            return
+        }
+
         val userRef = database.getReference("Users").child(userId)
 
         val userMap = mapOf(
