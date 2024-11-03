@@ -65,6 +65,10 @@ class JournalFragment : Fragment() {
             saveJournalEntry()
         }
 
+        binding.backButton.setOnClickListener {
+            findNavController().navigate(R.id.navigation_dashboard)
+        }
+
         return binding.root
     }
 
