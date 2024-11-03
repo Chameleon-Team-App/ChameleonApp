@@ -11,7 +11,6 @@ import com.example.mainchameleon.databinding.ActivityMainBinding
 class MainActivity : AppCompatActivity() {
 
     lateinit var binding: ActivityMainBinding
-    val navView get() = binding.navView // Expose navView to CameraFragment for visibility control
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -19,7 +18,6 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        val navView: BottomNavigationView = binding.navView
         val navController = findNavController(R.id.nav_host_fragment_activity_main)
 
         // Define top-level destinations for AppBarConfiguration
@@ -29,7 +27,6 @@ class MainActivity : AppCompatActivity() {
             )
         )
 
-        navView.setupWithNavController(navController)
 
         // Remove this block:
         // val shouldNavigateToCamera = intent.getBooleanExtra("navigateToCamera", false)
@@ -40,17 +37,6 @@ class MainActivity : AppCompatActivity() {
         // }
 
         // Handle bottom navigation item selection
-        navView.setOnItemSelectedListener { item ->
-            when (item.itemId) {
-                R.id.navigation_calendar -> {
-                    navController.navigate(R.id.navigation_calendar)
-                    true
-                }
-                else -> {
-                    navController.navigate(item.itemId)
-                    true
-                }
-            }
-        }
+
     }
 }

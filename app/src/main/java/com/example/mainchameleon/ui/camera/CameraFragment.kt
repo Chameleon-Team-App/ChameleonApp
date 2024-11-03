@@ -47,7 +47,7 @@ class CameraFragment : Fragment() {
         _binding = FragmentCameraBinding.inflate(inflater, container, false)
         source = arguments?.getString("source") // Retrieve the source argument
 
-        hideBottomNav() // Hide the bottom navigation bar
+
 
         if (allPermissionsGranted()) {
             startCamera()
@@ -72,16 +72,8 @@ class CameraFragment : Fragment() {
         super.onDestroyView()
         _binding = null
         cameraExecutor.shutdown()
-        showBottomNav() // Show the bottom navigation bar when exiting the fragment
     }
 
-    private fun hideBottomNav() {
-        (activity as? MainActivity)?.navView?.visibility = View.GONE
-    }
-
-    private fun showBottomNav() {
-        (activity as? MainActivity)?.navView?.visibility = View.VISIBLE
-    }
 
     private fun startCamera() {
         val cameraProviderFuture = ProcessCameraProvider.getInstance(requireContext())
