@@ -25,7 +25,7 @@ class MainActivity : AppCompatActivity() {
         // Define top-level destinations for AppBarConfiguration
         val appBarConfiguration = AppBarConfiguration(
             setOf(
-                R.id.navigation_journal, R.id.navigation_home, R.id.navigation_dashboard, R.id.navigation_calendar
+                R.id.navigation_journal, R.id.navigation_home, R.id.navigation_dashboard, R.id.navigation_calendar, R.id.navigation_profile
             )
         )
 

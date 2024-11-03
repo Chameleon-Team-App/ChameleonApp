@@ -1,5 +1,6 @@
 package com.example.mainchameleon.ui.userProfile
 
+import android.app.DatePickerDialog
 import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -27,7 +28,7 @@ class ProfileCustomizationFragment : Fragment() {
     private lateinit var buttonSaveProfile: Button
     private lateinit var profileImageView: ImageView
     private lateinit var bioEditText: EditText
-    private lateinit var birthdayEditText: EditText
+    private lateinit var birthdayButton: Button
     private var photoUri: Uri? = null
     private lateinit var profileViewModel: ProfileViewModel
 
@@ -63,15 +64,30 @@ class ProfileCustomizationFragment : Fragment() {
         buttonSaveProfile = rootView.findViewById(R.id.save_button)
         profileImageView = rootView.findViewById(R.id.profile_image_preview)
         bioEditText = rootView.findViewById(R.id.bio_edit_text)
-        birthdayEditText = rootView.findViewById(R.id.select_birthday_button)
+        birthdayButton = rootView.findViewById(R.id.select_birthday_button)
 
         buttonChangePicture.setOnClickListener {
             showPictureOptionDialog()
         }
 
+        birthdayButton.setOnClickListener {
+            // Open a DatePickerDialog here
+            val datePickerDialog = DatePickerDialog(
+                requireContext(),
+                { _, year, month, dayOfMonth ->
+                    // Format and display the selected date
+                    val selectedDate = "$dayOfMonth/${month + 1}/$year"
+                    birthdayButton.text = selectedDate // Display date on the button
+                    profileViewModel.setBirthday(selectedDate) // Save date in ViewModel
+                },
+                2000, 0, 1 // Default date: January 1, 2000 (adjust as needed)
+            )
+            datePickerDialog.show()
+        }
+
         buttonSaveProfile.setOnClickListener {
             val bio = bioEditText.text.toString().trim()
-            val birthday = birthdayEditText.text.toString().trim()
+            val birthday = birthdayButton.text.toString() // This now holds the selected date
 
             profileViewModel.setBio(bio)
             profileViewModel.setBirthday(birthday)

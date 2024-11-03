@@ -51,4 +51,10 @@
         android:name="com.example.mainchameleon.ui.calendar.CalendarFragment"
         android:label="@string/title_calendar"
         tools:layout="@layout/fragment_calendar" />
+
+    <fragment
+        android:id="@+id/navigation_profile"
+        android:name="com.example.mainchameleon.ui.userProfile.ProfileCustomizationFragment"
+        android:label="Profile"
+        tools:layout="@layout/fragment_profile_customization" />
 </navigation>
