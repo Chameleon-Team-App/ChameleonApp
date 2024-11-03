@@ -35,7 +35,7 @@
         <EditText
             android:id="@+id/fname_edit"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="60dp"
             android:hint="First Name"
             android:textColor="@color/white"
             android:textColorHint="@color/white"
@@ -47,7 +47,7 @@
         <EditText
             android:id="@+id/lname_edit"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="60dp"
             android:layout_marginTop="16dp"
             android:hint="Last Name"
             android:textColor="@color/white"
@@ -60,7 +60,7 @@
         <EditText
             android:id="@+id/username_edit"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="60dp"
             android:layout_marginTop="16dp"
             android:hint="Username"
             android:textColor="@color/white"
@@ -73,7 +73,7 @@
         <EditText
             android:id="@+id/email_edit"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="60dp"
             android:layout_marginTop="16dp"
             android:hint="Email"
             android:textColor="@color/white"
@@ -86,7 +86,7 @@
         <EditText
             android:id="@+id/password_edit"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="60dp"
             android:layout_marginTop="16dp"
             android:hint="Password"
             android:textColor="@color/white"
@@ -96,38 +96,12 @@
             android:padding="18dp"
             android:inputType="textPassword" />
 
-        <ImageView
-            android:id="@+id/profile_image_preview"
-            android:layout_width="100dp"
-            android:layout_height="100dp"
-            android:layout_gravity="center"
-            android:layout_marginTop="16dp"
-            android:contentDescription="Profile Picture Preview"
-            android:scaleType="centerCrop"
-            android:src="@drawable/default_profile" />
-
-        <!-- Button to open camera -->
-        <Button
-            android:id="@+id/button_open_camera"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:text="Take Photo with Camera" />
-
-        <!-- Button to open gallery -->
-        <Button
-            android:id="@+id/button_open_gallery"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:text="Choose from Gallery" />
-
         <!-- Register button -->
         <Button
             android:id="@+id/registerButton"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="60dp"
+            android:layout_height="70dp"
+            android:layout_marginTop="125dp"
             android:backgroundTint="@color/white"
             android:padding="18dp"
             android:text="Register"
@@ -138,8 +112,8 @@
         <Button
             android:id="@+id/backButton"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
+            android:layout_height="70dp"
+            android:layout_marginTop="5dp"
             android:backgroundTint="@color/white"
             android:padding="18dp"
             android:text="Back"

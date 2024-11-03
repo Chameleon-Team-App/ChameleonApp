@@ -8,7 +8,7 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import com.example.mainchameleon.databinding.LoginScreenBinding
 import com.example.mainchameleon.ui.loginScreen.LoginViewModel
-import com.example.mainchameleon.ui.loginScreen.registerScreen
+import com.example.mainchameleon.ui.loginScreen.RegisterScreen
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
 
@@ -45,7 +45,7 @@ class LoginActivity : AppCompatActivity() {
         }
 
         binding.registerButton.setOnClickListener {
-            startActivity(Intent(this, registerScreen::class.java))
+            startActivity(Intent(this, RegisterScreen::class.java))
         }
     }
 

@@ -42,7 +42,7 @@
 
         <!-- Registration Screen Activity -->
         <activity
-            android:name=".ui.loginScreen.registerScreen"
+            android:name=".ui.loginScreen.RegisterScreen"
             android:exported="true" />
 
         <!-- Main Activity -->
