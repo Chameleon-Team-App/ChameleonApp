@@ -26,7 +26,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@drawable/ic_rounded_corner"
-            android:hint="Username/Email"
+            android:hint="Email"
             android:inputType="text"
             android:padding="18dp"
             android:textColor="@color/white"
