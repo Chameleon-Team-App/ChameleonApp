@@ -14,10 +14,14 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.setFragmentResultListener
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.mainchameleon.R
 import com.example.mainchameleon.databinding.FragmentJournalBinding
+import com.example.mainchameleon.ui.dashboard.DashboardViewModel
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.storage.FirebaseStorage
@@ -32,11 +36,30 @@ class JournalFragment : Fragment() {
     private var photoUrl: String? = null
     private val TAG = "JournalFragment"
 
+    private lateinit var journalViewModel: JournalViewModel
+    private lateinit var userJournalAdapter: JournalAdapter
+    private val dashboardViewModel: DashboardViewModel by activityViewModels()
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+
         _binding = FragmentJournalBinding.inflate(inflater, container, false)
+        val view = binding.root
+
+        // Initialize the ViewModel
+        journalViewModel = ViewModelProvider(this).get(JournalViewModel::class.java)
+
+        // Initialize RecyclerView adapter for user's own journals
+        userJournalAdapter = JournalAdapter()
+        binding.userNotesRecyclerView.adapter = userJournalAdapter
+        binding.userNotesRecyclerView.layoutManager = LinearLayoutManager(requireContext())
+
+        // Observe the currentUserJournalEntries LiveData from the ViewModel
+        journalViewModel.currentUserJournalEntries.observe(viewLifecycleOwner) { entries ->
+            userJournalAdapter.submitList(entries)
+        }
 
         binding.openCameraButton.setOnClickListener {
             val bundle = Bundle().apply {
@@ -44,7 +67,6 @@ class JournalFragment : Fragment() {
             }
             findNavController().navigate(R.id.navigation_camera, bundle)
         }
-
 
         binding.uploadFromGalleryButton.setOnClickListener {
             val intent = Intent(Intent.ACTION_PICK).apply {
@@ -69,7 +91,7 @@ class JournalFragment : Fragment() {
             findNavController().navigate(R.id.navigation_dashboard)
         }
 
-        return binding.root
+        return view
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -122,7 +144,12 @@ class JournalFragment : Fragment() {
             return
         }
 
+        val database = FirebaseDatabase.getInstance().reference
+        val noteId = database.child("Users").child(userId).child("journals").push().key
+            ?: UUID.randomUUID().toString()
+
         val journalEntry = JournalEntry(
+            id = noteId,
             title = title,
             text = text,
             imageUrl = photoUrl,
@@ -130,15 +157,14 @@ class JournalFragment : Fragment() {
             userId = userId
         )
 
-        val database = FirebaseDatabase.getInstance().reference
-        val noteId = database.child("Users").child(userId).child("journals").push().key ?: UUID.randomUUID().toString()
-
         database.child("Users").child(userId).child("journals").child(noteId).setValue(journalEntry)
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     Log.d(TAG, "Journal entry saved successfully")
                     Toast.makeText(requireContext(), "Journal saved", Toast.LENGTH_SHORT).show()
                     clearJournalForm()
+                    // Update streak
+                    dashboardViewModel.updateStreakIfNeeded()
                 } else {
                     Log.e(TAG, "Failed to save journal entry", task.exception)
                     Toast.makeText(requireContext(), "Failed to save journal", Toast.LENGTH_SHORT).show()

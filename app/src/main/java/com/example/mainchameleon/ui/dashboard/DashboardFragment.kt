@@ -1,6 +1,5 @@
 package com.example.mainchameleon.ui.dashboard
 
-import JournalViewModel
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -9,44 +8,60 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.mainchameleon.R
 import com.example.mainchameleon.databinding.FragmentDashboardBinding
-import com.example.mainchameleon.ui.journal.JournalAdapter
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.database.FirebaseDatabase
 import com.squareup.picasso.Picasso
 
 class DashboardFragment : Fragment() {
 
     private var _binding: FragmentDashboardBinding? = null
     private val binding get() = _binding!!
-    private lateinit var journalViewModel: JournalViewModel
-    private lateinit var journalAdapter: JournalAdapter
+    private lateinit var dashboardViewModel: DashboardViewModel
+    private lateinit var dashboardAdapter: DashboardAdapter
 
     // Profile views
     private lateinit var profileImageView: ImageView
     private lateinit var userNameTextView: TextView
     private lateinit var fullNameTextView: TextView
+    private lateinit var streakTextView: TextView
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View {
+    ): View? {
         _binding = FragmentDashboardBinding.inflate(inflater, container, false)
+        val view = binding.root
 
         // Initialize the ViewModel
-        journalViewModel = ViewModelProvider(this).get(JournalViewModel::class.java)
+        dashboardViewModel = ViewModelProvider(this).get(DashboardViewModel::class.java)
 
         // Initialize RecyclerView adapter
-        journalAdapter = JournalAdapter()
-        binding.recyclerView.adapter = journalAdapter
+        dashboardAdapter = DashboardAdapter()
+        binding.recyclerView.adapter = dashboardAdapter
         binding.recyclerView.layoutManager = LinearLayoutManager(requireContext())
 
-        // Observe the journalEntries LiveData from the ViewModel
-        journalViewModel.journalEntries.observe(viewLifecycleOwner, { entries ->
-            journalAdapter.submitList(entries) // Submit list to adapter
+        // Initialize UI elements
+        profileImageView = binding.profileImage
+        userNameTextView = binding.userName
+        fullNameTextView = binding.fullName
+        streakTextView = binding.streakTextView
+
+        // Observe the allEntries LiveData from the ViewModel
+        dashboardViewModel.allEntries.observe(viewLifecycleOwner, Observer { entries ->
+            dashboardAdapter.submitList(entries)
+        })
+
+        // Observe the streak LiveData from the ViewModel
+        dashboardViewModel.streak.observe(viewLifecycleOwner, Observer { streak ->
+            val streakCount = streak.currentStreak
+            streakTextView.text = if (streakCount > 0) "🔥 $streakCount" else "🔥 0"
+            // Optionally, change the color or appearance based on the streak
+            // For example:
+            // streakTextView.setTextColor(resources.getColor(R.color.streakColor))
+            // Ensure you have defined `streakColor` in your colors.xml
         })
 
         // Set click listeners for navigation buttons
@@ -57,22 +72,17 @@ class DashboardFragment : Fragment() {
             findNavController().navigate(R.id.navigation_home)
         }
 
-        // Initialize profile views
-        profileImageView = binding.profileImage // Ensure this ID matches your XML
-        userNameTextView = binding.userName // Ensure this ID matches your XML
-        fullNameTextView = binding.fullName // Ensure this ID matches your XML
-
         // Load user profile data
         loadUserProfile()
 
-        return binding.root
+        return view
     }
 
     private fun loadUserProfile() {
         // Get the current user ID from Firebase Authentication
-        val userId = FirebaseAuth.getInstance().currentUser?.uid
+        val userId = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser?.uid
         if (userId != null) {
-            val userRef = FirebaseDatabase.getInstance().getReference("Users").child(userId)
+            val userRef = com.google.firebase.database.FirebaseDatabase.getInstance().getReference("Users").child(userId)
 
             // Retrieve username
             userRef.child("Username").get().addOnSuccessListener { dataSnapshot ->
