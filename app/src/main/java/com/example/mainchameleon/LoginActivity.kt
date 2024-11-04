@@ -15,7 +15,6 @@ import com.google.firebase.database.FirebaseDatabase
 class LoginActivity : AppCompatActivity() {
 
     private lateinit var binding: LoginScreenBinding
-    private val loginViewModel: LoginViewModel by viewModels()
     private lateinit var auth: FirebaseAuth
     private lateinit var database: FirebaseDatabase
 

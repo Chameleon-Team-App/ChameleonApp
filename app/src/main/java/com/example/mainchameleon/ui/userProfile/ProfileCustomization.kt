@@ -27,7 +27,6 @@ import java.util.Locale
 
 class ProfileCustomizationFragment : Fragment() {
 
-    private lateinit var buttonChangePicture: Button
     private lateinit var buttonSaveProfile: Button
     private lateinit var profileImageView: ImageView
     private lateinit var bioEditText: EditText
