@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.EditText
+import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
@@ -70,6 +71,11 @@ class ProfileCustomizationFragment : Fragment() {
 
         buttonSaveProfile.setOnClickListener {
             updateProfileData()
+        }
+
+        val backButton: ImageButton = rootView.findViewById(R.id.back_button)
+        backButton.setOnClickListener {
+            navigateBack()
         }
 
         return rootView
@@ -208,5 +214,9 @@ class ProfileCustomizationFragment : Fragment() {
             photoUri = selectedUri
             profileViewModel.uploadProfilePicture(selectedUri)
         }
+    }
+
+    private fun navigateBack() {
+        requireActivity().onBackPressedDispatcher.onBackPressed() // Proper way to navigate back
     }
 }
