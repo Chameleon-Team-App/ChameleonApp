@@ -1,4 +1,4 @@
-package com.example.mainchameleon.ui.journal
+package com.example.mainchameleon.ui.dashboard
 
 import android.view.LayoutInflater
 import android.view.View
@@ -10,23 +10,22 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.mainchameleon.R
-import com.example.mainchameleon.ui.mood.MoodEntry
 import com.google.firebase.database.FirebaseDatabase
 import com.squareup.picasso.Picasso
 
-class JournalAdapter : ListAdapter<Any, JournalAdapter.JournalViewHolder>(JournalDiffCallback()) {
+class DashboardAdapter : ListAdapter<DashboardEntry, DashboardAdapter.DashboardViewHolder>(DashboardDiffCallback()) {
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): JournalViewHolder {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): DashboardViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.fragment_journal_entry, parent, false)
-        return JournalViewHolder(view)
+        return DashboardViewHolder(view)
     }
 
-    override fun onBindViewHolder(holder: JournalViewHolder, position: Int) {
+    override fun onBindViewHolder(holder: DashboardViewHolder, position: Int) {
         val entry = getItem(position)
         holder.bind(entry)
     }
 
-    class JournalViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    class DashboardViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val cardView: CardView = itemView.findViewById(R.id.cardView)
         private val usernameTextView: TextView = itemView.findViewById(R.id.usernameTextView)
         private val titleTextView: TextView = itemView.findViewById(R.id.titleTextView)
@@ -35,43 +34,44 @@ class JournalAdapter : ListAdapter<Any, JournalAdapter.JournalViewHolder>(Journa
         private val profileImageView: ImageView = itemView.findViewById(R.id.profileImageView)
         private val moodTextView: TextView = itemView.findViewById(R.id.moodTextView)
 
-        fun bind(entry: Any) {
+        fun bind(entry: DashboardEntry) {
             when (entry) {
-                is JournalEntry -> {
-                    titleTextView.text = entry.title
-                    entryTextView.text = entry.text
+                is DashboardEntry.Journal -> {
+                    val journal = entry.journalEntry
+                    titleTextView.text = journal.title
+                    entryTextView.text = journal.text
                     moodTextView.visibility = View.GONE
 
                     // Set background color
-                    cardView.setCardBackgroundColor(entry.backgroundColor)
+                    cardView.setCardBackgroundColor(journal.backgroundColor)
 
                     // Handle image
-                    if (!entry.imageUrl.isNullOrEmpty()) {
+                    if (!journal.imageUrl.isNullOrEmpty()) {
                         imageView.visibility = View.VISIBLE
-                        Picasso.get().load(entry.imageUrl).into(imageView)
+                        Picasso.get().load(journal.imageUrl).into(imageView)
                     } else {
                         imageView.visibility = View.GONE
                     }
 
                     // Retrieve and display the username and profile picture for the entry's userId
-                    val userId = entry.userId
-                    loadUserData(userId)
+                    loadUserData(journal.userId)
                 }
 
-                is MoodEntry -> {
-                    titleTextView.text = "Mood: ${entry.mood}"
-                    entryTextView.text = entry.sentence
-                    moodTextView.visibility = View.GONE // Alternatively, display mood emoji or label
+                is DashboardEntry.Mood -> {
+                    val mood = entry.moodEntry
+                    titleTextView.text = "Mood: ${mood.mood}"
+                    entryTextView.text = mood.sentence
+                    moodTextView.visibility = View.VISIBLE
+                    moodTextView.text = mood.mood // Display the mood emoji or label
 
                     // Set background color
-                    cardView.setCardBackgroundColor(entry.backgroundColor)
+                    cardView.setCardBackgroundColor(mood.backgroundColor)
 
                     // No image for moods by default; adjust if necessary
                     imageView.visibility = View.GONE
 
                     // Retrieve and display the username and profile picture for the entry's userId
-                    val userId = entry.userId
-                    loadUserData(userId)
+                    loadUserData(mood.userId)
                 }
             }
         }
@@ -105,16 +105,18 @@ class JournalAdapter : ListAdapter<Any, JournalAdapter.JournalViewHolder>(Journa
         }
     }
 
-    class JournalDiffCallback : DiffUtil.ItemCallback<Any>() {
-        override fun areItemsTheSame(oldItem: Any, newItem: Any): Boolean {
+    class DashboardDiffCallback : DiffUtil.ItemCallback<DashboardEntry>() {
+        override fun areItemsTheSame(oldItem: DashboardEntry, newItem: DashboardEntry): Boolean {
             return when {
-                oldItem is JournalEntry && newItem is JournalEntry -> oldItem.id == newItem.id
-                oldItem is MoodEntry && newItem is MoodEntry -> oldItem.id == newItem.id
+                oldItem is DashboardEntry.Journal && newItem is DashboardEntry.Journal ->
+                    oldItem.journalEntry.id == newItem.journalEntry.id
+                oldItem is DashboardEntry.Mood && newItem is DashboardEntry.Mood ->
+                    oldItem.moodEntry.id == newItem.moodEntry.id
                 else -> false
             }
         }
 
-        override fun areContentsTheSame(oldItem: Any, newItem: Any): Boolean {
+        override fun areContentsTheSame(oldItem: DashboardEntry, newItem: DashboardEntry): Boolean {
             return oldItem == newItem
         }
     }

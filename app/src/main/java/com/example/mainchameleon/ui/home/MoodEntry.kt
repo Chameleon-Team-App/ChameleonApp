@@ -1,13 +1,12 @@
-package com.example.mainchameleon.ui.journal
+package com.example.mainchameleon.ui.mood
 
-data class JournalEntry(
+data class MoodEntry(
     val id: String = "",
-    val title: String = "",
-    val text: String = "",
-    val imageUrl: String? = null,
-    var userId: String = "",
+    val mood: String = "",
+    val sentence: String = "",
     val backgroundColor: Int = generateRandomColor(),
-    val timestamp: Long = System.currentTimeMillis()
+    val timestamp: Long = System.currentTimeMillis(),
+    var userId: String = ""
 ) {
     companion object {
         fun generateRandomColor(): Int {

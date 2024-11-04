@@ -13,7 +13,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.cardview.widget.CardView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResultListener
 import androidx.lifecycle.ViewModelProvider
@@ -55,9 +54,9 @@ class JournalFragment : Fragment() {
         binding.userNotesRecyclerView.layoutManager = LinearLayoutManager(requireContext())
 
         // Observe the currentUserJournalEntries LiveData from the ViewModel
-        journalViewModel.currentUserJournalEntries.observe(viewLifecycleOwner, { entries ->
+        journalViewModel.currentUserJournalEntries.observe(viewLifecycleOwner) { entries ->
             userJournalAdapter.submitList(entries)
-        })
+        }
 
         binding.openCameraButton.setOnClickListener {
             val bundle = Bundle().apply {
@@ -152,8 +151,8 @@ class JournalFragment : Fragment() {
             text = text,
             imageUrl = photoUrl,
             backgroundColor = JournalEntry.generateRandomColor(),
-            userId = userId,
-            isMoodEntry = false // Explicitly set to false for journal entries
+            userId = userId
+            // No need for isMoodEntry as moods are in a separate node
         )
 
         database.child("Users").child(userId).child("journals").child(noteId).setValue(journalEntry)

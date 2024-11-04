@@ -4,123 +4,130 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.example.mainchameleon.ui.mood.MoodEntry
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
 
 class JournalViewModel : ViewModel() {
 
-    private val _allEntries = MutableLiveData<List<JournalEntry>>()
-    val allEntries: LiveData<List<JournalEntry>> get() = _allEntries
-
-    private val _journalEntries = MutableLiveData<List<JournalEntry>>()
-    val journalEntries: LiveData<List<JournalEntry>> get() = _journalEntries
-
-    private val _moodEntries = MutableLiveData<List<JournalEntry>>()
-    val moodEntries: LiveData<List<JournalEntry>> get() = _moodEntries
-
+    // LiveData for all journal entries (used by JournalFragment)
     private val _currentUserJournalEntries = MutableLiveData<List<JournalEntry>>()
     val currentUserJournalEntries: LiveData<List<JournalEntry>> get() = _currentUserJournalEntries
 
-    private val _currentUserMoodEntries = MutableLiveData<List<JournalEntry>>()
-    val currentUserMoodEntries: LiveData<List<JournalEntry>> get() = _currentUserMoodEntries
+    // LiveData for all mood entries (used by HomeFragment)
+    private val _currentUserMoodEntries = MutableLiveData<List<MoodEntry>>()
+    val currentUserMoodEntries: LiveData<List<MoodEntry>> get() = _currentUserMoodEntries
+
+    // LiveData for Dashboard (combining both journals and moods)
+    private val _allEntries = MutableLiveData<List<Any>>() // Using Any to hold both types
+    val allEntries: LiveData<List<Any>> get() = _allEntries
 
     init {
-        loadAllEntries()
-        loadCurrentUserJournalEntries()
-        loadCurrentUserMoodEntries()
+        loadCurrentUserJournals()
+        loadCurrentUserMoods()
+    }
+
+    private fun loadCurrentUserJournals() {
+        val userId = FirebaseAuth.getInstance().currentUser?.uid
+        if (userId == null) {
+            Log.e("JournalViewModel", "User not logged in")
+            return
+        }
+        val databaseRef = FirebaseDatabase.getInstance().getReference("Users/$userId/journals")
+        databaseRef.addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val journals = mutableListOf<JournalEntry>()
+                for (entrySnapshot in snapshot.children) {
+                    val entry = entrySnapshot.getValue(JournalEntry::class.java)
+                    entry?.let {
+                        it.userId = userId
+                        journals.add(it)
+                    }
+                }
+                _currentUserJournalEntries.value = journals.sortedByDescending { it.timestamp }
+                loadAllEntries()
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                Log.e("JournalViewModel", "Failed to load journals.", error.toException())
+            }
+        })
+    }
+
+    private fun loadCurrentUserMoods() {
+        val userId = FirebaseAuth.getInstance().currentUser?.uid
+        if (userId == null) {
+            Log.e("JournalViewModel", "User not logged in")
+            return
+        }
+        val databaseRef = FirebaseDatabase.getInstance().getReference("Users/$userId/moods")
+        databaseRef.addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val moods = mutableListOf<MoodEntry>()
+                for (entrySnapshot in snapshot.children) {
+                    val entry = entrySnapshot.getValue(MoodEntry::class.java)
+                    entry?.let {
+                        it.userId = userId
+                        moods.add(it)
+                    }
+                }
+                _currentUserMoodEntries.value = moods.sortedByDescending { it.timestamp }
+                loadAllEntries()
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                Log.e("JournalViewModel", "Failed to load moods.", error.toException())
+            }
+        })
     }
 
     private fun loadAllEntries() {
-        val databaseRef = FirebaseDatabase.getInstance().getReference("Users")
-        databaseRef.addValueEventListener(object : ValueEventListener {
-            override fun onDataChange(snapshot: DataSnapshot) {
-                val allEntriesList = mutableListOf<JournalEntry>()
-                val journalEntriesList = mutableListOf<JournalEntry>()
-                val moodEntriesList = mutableListOf<JournalEntry>()
+        val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return
+        val journalsRef = FirebaseDatabase.getInstance().getReference("Users/$userId/journals")
+        val moodsRef = FirebaseDatabase.getInstance().getReference("Users/$userId/moods")
 
-                for (userSnapshot in snapshot.children) {
-                    val userId = userSnapshot.key ?: continue
-                    val journalSnapshot = userSnapshot.child("journals")
+        journalsRef.addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(journalSnapshot: DataSnapshot) {
+                val journals = mutableListOf<JournalEntry>()
+                for (entrySnapshot in journalSnapshot.children) {
+                    val entry = entrySnapshot.getValue(JournalEntry::class.java)
+                    entry?.let {
+                        it.userId = userId
+                        journals.add(it)
+                    }
+                }
 
-                    for (entrySnapshot in journalSnapshot.children) {
-                        val entry = entrySnapshot.getValue(JournalEntry::class.java)
-                        entry?.let {
-                            it.userId = userId // Ensure userId is set for each entry
-                            allEntriesList.add(it)
-                            if (it.isMoodEntry) {
-                                moodEntriesList.add(it)
-                            } else {
-                                journalEntriesList.add(it)
+                moodsRef.addListenerForSingleValueEvent(object : ValueEventListener {
+                    override fun onDataChange(moodSnapshot: DataSnapshot) {
+                        val moods = mutableListOf<MoodEntry>()
+                        for (entrySnapshot in moodSnapshot.children) {
+                            val entry = entrySnapshot.getValue(MoodEntry::class.java)
+                            entry?.let {
+                                it.userId = userId
+                                moods.add(it)
                             }
                         }
-                    }
-                }
 
-                _allEntries.value = allEntriesList.sortedByDescending { it.timestamp }
-                _journalEntries.value = journalEntriesList.sortedByDescending { it.timestamp }
-                _moodEntries.value = moodEntriesList.sortedByDescending { it.timestamp }
-            }
-
-            override fun onCancelled(error: DatabaseError) {
-                Log.e("JournalViewModel", "Failed to load data.", error.toException())
-            }
-        })
-    }
-
-    private fun loadCurrentUserJournalEntries() {
-        val userId = FirebaseAuth.getInstance().currentUser?.uid
-        if (userId == null) {
-            Log.e("JournalViewModel", "User not logged in")
-            return
-        }
-        val databaseRef = FirebaseDatabase.getInstance().getReference("Users/$userId/journals")
-        databaseRef.addValueEventListener(object : ValueEventListener {
-            override fun onDataChange(snapshot: DataSnapshot) {
-                val entries = mutableListOf<JournalEntry>()
-                for (entrySnapshot in snapshot.children) {
-                    val entry = entrySnapshot.getValue(JournalEntry::class.java)
-                    entry?.let {
-                        it.userId = userId // Ensure userId is set for each entry
-                        if (!it.isMoodEntry) {
-                            entries.add(it)
+                        // Combine journals and moods
+                        val combinedEntries: List<Any> = (journals + moods).sortedByDescending {
+                            when (it) {
+                                is JournalEntry -> it.timestamp
+                                is MoodEntry -> it.timestamp
+                                else -> 0L
+                            }
                         }
+
+                        _allEntries.value = combinedEntries
                     }
-                }
-                _currentUserJournalEntries.value =
-                    entries.sortedByDescending { it.timestamp } // Sort by timestamp
+
+                    override fun onCancelled(error: DatabaseError) {
+                        Log.e("JournalViewModel", "Failed to load moods for Dashboard.", error.toException())
+                    }
+                })
             }
 
             override fun onCancelled(error: DatabaseError) {
-                Log.e("JournalViewModel", "Failed to load current user data.", error.toException())
-            }
-        })
-    }
-
-    private fun loadCurrentUserMoodEntries() {
-        val userId = FirebaseAuth.getInstance().currentUser?.uid
-        if (userId == null) {
-            Log.e("JournalViewModel", "User not logged in")
-            return
-        }
-        val databaseRef = FirebaseDatabase.getInstance().getReference("Users/$userId/journals")
-        databaseRef.addValueEventListener(object : ValueEventListener {
-            override fun onDataChange(snapshot: DataSnapshot) {
-                val entries = mutableListOf<JournalEntry>()
-                for (entrySnapshot in snapshot.children) {
-                    val entry = entrySnapshot.getValue(JournalEntry::class.java)
-                    entry?.let {
-                        it.userId = userId // Ensure userId is set for each entry
-                        if (it.isMoodEntry) {
-                            entries.add(it)
-                        }
-                    }
-                }
-                _currentUserMoodEntries.value =
-                    entries.sortedByDescending { it.timestamp } // Sort by timestamp
-            }
-
-            override fun onCancelled(error: DatabaseError) {
-                Log.e("JournalViewModel", "Failed to load current user mood data.", error.toException())
+                Log.e("JournalViewModel", "Failed to load journals for Dashboard.", error.toException())
             }
         })
     }

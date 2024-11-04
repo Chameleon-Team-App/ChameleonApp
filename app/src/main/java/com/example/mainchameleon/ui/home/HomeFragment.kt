@@ -13,7 +13,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.mainchameleon.R
 import com.example.mainchameleon.databinding.FragmentHomeBinding
 import com.example.mainchameleon.ui.journal.JournalAdapter
-import com.example.mainchameleon.ui.journal.JournalEntry
+import com.example.mainchameleon.ui.mood.MoodEntry
 import com.example.mainchameleon.ui.journal.JournalViewModel
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
@@ -28,16 +28,13 @@ class HomeFragment : Fragment() {
     private val moodButtons = mutableListOf<Button>()
 
     private lateinit var journalViewModel: JournalViewModel
-    private lateinit var moodAdapter: JournalAdapter
+    private lateinit var moodAdapter: JournalAdapter // Alternatively, create a MoodAdapter
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        val homeViewModel =
-            ViewModelProvider(this).get(HomeViewModel::class.java)
-
         _binding = FragmentHomeBinding.inflate(inflater, container, false)
         val root: View = binding.root
 
@@ -68,14 +65,14 @@ class HomeFragment : Fragment() {
         journalViewModel = ViewModelProvider(this).get(JournalViewModel::class.java)
 
         // Initialize RecyclerView adapter for mood entries
-        moodAdapter = JournalAdapter()
+        moodAdapter = JournalAdapter() // Alternatively, use a separate MoodAdapter
         binding.moodRecyclerView.adapter = moodAdapter
         binding.moodRecyclerView.layoutManager = LinearLayoutManager(requireContext())
 
         // Observe the currentUserMoodEntries LiveData from the ViewModel
-        journalViewModel.currentUserMoodEntries.observe(viewLifecycleOwner, { entries ->
+        journalViewModel.currentUserMoodEntries.observe(viewLifecycleOwner) { entries ->
             moodAdapter.submitList(entries)
-        })
+        }
 
         return root
     }
@@ -106,20 +103,18 @@ class HomeFragment : Fragment() {
         }
 
         val database = FirebaseDatabase.getInstance().reference
-        val noteId = database.child("Users").child(userId).child("journals").push().key
+        val noteId = database.child("Users").child(userId).child("moods").push().key
             ?: UUID.randomUUID().toString()
 
-        val moodEntry = JournalEntry(
+        val moodEntry = MoodEntry(
             id = noteId,
-            title = "Mood Entry",
-            text = sentence,
-            mood = selectedMood,
-            backgroundColor = JournalEntry.generateRandomColor(),
-            userId = userId,
-            isMoodEntry = true // Set to true for mood entries
+            mood = selectedMood!!,
+            sentence = sentence,
+            backgroundColor = MoodEntry.generateRandomColor(),
+            userId = userId
         )
 
-        database.child("Users").child(userId).child("journals").child(noteId).setValue(moodEntry)
+        database.child("Users").child(userId).child("moods").child(noteId).setValue(moodEntry)
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     Toast.makeText(requireContext(), "Mood entry saved", Toast.LENGTH_SHORT).show()

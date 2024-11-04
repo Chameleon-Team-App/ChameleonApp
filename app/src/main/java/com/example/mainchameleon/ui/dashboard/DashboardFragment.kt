@@ -12,8 +12,6 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.mainchameleon.R
 import com.example.mainchameleon.databinding.FragmentDashboardBinding
-import com.example.mainchameleon.ui.journal.JournalAdapter
-import com.example.mainchameleon.ui.journal.JournalViewModel
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
 import com.squareup.picasso.Picasso
@@ -22,8 +20,8 @@ class DashboardFragment : Fragment() {
 
     private var _binding: FragmentDashboardBinding? = null
     private val binding get() = _binding!!
-    private lateinit var journalViewModel: JournalViewModel
-    private lateinit var journalAdapter: JournalAdapter
+    private lateinit var dashboardViewModel: DashboardViewModel
+    private lateinit var dashboardAdapter: DashboardAdapter
 
     // Profile views
     private lateinit var profileImageView: ImageView
@@ -33,21 +31,22 @@ class DashboardFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View {
+    ): View? {
         _binding = FragmentDashboardBinding.inflate(inflater, container, false)
+        val view = binding.root
 
         // Initialize the ViewModel
-        journalViewModel = ViewModelProvider(this).get(JournalViewModel::class.java)
+        dashboardViewModel = ViewModelProvider(this).get(DashboardViewModel::class.java)
 
         // Initialize RecyclerView adapter
-        journalAdapter = JournalAdapter()
-        binding.recyclerView.adapter = journalAdapter
+        dashboardAdapter = DashboardAdapter()
+        binding.recyclerView.adapter = dashboardAdapter
         binding.recyclerView.layoutManager = LinearLayoutManager(requireContext())
 
-        // Observe the journalEntries LiveData from the ViewModel
-        journalViewModel.journalEntries.observe(viewLifecycleOwner, { entries ->
-            journalAdapter.submitList(entries) // Submit list to adapter
-        })
+        // Observe the allEntries LiveData from the ViewModel
+        dashboardViewModel.allEntries.observe(viewLifecycleOwner) { entries ->
+            dashboardAdapter.submitList(entries)
+        }
 
         // Set click listeners for navigation buttons
         binding.JournalButton.setOnClickListener {
@@ -65,7 +64,7 @@ class DashboardFragment : Fragment() {
         // Load user profile data
         loadUserProfile()
 
-        return binding.root
+        return view
     }
 
     private fun loadUserProfile() {
