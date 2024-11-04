@@ -1,103 +1,116 @@
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="#292929"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:fillViewport="true"
-    android:padding="16dp"
-    android:background="#292929">
+    android:orientation="vertical">
 
-    <LinearLayout
+    <!-- Scrollable content for the journal entry form -->
+    <ScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
+        android:fillViewport="true"
         android:padding="16dp">
 
-        <!-- Title Entry Box -->
-        <androidx.cardview.widget.CardView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
-            app:cardBackgroundColor="#E9CC35"
-            app:cardCornerRadius="20dp">
-
-            <EditText
-                android:id="@+id/titleEntryBox"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="Input title here"
-                android:textColor="#000000"
-                android:textColorHint="#000000"
-                android:textSize="16sp" />
-        </androidx.cardview.widget.CardView>
-
-        <!-- Image Preview for Selected or Captured Photo -->
-        <ImageView
-            android:id="@+id/imageViewPlaceholder"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:adjustViewBounds="true"
-            android:scaleType="fitCenter"
-            android:visibility="gone" />
-
-        <!-- Buttons for Image Selection -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center"
-            android:layout_marginTop="8dp">
+            android:orientation="vertical">
 
-            <Button
-                android:id="@+id/uploadFromGalleryButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Gallery" />
-
-            <Button
-                android:id="@+id/openCameraButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Camera" />
-        </LinearLayout>
-
-        <!-- Text Entry -->
-        <androidx.cardview.widget.CardView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            app:cardBackgroundColor="#E9CC35"
-            app:cardCornerRadius="20dp">
-
-            <EditText
-                android:id="@+id/journalEntryText"
+            <!-- Title Entry Box -->
+            <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
-                android:layout_height="150dp"
-                android:hint="Input text here"
-                android:gravity="top"
-                android:textColor="#000000"
-                android:textColorHint="#000000"
-                android:textSize="16sp" />
-        </androidx.cardview.widget.CardView>
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                app:cardBackgroundColor="#E9CC35"
+                app:cardCornerRadius="20dp">
 
-        <!-- Save Button -->
-        <Button
-            android:id="@+id/saveJournalButton"
-            android:layout_width="347dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:text="SAVE" />
-        <!-- Back Button -->
-        <Button
-            android:id="@+id/backButton"
-            android:layout_width="347dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:text="BACK" />
+                <EditText
+                    android:id="@+id/titleEntryBox"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Input title here"
+                    android:textColor="#000000"
+                    android:textColorHint="#000000"
+                    android:textSize="16sp" />
+            </androidx.cardview.widget.CardView>
 
-        <!-- Extra Space -->
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="100dp" /> <!-- Adds extra space at the bottom -->
+            <!-- Image Preview for Selected or Captured Photo -->
+            <ImageView
+                android:id="@+id/imageViewPlaceholder"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:adjustViewBounds="true"
+                android:scaleType="fitCenter"
+                android:visibility="gone" />
 
-    </LinearLayout>
-</ScrollView>
+            <!-- Buttons for Image Selection -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center"
+                android:layout_marginTop="8dp">
+
+                <Button
+                    android:id="@+id/uploadFromGalleryButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Gallery" />
+
+                <Button
+                    android:id="@+id/openCameraButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Camera" />
+            </LinearLayout>
+
+            <!-- Text Entry -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                app:cardBackgroundColor="#E9CC35"
+                app:cardCornerRadius="20dp">
+
+                <EditText
+                    android:id="@+id/journalEntryText"
+                    android:layout_width="match_parent"
+                    android:layout_height="150dp"
+                    android:hint="Input text here"
+                    android:gravity="top"
+                    android:textColor="#000000"
+                    android:textColorHint="#000000"
+                    android:textSize="16sp" />
+            </androidx.cardview.widget.CardView>
+
+            <!-- Save Button -->
+            <Button
+                android:id="@+id/saveJournalButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="SAVE" />
+
+            <!-- Back Button -->
+            <Button
+                android:id="@+id/backButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="BACK" />
+
+        </LinearLayout>
+    </ScrollView>
+
+    <!-- RecyclerView for user's journal entries -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/userNotesRecyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:paddingTop="16dp"
+        android:clipToPadding="false" />
+
+</LinearLayout>
