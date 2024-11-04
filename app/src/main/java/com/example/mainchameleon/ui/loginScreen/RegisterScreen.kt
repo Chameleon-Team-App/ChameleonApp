@@ -66,10 +66,10 @@ class RegisterScreen : AppCompatActivity() {
     private fun saveUserToDatabase(userId: String, firstName: String, lastName: String, username: String, email: String, profileImageUrl: String) {
         val userRef = database.getReference("Users").child(userId)
         val userMap = mapOf(
-            "firstName" to firstName,
-            "lastName" to lastName,
+            "First Name" to firstName,
+            "Last Name" to lastName,
             "Username" to username,
-            "email" to email,
+            "Email" to email,
             "profilePictureUrl" to profileImageUrl
         )
 

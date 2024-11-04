@@ -64,7 +64,7 @@ class ProfileViewModel : ViewModel() {
     }
 
     // Save or update profile data to Firebase Database
-    fun saveProfileDataToDatabase(profileImageUrl: String, bio: String, birthday: String) {
+    fun saveProfileDataToDatabase(userId: String, profileImageUrl: String, firstName: String, lastName: String, bio: String) {
         val userId = auth.currentUser?.uid ?: run {
             Log.e("ProfileViewModel", "User not authenticated")
             return
@@ -75,7 +75,6 @@ class ProfileViewModel : ViewModel() {
         val userMap = mapOf(
             "profilePictureUrl" to profileImageUrl,
             "bio" to bio,
-            "birthday" to birthday
         )
 
         userRef.updateChildren(userMap).addOnCompleteListener { task ->

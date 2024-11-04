@@ -11,26 +11,22 @@
         android:layout_height="wrap_content"
         android:gravity="center"
         android:orientation="vertical"
-        android:padding="16dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
-        <!-- Profile Image -->
-
-        <!-- Profile Image -->
-
-        <!-- Button to change profile picture -->
-        <ImageView
-            android:id="@+id/profile_image_preview"
+        <ImageButton
+            android:id="@+id/change_picture_button"
             android:layout_width="150dp"
             android:layout_height="150dp"
-            android:layout_marginTop="0dp"
-            android:background="@drawable/ic_rounded_corner"
+            android:layout_marginTop="35dp"
+            android:background="@null"
             android:contentDescription="Profile Picture"
             android:src="@drawable/default_profile"
+            android:scaleType="centerCrop"
+            android:adjustViewBounds="true"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
@@ -39,28 +35,41 @@
             android:id="@+id/username_edit_text"
             android:layout_width="match_parent"
             android:layout_height="60dp"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="20dp"
+            android:background="@drawable/ic_rounded_corner"
+            android:inputType="textMultiLine"
+            android:textColor="@color/white"
+            android:textColorHint="@color/white"
+            android:padding="18dp"
+            android:hint="Enter Username (this shoule not be seen)"
+            android:textSize="20sp" />
+
+        <EditText
+            android:id="@+id/fname_edit_text"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:layout_marginTop="5dp"
+            android:background="@drawable/ic_rounded_corner"
             android:inputType="textMultiLine"
             android:padding="18dp"
             android:textColor="@color/white"
             android:textColorHint="@color/white"
             android:textSize="20sp"
-            android:gravity="top|start" />
+            android:hint="Enter First Name" />
 
-        <Button
-            android:id="@+id/change_picture_button"
-            android:layout_width="wrap_content"
+        <EditText
+            android:id="@+id/lname_edit_text"
+            android:layout_width="match_parent"
             android:layout_height="60dp"
-            android:layout_marginTop="20dp"
-            android:backgroundTint="@color/white"
-            android:text="@string/change_picture"
-            android:textColor="#3B84F1"
+            android:layout_marginTop="5dp"
+            android:background="@drawable/ic_rounded_corner"
+            android:inputType="textMultiLine"
+            android:padding="18dp"
+            android:textColor="@color/white"
+            android:textColorHint="@color/white"
             android:textSize="20sp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/profile_image_preview" />
+            android:hint="Enter Last Name" />
 
-        <!-- Bio EditText -->
         <EditText
             android:id="@+id/bio_edit_text"
             android:layout_width="match_parent"
@@ -76,27 +85,17 @@
             android:textSize="20sp"
             android:gravity="top|start" />
 
-        <!-- Button to select birthday -->
-        <Button
-            android:id="@+id/select_birthday_button"
-            android:layout_width="match_parent"
-            android:layout_height="60dp"
-            android:layout_marginTop="16dp"
-            android:backgroundTint="@color/white"
-            android:text="Select Birthday"
-            android:textColor="#3B84F1"
-            android:textSize="20sp" />
-
-        <!-- Save button -->
         <Button
             android:id="@+id/save_button"
             android:layout_width="match_parent"
             android:layout_height="60dp"
             android:layout_marginTop="16dp"
+            android:background="@drawable/ic_rounded_corner"
             android:backgroundTint="@color/white"
             android:text="@string/save_button"
             android:textColor="#3B84F1"
             android:textSize="20sp"
             app:layout_constraintBottom_toBottomOf="parent" />
+
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

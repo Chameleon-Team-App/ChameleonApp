@@ -17,6 +17,9 @@
         <action
             android:id="@+id/action_navigation_dashboard_to_navigation_journal"
             app:destination="@id/navigation_journal" />
+        <action
+            android:id="@+id/action_navigation_dashboard_to_navigation_profile"
+            app:destination="@id/navigation_journal" />
     </fragment>
 
 
@@ -79,5 +82,13 @@
         android:id="@+id/navigation_profile"
         android:name="com.example.mainchameleon.ui.userProfile.UserProfileFragment"
         android:label="Profile"
+        tools:layout="@layout/fragment_user_profile" />
+
+    <fragment
+        android:id="@+id/navigation_profile_customization"
+        android:name="com.example.mainchameleon.ui.userProfile.ProfileCustomizationFragment"
+        android:label="Profile Customization"
         tools:layout="@layout/fragment_profile_customization" />
+
+
 </navigation>

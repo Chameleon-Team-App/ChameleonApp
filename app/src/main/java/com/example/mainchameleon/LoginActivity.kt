@@ -61,22 +61,23 @@ class LoginActivity : AppCompatActivity() {
             }
     }
 
-    private fun loginWithUsername(Username: String, password: String) {
-        // Query the database to find the email associated with the Username
-        val UserRef = database.getReference("Users")
-        UserRef.orderByChild("Username").equalTo(Username).get()
+    private fun loginWithUsername(username: String, password: String) {
+        val userRef = database.getReference("Users")
+        userRef.orderByChild("Username").equalTo(username).get()
             .addOnSuccessListener { dataSnapshot ->
                 if (dataSnapshot.exists()) {
-                    for (child in dataSnapshot.children) {
-                        val email = child.child("email").value.toString()
+                    val email = dataSnapshot.children.firstOrNull()?.child("email")?.value?.toString()
+                    if (!email.isNullOrEmpty()) {
                         loginWithEmail(email, password)
+                    } else {
+                        Toast.makeText(this, "Associated email not found for the username", Toast.LENGTH_SHORT).show()
                     }
                 } else {
                     Toast.makeText(this, "Username not found", Toast.LENGTH_SHORT).show()
                 }
             }
             .addOnFailureListener {
-                Toast.makeText(this, "Error: " + it.message, Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Error: ${it.message}", Toast.LENGTH_SHORT).show()
             }
     }
 }
