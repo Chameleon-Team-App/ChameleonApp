@@ -100,24 +100,32 @@ class ProfileCustomizationFragment : Fragment() {
 
         val userId = auth.currentUser?.uid ?: ""
         if (userId.isNotEmpty()) {
-            // Assuming profileImageUri holds the Uri of the image if updated
-            val profileImageUrl = photoUri?.toString() ?: ""
-
-            // Prepare data map for database update
             val userRef = database.getReference("Users").child(userId)
-            val userMap = mapOf(
-                "First Name" to firstName,
-                "Last Name" to lastName,
-                "bio" to bio,
-                "profilePictureUrl" to profileImageUrl
-            )
 
-            userRef.updateChildren(userMap).addOnCompleteListener { task ->
-                if (task.isSuccessful) {
-                    Toast.makeText(requireContext(), "Profile updated successfully", Toast.LENGTH_SHORT).show()
-                } else {
-                    Toast.makeText(requireContext(), "Failed to update profile: ${task.exception?.message}", Toast.LENGTH_SHORT).show()
+            // Check for an existing profile picture URL in the database
+            userRef.child("profilePictureUrl").get().addOnSuccessListener { dataSnapshot ->
+                val existingProfilePictureUrl = dataSnapshot.getValue(String::class.java)
+
+                // If a new photo URI is set, use it; otherwise, use the existing profile picture URL
+                val profileImageUrl = photoUri?.toString() ?: existingProfilePictureUrl ?: ""
+
+                // Prepare data map for database update
+                val userMap = mapOf(
+                    "First Name" to firstName,
+                    "Last Name" to lastName,
+                    "bio" to bio,
+                    "profilePictureUrl" to profileImageUrl
+                )
+
+                userRef.updateChildren(userMap).addOnCompleteListener { task ->
+                    if (task.isSuccessful) {
+                        Toast.makeText(requireContext(), "Profile updated successfully", Toast.LENGTH_SHORT).show()
+                    } else {
+                        Toast.makeText(requireContext(), "Failed to update profile: ${task.exception?.message}", Toast.LENGTH_SHORT).show()
+                    }
                 }
+            }.addOnFailureListener {
+                Toast.makeText(requireContext(), "Failed to fetch existing profile picture", Toast.LENGTH_SHORT).show()
             }
         } else {
             Toast.makeText(requireContext(), "User not authenticated", Toast.LENGTH_SHORT).show()
