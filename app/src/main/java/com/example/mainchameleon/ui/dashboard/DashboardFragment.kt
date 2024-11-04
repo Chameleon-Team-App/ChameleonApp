@@ -1,6 +1,5 @@
 package com.example.mainchameleon.ui.dashboard
 
-import JournalViewModel
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -14,6 +13,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.mainchameleon.R
 import com.example.mainchameleon.databinding.FragmentDashboardBinding
 import com.example.mainchameleon.ui.journal.JournalAdapter
+import com.example.mainchameleon.ui.journal.JournalViewModel
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
 import com.squareup.picasso.Picasso

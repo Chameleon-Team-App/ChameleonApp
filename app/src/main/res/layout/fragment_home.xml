@@ -1,83 +1,126 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:background="#292929"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:gravity="center"
-    android:padding="16dp"
-    android:background="#292929">
+    android:orientation="vertical">
 
-    <TextView
-        android:id="@+id/mood_prompt"
-        android:layout_width="wrap_content"
+    <!-- Scrollable content for mood selection and entry -->
+    <ScrollView
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Please select your current mood"
-        android:textSize="18sp"
-        android:textAlignment="center"
-        android:layout_marginBottom="24dp"/>
+        android:padding="16dp"
+        android:fillViewport="true">
 
-    <LinearLayout
-        android:layout_width="411dp"
-        android:layout_height="96dp"
-        android:gravity="center"
-        android:orientation="horizontal">
-
-        <Button
-            android:id="@+id/button_happy"
-            android:layout_width="65dp"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@android:color/transparent"
-            android:onClick="onMoodSelected"
-            android:text="😊"
-            android:textSize="30sp" />
+            android:orientation="vertical"
+            android:gravity="center"
+            android:padding="16dp">
 
-        <Button
-            android:id="@+id/button_sad"
-            android:layout_width="65dp"
-            android:layout_height="wrap_content"
-            android:layout_margin="4dp"
-            android:background="@android:color/transparent"
-            android:onClick="onMoodSelected"
-            android:text="😢"
-            android:textSize="30sp" />
+            <TextView
+                android:id="@+id/mood_prompt"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Please select your current mood"
+                android:textSize="18sp"
+                android:textAlignment="center"
+                android:layout_marginBottom="24dp"
+                android:textColor="#FFFFFF"/>
 
-        <Button
-            android:id="@+id/button_angry"
-            android:layout_width="65dp"
-            android:layout_height="wrap_content"
-            android:layout_margin="4dp"
-            android:background="@android:color/transparent"
-            android:onClick="onMoodSelected"
-            android:text="😡"
-            android:textSize="30sp" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:orientation="horizontal">
 
-        <Button
-            android:id="@+id/button_anxious"
-            android:layout_width="65dp"
-            android:layout_height="wrap_content"
-            android:layout_margin="4dp"
-            android:background="@android:color/transparent"
-            android:onClick="onMoodSelected"
-            android:text="😟"
-            android:textSize="30sp" />
+                <Button
+                    android:id="@+id/button_happy"
+                    android:layout_width="65dp"
+                    android:layout_height="wrap_content"
+                    android:background="@android:color/transparent"
+                    android:text="😊"
+                    android:textSize="30sp" />
 
-        <Button
-            android:id="@+id/button_neutral"
-            android:layout_width="65dp"
-            android:layout_height="wrap_content"
-            android:layout_margin="4dp"
-            android:background="@android:color/transparent"
-            android:onClick="onMoodSelected"
-            android:text="😐"
-            android:textSize="30sp" />
+                <Button
+                    android:id="@+id/button_sad"
+                    android:layout_width="65dp"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="4dp"
+                    android:background="@android:color/transparent"
+                    android:text="😢"
+                    android:textSize="30sp" />
 
-    </LinearLayout>
+                <Button
+                    android:id="@+id/button_angry"
+                    android:layout_width="65dp"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="4dp"
+                    android:background="@android:color/transparent"
+                    android:text="😡"
+                    android:textSize="30sp" />
 
-    <Button
-        android:id="@+id/backButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_margin="4dp"
-        android:text="back"
-        android:textSize="16sp" />
+                <Button
+                    android:id="@+id/button_anxious"
+                    android:layout_width="65dp"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="4dp"
+                    android:background="@android:color/transparent"
+                    android:text="😟"
+                    android:textSize="30sp" />
+
+                <Button
+                    android:id="@+id/button_neutral"
+                    android:layout_width="65dp"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="4dp"
+                    android:background="@android:color/transparent"
+                    android:text="😐"
+                    android:textSize="30sp" />
+
+            </LinearLayout>
+
+            <!-- EditText for sentence input -->
+            <EditText
+                android:id="@+id/moodSentence"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Write about your mood..."
+                android:textColor="#FFFFFF"
+                android:textColorHint="#FFFFFF"
+                android:layout_marginTop="16dp"
+                android:minLines="3"
+                android:gravity="top"
+                android:background="@android:color/transparent"/>
+
+            <!-- Submit Button -->
+            <Button
+                android:id="@+id/submitMoodButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Submit"
+                android:layout_marginTop="16dp"/>
+
+            <!-- Back Button -->
+            <Button
+                android:id="@+id/backButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="4dp"
+                android:text="Back"
+                android:textSize="16sp" />
+
+        </LinearLayout>
+    </ScrollView>
+
+    <!-- RecyclerView for mood entries -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/moodRecyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:paddingTop="16dp"
+        android:clipToPadding="false" />
+
 </LinearLayout>

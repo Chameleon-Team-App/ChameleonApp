@@ -7,7 +7,9 @@ data class JournalEntry(
     val imageUrl: String? = null,
     var userId: String = "",
     val backgroundColor: Int = generateRandomColor(),
-    val timestamp: Long = System.currentTimeMillis() // New timestamp field
+    val timestamp: Long = System.currentTimeMillis(),
+    val mood: String? = null, // Existing mood field
+    val isMoodEntry: Boolean = false // New field to distinguish entry types
 ) {
     companion object {
         fun generateRandomColor(): Int {
@@ -21,6 +23,3 @@ data class JournalEntry(
         }
     }
 }
-
-
-

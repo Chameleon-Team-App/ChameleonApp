@@ -5,6 +5,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.cardview.widget.CardView
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -25,18 +26,29 @@ class JournalAdapter : ListAdapter<JournalEntry, JournalAdapter.JournalViewHolde
     }
 
     class JournalViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        private val cardView: View = itemView.findViewById(R.id.cardView)
+        private val cardView: CardView = itemView.findViewById(R.id.cardView)
         private val usernameTextView: TextView = itemView.findViewById(R.id.usernameTextView)
         private val titleTextView: TextView = itemView.findViewById(R.id.titleTextView)
         private val entryTextView: TextView = itemView.findViewById(R.id.entryTextView)
         private val imageView: ImageView = itemView.findViewById(R.id.imageView)
         private val profileImageView: ImageView = itemView.findViewById(R.id.profileImageView)
+        private val moodTextView: TextView = itemView.findViewById(R.id.moodTextView)
 
         fun bind(journalEntry: JournalEntry) {
             titleTextView.text = journalEntry.title
             entryTextView.text = journalEntry.text
-            cardView.setBackgroundColor(journalEntry.backgroundColor)
 
+            // Set background color
+            cardView.setCardBackgroundColor(journalEntry.backgroundColor)
+
+            // Display mood if available
+            if (journalEntry.mood != null) {
+                moodTextView.text = journalEntry.mood
+            } else {
+                moodTextView.text = ""
+            }
+
+            // Handle image
             if (journalEntry.imageUrl != null) {
                 imageView.visibility = View.VISIBLE
                 Picasso.get().load(journalEntry.imageUrl).into(imageView)
