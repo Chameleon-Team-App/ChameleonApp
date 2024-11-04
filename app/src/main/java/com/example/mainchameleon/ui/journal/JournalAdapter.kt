@@ -1,5 +1,6 @@
 package com.example.mainchameleon.ui.journal
 
+import android.app.AlertDialog
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -11,8 +12,11 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.mainchameleon.R
 import com.example.mainchameleon.ui.mood.MoodEntry
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
 import com.squareup.picasso.Picasso
+import java.text.SimpleDateFormat
+import java.util.*
 
 class JournalAdapter : ListAdapter<Any, JournalAdapter.JournalViewHolder>(JournalDiffCallback()) {
 
@@ -26,7 +30,7 @@ class JournalAdapter : ListAdapter<Any, JournalAdapter.JournalViewHolder>(Journa
         holder.bind(entry)
     }
 
-    class JournalViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    inner class JournalViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val cardView: CardView = itemView.findViewById(R.id.cardView)
         private val usernameTextView: TextView = itemView.findViewById(R.id.usernameTextView)
         private val titleTextView: TextView = itemView.findViewById(R.id.titleTextView)
@@ -34,6 +38,7 @@ class JournalAdapter : ListAdapter<Any, JournalAdapter.JournalViewHolder>(Journa
         private val imageView: ImageView = itemView.findViewById(R.id.imageView)
         private val profileImageView: ImageView = itemView.findViewById(R.id.profileImageView)
         private val moodTextView: TextView = itemView.findViewById(R.id.moodTextView)
+        private val createdDateTextView: TextView = itemView.findViewById(R.id.createdDateTextView)
 
         fun bind(entry: Any) {
             when (entry) {
@@ -56,12 +61,26 @@ class JournalAdapter : ListAdapter<Any, JournalAdapter.JournalViewHolder>(Journa
                     // Retrieve and display the username and profile picture for the entry's userId
                     val userId = entry.userId
                     loadUserData(userId)
+
+                    // Display creation date
+                    if (entry.timestamp != 0L) {
+                        val sdf = SimpleDateFormat("MM/dd/yyyy", Locale.getDefault())
+                        createdDateTextView.text = "Date: ${sdf.format(Date(entry.timestamp))}"
+                    } else {
+                        createdDateTextView.text = "Date: Unknown"
+                    }
+
+                    // Set up click listener for deletion
+                    cardView.setOnLongClickListener {
+                        promptDeleteEntry(entry)
+                        true
+                    }
                 }
 
                 is MoodEntry -> {
                     titleTextView.text = "Mood: ${entry.mood}"
                     entryTextView.text = entry.sentence
-                    moodTextView.visibility = View.GONE // Alternatively, display mood emoji or label
+                    moodTextView.visibility = View.GONE
 
                     // Set background color
                     cardView.setCardBackgroundColor(entry.backgroundColor)
@@ -72,6 +91,20 @@ class JournalAdapter : ListAdapter<Any, JournalAdapter.JournalViewHolder>(Journa
                     // Retrieve and display the username and profile picture for the entry's userId
                     val userId = entry.userId
                     loadUserData(userId)
+
+                    // Display creation date
+                    if (entry.timestamp != 0L) {
+                        val sdf = SimpleDateFormat("MM/dd/yyyy", Locale.getDefault())
+                        createdDateTextView.text = "Date: ${sdf.format(Date(entry.timestamp))}"
+                    } else {
+                        createdDateTextView.text = "Date: Unknown"
+                    }
+
+                    // Set up click listener for deletion
+                    cardView.setOnLongClickListener {
+                        promptDeleteEntry(entry)
+                        true
+                    }
                 }
             }
         }
@@ -101,6 +134,33 @@ class JournalAdapter : ListAdapter<Any, JournalAdapter.JournalViewHolder>(Journa
                 }
             }.addOnFailureListener {
                 profileImageView.setImageResource(R.drawable.default_profile)
+            }
+        }
+
+        private fun promptDeleteEntry(entry: Any) {
+            val userId = FirebaseAuth.getInstance().currentUser?.uid
+            if (entry is JournalEntry && entry.userId == userId || entry is MoodEntry && entry.userId == userId) {
+                AlertDialog.Builder(itemView.context)
+                    .setTitle("Delete Entry")
+                    .setMessage("Are you sure you want to delete this entry?")
+                    .setPositiveButton("Yes") { _, _ ->
+                        deleteEntry(entry)
+                    }
+                    .setNegativeButton("No", null)
+                    .show()
+            }
+        }
+
+        private fun deleteEntry(entry: Any) {
+            val database = FirebaseDatabase.getInstance().reference
+
+            when (entry) {
+                is JournalEntry -> {
+                    database.child("Users").child(entry.userId).child("journals").child(entry.id).removeValue()
+                }
+                is MoodEntry -> {
+                    database.child("Users").child(entry.userId).child("moods").child(entry.id).removeValue()
+                }
             }
         }
     }

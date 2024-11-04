@@ -49,6 +49,8 @@
             android:layout_gravity="end"
             android:layout_weight="1"
             android:gravity="end" />
+
+
         </LinearLayout>
 
         <!-- Title -->
@@ -79,6 +81,13 @@
             android:text="Entry text goes here..."
             android:layout_marginTop="8dp"
             android:textSize="16sp" />
-
+        <TextView
+            android:id="@+id/createdDateTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Date: MM/dd/yyyy"
+            android:layout_gravity="end"
+            android:layout_marginTop="8dp"
+            android:textSize="14sp"/>
     </LinearLayout>
 </androidx.cardview.widget.CardView>
