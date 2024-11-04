@@ -72,6 +72,16 @@ class DashboardFragment : Fragment() {
             findNavController().navigate(R.id.navigation_home)
         }
 
+        // Initialize profile views
+        profileImageView = binding.profileImage // Ensure this ID matches your XML
+        userNameTextView = binding.userName // Ensure this ID matches your XML
+        fullNameTextView = binding.fullName // Ensure this ID matches your XML
+
+        // Set click listener for profile image to navigate to UserProfileFragment
+        profileImageView.setOnClickListener {
+            findNavController().navigate(R.id.navigation_profile)
+        }
+
         // Load user profile data
         loadUserProfile()
 

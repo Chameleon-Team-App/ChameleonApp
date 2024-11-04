@@ -27,5 +27,9 @@
     <string name="error_wrong_password">Wrong password</string>
     <string name="error_authentication_failed">Authentication failed</string>
     <string name="error_User_not_found">ree</string>
+    <string name="change_picture">Change Picture</string>
+    <string name="user_bio">Tell us about yourself...</string>
+    <string name="save_button">Update Profile</string>
+    <string name="user_profile">Profile</string>
 
 </resources>
