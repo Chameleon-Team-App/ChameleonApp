@@ -40,7 +40,8 @@ class DashboardAdapter : ListAdapter<DashboardEntry, DashboardAdapter.DashboardV
                     val journal = entry.journalEntry
                     titleTextView.text = journal.title
                     entryTextView.text = journal.text
-                    moodTextView.visibility = View.GONE
+                    moodTextView.visibility = View.VISIBLE
+                    moodTextView.text = "Journal"
 
                     // Set background color
                     cardView.setCardBackgroundColor(journal.backgroundColor)
