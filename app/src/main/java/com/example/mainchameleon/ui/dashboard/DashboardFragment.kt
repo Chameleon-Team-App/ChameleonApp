@@ -13,7 +13,9 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.mainchameleon.R
 import com.example.mainchameleon.databinding.FragmentDashboardBinding
+import com.example.mainchameleon.ui.calendar.WeeklyCalendarAdapter
 import com.squareup.picasso.Picasso
+import java.util.Date
 
 class DashboardFragment : Fragment() {
 
@@ -34,6 +36,13 @@ class DashboardFragment : Fragment() {
     ): View? {
         _binding = FragmentDashboardBinding.inflate(inflater, container, false)
         val view = binding.root
+
+        // Initialize weekly calendar RecyclerView
+        val currentDate = Date() // Current date
+        val weeklyCalendarAdapter = WeeklyCalendarAdapter(requireContext(), currentDate)
+
+        binding.weeklyCalendarRecycler.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
+        binding.weeklyCalendarRecycler.adapter = weeklyCalendarAdapter
 
         // Initialize the ViewModel
         dashboardViewModel = ViewModelProvider(this).get(DashboardViewModel::class.java)
@@ -89,12 +98,11 @@ class DashboardFragment : Fragment() {
     }
 
     private fun loadUserProfile() {
-        // Get the current user ID from Firebase Authentication
         val userId = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser?.uid
         if (userId != null) {
             val userRef = com.google.firebase.database.FirebaseDatabase.getInstance().getReference("Users").child(userId)
 
-            // Retrieve username
+            // Retrieve and set username
             userRef.child("Username").get().addOnSuccessListener { dataSnapshot ->
                 val username = dataSnapshot.getValue(String::class.java)
                 userNameTextView.text = username ?: "Unknown User"
@@ -107,19 +115,21 @@ class DashboardFragment : Fragment() {
             var lastName: String? = null
 
             // Retrieve first name
-            userRef.child("firstName").get().addOnSuccessListener { dataSnapshot ->
+            userRef.child("First Name").get().addOnSuccessListener { dataSnapshot ->
                 firstName = dataSnapshot.getValue(String::class.java)
-                // Update full name if last name is already retrieved
-                updateFullName(firstName, lastName)
+                if (lastName != null) {
+                    updateFullName(firstName, lastName)
+                }
             }.addOnFailureListener {
                 fullNameTextView.text = "Unknown First Name"
             }
 
             // Retrieve last name
-            userRef.child("lastName").get().addOnSuccessListener { dataSnapshot ->
+            userRef.child("Last Name").get().addOnSuccessListener { dataSnapshot ->
                 lastName = dataSnapshot.getValue(String::class.java)
-                // Update full name if first name is already retrieved
-                updateFullName(firstName, lastName)
+                if (firstName != null) {
+                    updateFullName(firstName, lastName)
+                }
             }.addOnFailureListener {
                 fullNameTextView.text = "Unknown Last Name"
             }
@@ -131,7 +141,7 @@ class DashboardFragment : Fragment() {
                     Picasso.get()
                         .load(profilePictureUrl)
                         .placeholder(R.drawable.default_profile) // Placeholder image
-                        .error(R.drawable.default_profile) // Error image
+                        .error(R.drawable.default_profile) // Error image if URL is invalid
                         .into(profileImageView)
                 } else {
                     profileImageView.setImageResource(R.drawable.default_profile)
@@ -142,7 +152,7 @@ class DashboardFragment : Fragment() {
         } else {
             // Handle case where user ID is null
             userNameTextView.text = "No User Logged In"
-            fullNameTextView.text = ""
+            fullNameTextView.text = "Unknown Full Name"
             profileImageView.setImageResource(R.drawable.default_profile)
         }
     }
