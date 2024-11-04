@@ -14,12 +14,14 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.setFragmentResultListener
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.mainchameleon.R
 import com.example.mainchameleon.databinding.FragmentJournalBinding
+import com.example.mainchameleon.ui.dashboard.DashboardViewModel
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.storage.FirebaseStorage
@@ -36,6 +38,7 @@ class JournalFragment : Fragment() {
 
     private lateinit var journalViewModel: JournalViewModel
     private lateinit var userJournalAdapter: JournalAdapter
+    private val dashboardViewModel: DashboardViewModel by activityViewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -152,7 +155,6 @@ class JournalFragment : Fragment() {
             imageUrl = photoUrl,
             backgroundColor = JournalEntry.generateRandomColor(),
             userId = userId
-            // No need for isMoodEntry as moods are in a separate node
         )
 
         database.child("Users").child(userId).child("journals").child(noteId).setValue(journalEntry)
@@ -161,6 +163,8 @@ class JournalFragment : Fragment() {
                     Log.d(TAG, "Journal entry saved successfully")
                     Toast.makeText(requireContext(), "Journal saved", Toast.LENGTH_SHORT).show()
                     clearJournalForm()
+                    // Update streak
+                    dashboardViewModel.updateStreakIfNeeded()
                 } else {
                     Log.e(TAG, "Failed to save journal entry", task.exception)
                     Toast.makeText(requireContext(), "Failed to save journal", Toast.LENGTH_SHORT).show()

@@ -8,12 +8,11 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.mainchameleon.R
 import com.example.mainchameleon.databinding.FragmentDashboardBinding
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.database.FirebaseDatabase
 import com.squareup.picasso.Picasso
 
 class DashboardFragment : Fragment() {
@@ -27,6 +26,7 @@ class DashboardFragment : Fragment() {
     private lateinit var profileImageView: ImageView
     private lateinit var userNameTextView: TextView
     private lateinit var fullNameTextView: TextView
+    private lateinit var streakTextView: TextView
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -43,10 +43,26 @@ class DashboardFragment : Fragment() {
         binding.recyclerView.adapter = dashboardAdapter
         binding.recyclerView.layoutManager = LinearLayoutManager(requireContext())
 
+        // Initialize UI elements
+        profileImageView = binding.profileImage
+        userNameTextView = binding.userName
+        fullNameTextView = binding.fullName
+        streakTextView = binding.streakTextView
+
         // Observe the allEntries LiveData from the ViewModel
-        dashboardViewModel.allEntries.observe(viewLifecycleOwner) { entries ->
+        dashboardViewModel.allEntries.observe(viewLifecycleOwner, Observer { entries ->
             dashboardAdapter.submitList(entries)
-        }
+        })
+
+        // Observe the streak LiveData from the ViewModel
+        dashboardViewModel.streak.observe(viewLifecycleOwner, Observer { streak ->
+            val streakCount = streak.currentStreak
+            streakTextView.text = if (streakCount > 0) "🔥 $streakCount" else "🔥 0"
+            // Optionally, change the color or appearance based on the streak
+            // For example:
+            // streakTextView.setTextColor(resources.getColor(R.color.streakColor))
+            // Ensure you have defined `streakColor` in your colors.xml
+        })
 
         // Set click listeners for navigation buttons
         binding.JournalButton.setOnClickListener {
@@ -56,11 +72,6 @@ class DashboardFragment : Fragment() {
             findNavController().navigate(R.id.navigation_home)
         }
 
-        // Initialize profile views
-        profileImageView = binding.profileImage // Ensure this ID matches your XML
-        userNameTextView = binding.userName // Ensure this ID matches your XML
-        fullNameTextView = binding.fullName // Ensure this ID matches your XML
-
         // Load user profile data
         loadUserProfile()
 
@@ -69,9 +80,9 @@ class DashboardFragment : Fragment() {
 
     private fun loadUserProfile() {
         // Get the current user ID from Firebase Authentication
-        val userId = FirebaseAuth.getInstance().currentUser?.uid
+        val userId = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser?.uid
         if (userId != null) {
-            val userRef = FirebaseDatabase.getInstance().getReference("Users").child(userId)
+            val userRef = com.google.firebase.database.FirebaseDatabase.getInstance().getReference("Users").child(userId)
 
             // Retrieve username
             userRef.child("Username").get().addOnSuccessListener { dataSnapshot ->

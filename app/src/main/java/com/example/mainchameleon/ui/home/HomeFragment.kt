@@ -8,10 +8,12 @@ import android.widget.Button
 import android.widget.Toast
 import androidx.lifecycle.ViewModelProvider
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.mainchameleon.R
 import com.example.mainchameleon.databinding.FragmentHomeBinding
+import com.example.mainchameleon.ui.dashboard.DashboardViewModel
 import com.example.mainchameleon.ui.journal.JournalAdapter
 import com.example.mainchameleon.ui.mood.MoodEntry
 import com.example.mainchameleon.ui.journal.JournalViewModel
@@ -29,6 +31,7 @@ class HomeFragment : Fragment() {
 
     private lateinit var journalViewModel: JournalViewModel
     private lateinit var moodAdapter: JournalAdapter // Alternatively, create a MoodAdapter
+    private val dashboardViewModel: DashboardViewModel by activityViewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -119,6 +122,8 @@ class HomeFragment : Fragment() {
                 if (task.isSuccessful) {
                     Toast.makeText(requireContext(), "Mood entry saved", Toast.LENGTH_SHORT).show()
                     clearMoodForm()
+                    // Update streak
+                    dashboardViewModel.updateStreakIfNeeded()
                 } else {
                     Toast.makeText(requireContext(), "Failed to save mood entry", Toast.LENGTH_SHORT).show()
                 }
