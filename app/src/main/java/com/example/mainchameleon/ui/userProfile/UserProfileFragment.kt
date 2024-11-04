@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.ImageButton
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
@@ -53,6 +54,11 @@ class UserProfileFragment : Fragment() {
             findNavController().navigate(R.id.navigation_profile_customization)
         }
 
+        val backButton: ImageButton = binding.root.findViewById(R.id.back_button)
+        backButton.setOnClickListener {
+            navigateBack()
+        }
+
         return binding.root
     }
 
@@ -85,5 +91,9 @@ class UserProfileFragment : Fragment() {
             binding.profileImage.setImageResource(R.drawable.default_profile)
             Toast.makeText(requireContext(), "Failed to load user data", Toast.LENGTH_SHORT).show()
         }
+    }
+
+    private fun navigateBack() {
+        requireActivity().onBackPressedDispatcher.onBackPressed() // Proper way to navigate back
     }
 }
