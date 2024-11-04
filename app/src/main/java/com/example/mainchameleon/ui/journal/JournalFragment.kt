@@ -163,6 +163,14 @@ class JournalFragment : Fragment() {
                     Log.d(TAG, "Journal entry saved successfully")
                     Toast.makeText(requireContext(), "Journal saved", Toast.LENGTH_SHORT).show()
                     clearJournalForm()
+
+                    // Observe the data update to ensure scrolling happens only after new data is available
+                    journalViewModel.currentUserJournalEntries.observe(viewLifecycleOwner) { entries ->
+                        userJournalAdapter.submitList(entries) {
+                            binding.userNotesRecyclerView.scrollToPosition(0)  // Scroll to top after data update
+                        }
+                    }
+
                     // Update streak
                     dashboardViewModel.updateStreakIfNeeded()
                 } else {

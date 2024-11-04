@@ -122,6 +122,14 @@ class HomeFragment : Fragment() {
                 if (task.isSuccessful) {
                     Toast.makeText(requireContext(), "Mood entry saved", Toast.LENGTH_SHORT).show()
                     clearMoodForm()
+
+                    // Observe the data update to ensure scrolling happens only after new data is available
+                    journalViewModel.currentUserMoodEntries.observe(viewLifecycleOwner) { entries ->
+                        moodAdapter.submitList(entries) {
+                            binding.moodRecyclerView.scrollToPosition(0)  // Scroll to top after data update
+                        }
+                    }
+
                     // Update streak
                     dashboardViewModel.updateStreakIfNeeded()
                 } else {

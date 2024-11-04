@@ -110,6 +110,16 @@
                 android:layout_margin="4dp"
                 android:text="Back"
                 android:textSize="16sp" />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Personal Feed"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="#FFFFFF"
+                android:gravity="center"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="8dp" />
 
         </LinearLayout>
     </ScrollView>

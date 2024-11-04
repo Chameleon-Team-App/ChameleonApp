@@ -142,7 +142,16 @@
                     </RelativeLayout>
                 </com.google.android.material.card.MaterialCardView>
             </LinearLayout>
-
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Global Feed"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="#FFFFFF"
+                android:gravity="center"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="8dp" />
             <!-- RecyclerView Section -->
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/recyclerView"
