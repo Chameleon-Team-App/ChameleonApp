@@ -75,7 +75,7 @@ class UserProfileFragment : Fragment() {
         database.getReference("Users").child(userId).get().addOnSuccessListener { dataSnapshot ->
             val profilePictureUrl = dataSnapshot.child("profilePictureUrl").value as? String
             val username = dataSnapshot.child("Username").value as? String
-            val bio = dataSnapshot.child("Bio").value as? String
+            val bio = dataSnapshot.child("bio").value as? String
 
             // Set profile picture with a fallback for empty or null URL
             if (!profilePictureUrl.isNullOrEmpty()) {
@@ -85,7 +85,7 @@ class UserProfileFragment : Fragment() {
             }
 
             binding.usernameText.text = username ?: "N/A"
-            binding.bioText.text = bio ?: "N/A"
+            binding.bioText.text = bio ?: "N/A" // Ensure this displays the bio
         }.addOnFailureListener {
             // Handle any errors, such as network failure or database issues
             binding.profileImage.setImageResource(R.drawable.default_profile)
