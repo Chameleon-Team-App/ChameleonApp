@@ -50,6 +50,7 @@ class DashboardFragment : Fragment() {
         // Observe journal entries
         dashboardViewModel.allEntries.observe(viewLifecycleOwner) { entries ->
             dashboardAdapter.submitList(entries)
+            binding.swipeRefreshLayout.isRefreshing = false // Stop the refresh animation
         }
 
         // Observe streak updates
@@ -60,10 +61,20 @@ class DashboardFragment : Fragment() {
         // Load user profile data
         loadUserProfile()
 
+        // Set up swipe-to-refresh
+        setupSwipeToRefresh()
+
         // Set click listeners for navigation buttons
         setupNavigationButtons()
 
         return binding.root
+    }
+
+    private fun setupSwipeToRefresh() {
+        binding.swipeRefreshLayout.setOnRefreshListener {
+            dashboardViewModel.loadAllEntries()
+            dashboardViewModel.loadStreak()
+        }
     }
 
     private fun setupNavigationButtons() {

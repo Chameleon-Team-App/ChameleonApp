@@ -23,7 +23,7 @@ class DashboardViewModel : ViewModel() {
     }
 
     // Fetches all journal entries from all users
-    private fun loadAllEntries() {
+    fun loadAllEntries() {
         val databaseRef = FirebaseDatabase.getInstance().getReference("Users")
 
         databaseRef.addListenerForSingleValueEvent(object : ValueEventListener {
@@ -55,7 +55,7 @@ class DashboardViewModel : ViewModel() {
     }
 
     // Loads the current streak data for the user
-    private fun loadStreak() {
+    fun loadStreak() {
         val userId = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser?.uid ?: return
         val streakRef = FirebaseDatabase.getInstance().getReference("Users/$userId/streak")
 

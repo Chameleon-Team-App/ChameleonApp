@@ -45,7 +45,25 @@
         android:id="@+id/navigation_profile"
         android:name="com.example.mainchameleon.ui.userProfile.UserProfileFragment"
         android:label="@string/title_profile"
-        tools:layout="@layout/fragment_user_profile" />
+        tools:layout="@layout/fragment_user_profile">
+
+        <!-- Navigate to Profile Customization (Editor) -->
+        <action
+            android:id="@+id/action_navigation_profile_to_navigation_profile_customization"
+            app:destination="@id/navigation_profile_customization" />
+
+        <!-- Navigate Back to Dashboard -->
+        <action
+            android:id="@+id/action_navigation_profile_to_navigation_dashboard"
+            app:destination="@id/navigation_dashboard" />
+    </fragment>
+
+    <!-- Profile Customization (Editor) Fragment -->
+    <fragment
+        android:id="@+id/navigation_profile_customization"
+        android:name="com.example.mainchameleon.ui.userProfile.ProfileCustomizationFragment"
+        android:label="Profile Customization"
+        tools:layout="@layout/fragment_profile_customization" />
 
     <!-- Camera Fragment -->
     <fragment

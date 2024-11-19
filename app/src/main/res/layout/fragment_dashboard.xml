@@ -7,13 +7,13 @@
     android:background="#292929"
     tools:context=".ui.dashboard.DashboardFragment">
 
-    <!-- Scrollable Content -->
-    <androidx.core.widget.NestedScrollView
+    <!-- SwipeRefreshLayout for pull-to-refresh functionality -->
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id="@+id/swipeRefreshLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        android:fillViewport="true">
+        app:layout_constraintBottom_toBottomOf="parent">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -34,7 +34,7 @@
                     android:layout_height="100dp"
                     android:src="@drawable/default_profile"
                     android:layout_centerVertical="true"
-                    android:visibility="visible"/>
+                    android:visibility="visible" />
 
                 <TextView
                     android:id="@+id/user_name"
@@ -44,7 +44,7 @@
                     android:textSize="20sp"
                     android:layout_toRightOf="@id/profile_image"
                     android:layout_centerVertical="true"
-                    android:layout_marginStart="20dp"/>
+                    android:layout_marginStart="20dp" />
 
                 <TextView
                     android:id="@+id/fullName"
@@ -114,9 +114,12 @@
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/recyclerView"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:paddingBottom="100dp"
-                android:clipToPadding="false"/>
+                android:layout_height="match_parent"
+                android:clipToPadding="false"
+                android:paddingBottom="100dp" />
+
         </LinearLayout>
-    </androidx.core.widget.NestedScrollView>
+
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+
 </androidx.constraintlayout.widget.ConstraintLayout>
