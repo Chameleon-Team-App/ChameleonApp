@@ -11,7 +11,6 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.example.mainchameleon.R
 import com.example.mainchameleon.ui.journal.JournalEntry
-import com.example.mainchameleon.ui.mood.MoodEntry
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
 import com.squareup.picasso.Picasso
@@ -20,9 +19,9 @@ import java.util.*
 
 class DashboardAdapter : RecyclerView.Adapter<DashboardAdapter.DashboardViewHolder>() {
 
-    private val entries = mutableListOf<DashboardEntry>()
+    private val entries = mutableListOf<JournalEntry>()
 
-    fun submitList(newEntries: List<DashboardEntry>) {
+    fun submitList(newEntries: List<JournalEntry>) {
         entries.clear()
         entries.addAll(newEntries)
         notifyDataSetChanged()
@@ -48,65 +47,48 @@ class DashboardAdapter : RecyclerView.Adapter<DashboardAdapter.DashboardViewHold
         private val entryTextView: TextView = itemView.findViewById(R.id.entryTextView)
         private val createdDateTextView: TextView = itemView.findViewById(R.id.createdDateTextView)
         private val imageView: ImageView = itemView.findViewById(R.id.imageView)
-        private val cardView: androidx.cardview.widget.CardView = itemView.findViewById(R.id.cardView) // Initialize cardView
-        fun bind(entry: DashboardEntry) {
-            when (entry) {
-                is DashboardEntry.Journal -> {
-                    val journal = entry.journalEntry
-                    titleTextView.text = journal.title
-                    entryTextView.text = journal.text
-                    moodTextView.visibility = View.VISIBLE
-                    moodTextView.text = "Journal"
+        private val cardView: androidx.cardview.widget.CardView = itemView.findViewById(R.id.cardView)
 
-                    // Set background color for journal entries
-                    cardView.setCardBackgroundColor(journal.backgroundColor)
+        fun bind(entry: JournalEntry) {
+            // Title and text
+            titleTextView.text = entry.title
+            entryTextView.text = entry.text
 
-                    // Display formatted date
-                    val dateFormat = SimpleDateFormat("MM/dd/yyyy", Locale.getDefault())
-                    val formattedDate = dateFormat.format(Date(journal.timestamp))
-                    createdDateTextView.text = "Date: $formattedDate"
-
-                    if (!journal.imageUrl.isNullOrEmpty()) {
-                        imageView.visibility = View.VISIBLE
-                        Picasso.get().load(journal.imageUrl).into(imageView)
-                    } else {
-                        imageView.visibility = View.GONE
-                    }
-
-                    loadUserData(journal.userId)
-                }
-
-                is DashboardEntry.Mood -> {
-                    val mood = entry.moodEntry
-                    titleTextView.text = "Mood: ${mood.mood}"
-                    entryTextView.text = mood.sentence
-                    moodTextView.visibility = View.VISIBLE
-                    moodTextView.text = mood.mood
-
-                    // Set background color for mood entries
-                    cardView.setCardBackgroundColor(mood.backgroundColor)
-
-                    // Display formatted date
-                    val dateFormat = SimpleDateFormat("MM/dd/yyyy", Locale.getDefault())
-                    val formattedDate = dateFormat.format(Date(mood.timestamp))
-                    createdDateTextView.text = "Date: $formattedDate"
-
-                    imageView.visibility = View.GONE
-                    loadUserData(mood.userId)
-                }
+            // Mood emoji
+            if (!entry.mood.isNullOrEmpty()) {
+                moodTextView.visibility = View.VISIBLE
+                moodTextView.text = entry.mood
+            } else {
+                moodTextView.visibility = View.GONE
             }
 
-            // Enable deletion on long press for entries owned by the current user
+            // Background color
+            cardView.setCardBackgroundColor(entry.backgroundColor)
+
+            // Date formatting
+            val dateFormat = SimpleDateFormat("MM/dd/yyyy", Locale.getDefault())
+            createdDateTextView.text = "Date: ${dateFormat.format(Date(entry.timestamp))}"
+
+            // Image handling
+            if (!entry.imageUrl.isNullOrEmpty()) {
+                imageView.visibility = View.VISIBLE
+                Picasso.get().load(entry.imageUrl).into(imageView)
+            } else {
+                imageView.visibility = View.GONE
+            }
+
+            // Load user data (profile picture and username)
+            loadUserData(entry.userId)
+
+            // Enable deletion on long press
             itemView.setOnLongClickListener {
                 val currentUserId = FirebaseAuth.getInstance().currentUser?.uid
-                if (currentUserId == (entry as? DashboardEntry.Journal)?.journalEntry?.userId
-                    || currentUserId == (entry as? DashboardEntry.Mood)?.moodEntry?.userId) {
+                if (currentUserId == entry.userId) {
                     showDeleteConfirmationDialog(entry)
                 }
                 true
             }
         }
-
 
         private fun loadUserData(userId: String) {
             val userRef = FirebaseDatabase.getInstance().getReference("Users").child(userId)
@@ -126,25 +108,21 @@ class DashboardAdapter : RecyclerView.Adapter<DashboardAdapter.DashboardViewHold
             }
         }
 
-        private fun showDeleteConfirmationDialog(entry: DashboardEntry) {
+        private fun showDeleteConfirmationDialog(entry: JournalEntry) {
             AlertDialog.Builder(itemView.context)
                 .setTitle("Delete Entry")
                 .setMessage("Are you sure you want to delete this entry?")
-                .setPositiveButton("Yes") { _, _ ->
-                    deleteEntry(entry)
-                }
+                .setPositiveButton("Yes") { _, _ -> deleteEntry(entry) }
                 .setNegativeButton("No", null)
                 .show()
         }
 
-        private fun deleteEntry(entry: DashboardEntry) {
-            val userId = (entry as? DashboardEntry.Journal)?.journalEntry?.userId
-                ?: (entry as? DashboardEntry.Mood)?.moodEntry?.userId
+        private fun deleteEntry(entry: JournalEntry) {
             val entryRef = FirebaseDatabase.getInstance()
                 .getReference("Users")
-                .child(userId!!)
-                .child(if (entry is DashboardEntry.Journal) "journals" else "moods")
-                .child((entry as? DashboardEntry.Journal)?.journalEntry?.id ?: (entry as DashboardEntry.Mood).moodEntry.id)
+                .child(entry.userId)
+                .child("journals")
+                .child(entry.id)
 
             entryRef.removeValue().addOnSuccessListener {
                 Toast.makeText(itemView.context, "Entry deleted", Toast.LENGTH_SHORT).show()
@@ -159,21 +137,14 @@ class DashboardAdapter : RecyclerView.Adapter<DashboardAdapter.DashboardViewHold
                 Toast.makeText(itemView.context, "Failed to delete entry", Toast.LENGTH_SHORT).show()
             }
         }
-
     }
 
-    class DashboardDiffCallback : DiffUtil.ItemCallback<DashboardEntry>() {
-        override fun areItemsTheSame(oldItem: DashboardEntry, newItem: DashboardEntry): Boolean {
-            return when {
-                oldItem is DashboardEntry.Journal && newItem is DashboardEntry.Journal ->
-                    oldItem.journalEntry.id == newItem.journalEntry.id
-                oldItem is DashboardEntry.Mood && newItem is DashboardEntry.Mood ->
-                    oldItem.moodEntry.id == newItem.moodEntry.id
-                else -> false
-            }
+    class DashboardDiffCallback : DiffUtil.ItemCallback<JournalEntry>() {
+        override fun areItemsTheSame(oldItem: JournalEntry, newItem: JournalEntry): Boolean {
+            return oldItem.id == newItem.id
         }
 
-        override fun areContentsTheSame(oldItem: DashboardEntry, newItem: DashboardEntry): Boolean {
+        override fun areContentsTheSame(oldItem: JournalEntry, newItem: JournalEntry): Boolean {
             return oldItem == newItem
         }
     }

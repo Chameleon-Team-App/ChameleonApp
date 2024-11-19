@@ -6,7 +6,6 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <!-- Scrollable content for the journal entry form -->
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -18,40 +17,98 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <!-- Title Entry Box -->
-            <androidx.cardview.widget.CardView
+            <!-- Title Entry -->
+            <EditText
+                android:id="@+id/titleEntryBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
-                app:cardBackgroundColor="#E9CC35"
-                app:cardCornerRadius="20dp">
+                android:hint="Enter title here"
+                android:textColor="#000000"
+                android:textSize="16sp"
+                android:layout_marginBottom="8dp" />
 
-                <EditText
-                    android:id="@+id/titleEntryBox"
-                    android:layout_width="match_parent"
+            <!-- Mood Emoji Selection -->
+            <TextView
+                android:id="@+id/moodPrompt"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Select your mood"
+                android:textSize="16sp"
+                android:textColor="#FFFFFF"
+                android:layout_marginBottom="8dp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center"
+                android:layout_marginBottom="8dp">
+
+                <!-- Mood Buttons -->
+                <Button
+                    android:id="@+id/button_happy"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:hint="Input title here"
-                    android:textColor="#000000"
-                    android:textColorHint="#000000"
-                    android:textSize="16sp" />
-            </androidx.cardview.widget.CardView>
+                    android:text="😊"
+                    android:textSize="24sp" />
 
-            <!-- Image Preview for Selected or Captured Photo -->
+                <Button
+                    android:id="@+id/button_sad"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="😢"
+                    android:textSize="24sp" />
+
+                <Button
+                    android:id="@+id/button_angry"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="😡"
+                    android:textSize="24sp" />
+
+                <Button
+                    android:id="@+id/button_anxious"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="😟"
+                    android:textSize="24sp" />
+
+                <Button
+                    android:id="@+id/button_neutral"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="😐"
+                    android:textSize="24sp" />
+            </LinearLayout>
+
+            <!-- Journal Text -->
+            <EditText
+                android:id="@+id/journalEntryText"
+                android:layout_width="match_parent"
+                android:layout_height="150dp"
+                android:hint="Enter your journal entry..."
+                android:textColor="#000000"
+                android:textSize="16sp"
+                android:gravity="top"
+                android:layout_marginBottom="8dp" />
+
+            <!-- Image Preview -->
             <ImageView
                 android:id="@+id/imageViewPlaceholder"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:adjustViewBounds="true"
                 android:scaleType="fitCenter"
-                android:visibility="gone" />
+                android:visibility="gone"
+                android:layout_marginBottom="8dp" />
 
-            <!-- Buttons for Image Selection -->
+            <!-- Image Selection Buttons -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:gravity="center"
-                android:layout_marginTop="8dp">
+                android:layout_marginBottom="8dp">
 
                 <Button
                     android:id="@+id/uploadFromGalleryButton"
@@ -66,54 +123,16 @@
                     android:text="Camera" />
             </LinearLayout>
 
-            <!-- Text Entry -->
-            <androidx.cardview.widget.CardView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                app:cardBackgroundColor="#E9CC35"
-                app:cardCornerRadius="20dp">
-
-                <EditText
-                    android:id="@+id/journalEntryText"
-                    android:layout_width="match_parent"
-                    android:layout_height="150dp"
-                    android:hint="Input text here"
-                    android:gravity="top"
-                    android:textColor="#000000"
-                    android:textColorHint="#000000"
-                    android:textSize="16sp" />
-            </androidx.cardview.widget.CardView>
-
             <!-- Save Button -->
             <Button
                 android:id="@+id/saveJournalButton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:text="SAVE" />
-
-            <!-- Back Button -->
-            <Button
-                android:id="@+id/backButton"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:text="BACK" />
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Personal Feed"
-                android:textSize="18sp"
-                android:textStyle="bold"
-                android:textColor="#FFFFFF"
-                android:gravity="center"
-                android:layout_marginTop="16dp"
-                android:layout_marginBottom="8dp" />
+                android:text="Save" />
         </LinearLayout>
     </ScrollView>
 
-    <!-- RecyclerView for user's journal entries -->
+    <!-- RecyclerView -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/userNotesRecyclerView"
         android:layout_width="match_parent"
