@@ -1,3 +1,4 @@
+// JournalEntry.kt
 package com.example.mainchameleon.ui.journal
 
 import android.graphics.Color
@@ -6,14 +7,13 @@ data class JournalEntry(
     val id: String = "",
     val title: String = "",
     val text: String = "",
-    val mood: String? = null, // New field for storing mood emoji
+    val mood: String? = null,
     var imageUrl: String? = null, // URL for uploaded image
     var userId: String = "",
-    val backgroundColor: Int = generateRandomColor(), // Randomly generated background color
+    val backgroundColor: Int = generateRandomColor(),
     val timestamp: Long = System.currentTimeMillis()
 ) {
     companion object {
-        // Define a list of 7 colors that look good against black text
         private val COLORS = listOf(
             Color.parseColor("#FFE4B5"), // Moccasin
             Color.parseColor("#FFDAB9"), // Peach Puff
@@ -26,7 +26,7 @@ data class JournalEntry(
 
         fun generateRandomColor(): Int {
             val random = java.util.Random()
-            return COLORS[random.nextInt(COLORS.size)] // Select a random color from the list
+            return COLORS[random.nextInt(COLORS.size)]
         }
     }
 }

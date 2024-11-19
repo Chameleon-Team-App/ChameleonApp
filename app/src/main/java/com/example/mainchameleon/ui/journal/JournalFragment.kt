@@ -1,8 +1,8 @@
+// JournalFragment.kt
 package com.example.mainchameleon.ui.journal
 
 import android.app.Activity
 import android.content.Intent
-import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
@@ -18,7 +18,7 @@ import com.example.mainchameleon.databinding.FragmentJournalBinding
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.storage.FirebaseStorage
-import java.io.ByteArrayOutputStream
+import com.squareup.picasso.Picasso
 import java.util.*
 
 class JournalFragment : Fragment() {
@@ -28,10 +28,10 @@ class JournalFragment : Fragment() {
     private lateinit var journalViewModel: JournalViewModel
 
     private var imageUri: Uri? = null
+    private var imageUrl: String? = null // New variable to store the remote image URL
     private var selectedMood: String? = null
 
     companion object {
-        private const val REQUEST_IMAGE_CAPTURE = 1
         private const val REQUEST_IMAGE_PICK = 2
     }
 
@@ -46,6 +46,15 @@ class JournalFragment : Fragment() {
         setupImageButtons()
         setupSaveButton()
         setupBackButton()
+
+        // Listen for the photo URL from the CameraFragment
+        findNavController().currentBackStackEntry?.savedStateHandle?.getLiveData<String>("photoUrl")
+            ?.observe(viewLifecycleOwner) { photoUrl ->
+                imageUrl = photoUrl
+                // Load the image from the remote URL using Picasso
+                Picasso.get().load(imageUrl).into(binding.imageViewPlaceholder)
+                binding.imageViewPlaceholder.visibility = View.VISIBLE
+            }
 
         return binding.root
     }
@@ -78,6 +87,7 @@ class JournalFragment : Fragment() {
             when (requestCode) {
                 REQUEST_IMAGE_PICK -> {
                     imageUri = data?.data
+                    imageUrl = null // Reset imageUrl since we're using a local image
                     binding.imageViewPlaceholder.setImageURI(imageUri)
                     binding.imageViewPlaceholder.visibility = View.VISIBLE
                 }
@@ -90,7 +100,7 @@ class JournalFragment : Fragment() {
             val title = binding.titleEntryBox.text.toString().trim()
             val text = binding.journalEntryText.text.toString().trim()
 
-            if (title.isEmpty() && text.isEmpty() && selectedMood == null) {
+            if (title.isEmpty() && text.isEmpty() && selectedMood == null && imageUri == null && imageUrl == null) {
                 Toast.makeText(requireContext(), "Please fill in the journal details", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
@@ -107,28 +117,38 @@ class JournalFragment : Fragment() {
                 timestamp = System.currentTimeMillis()
             )
 
-            if (imageUri != null) {
-                uploadImageToFirebaseStorage(journalId) { imageUrl ->
+            // Handle image saving based on whether it's a remote URL or a local URI
+            when {
+                imageUrl != null -> {
                     journalEntry.imageUrl = imageUrl
                     saveJournalToDatabase(journalEntry)
                 }
-            } else {
-                saveJournalToDatabase(journalEntry)
+                imageUri != null -> {
+                    uploadImageToFirebaseStorage(journalId) { uploadedImageUrl ->
+                        journalEntry.imageUrl = uploadedImageUrl
+                        saveJournalToDatabase(journalEntry)
+                    }
+                }
+                else -> {
+                    saveJournalToDatabase(journalEntry)
+                }
             }
         }
     }
 
     private fun uploadImageToFirebaseStorage(journalId: String, callback: (String) -> Unit) {
         val storageRef = FirebaseStorage.getInstance().getReference("journal_images/$journalId.jpg")
-        storageRef.putFile(imageUri!!)
-            .addOnSuccessListener {
-                storageRef.downloadUrl.addOnSuccessListener { uri ->
-                    callback(uri.toString())
+        imageUri?.let { uri ->
+            storageRef.putFile(uri)
+                .addOnSuccessListener {
+                    storageRef.downloadUrl.addOnSuccessListener { downloadUri ->
+                        callback(downloadUri.toString()) // Pass the download URL back via the callback
+                    }
                 }
-            }
-            .addOnFailureListener {
-                Toast.makeText(requireContext(), "Failed to upload image", Toast.LENGTH_SHORT).show()
-            }
+                .addOnFailureListener {
+                    Toast.makeText(requireContext(), "Failed to upload image", Toast.LENGTH_SHORT).show()
+                }
+        } ?: Toast.makeText(requireContext(), "No image to upload", Toast.LENGTH_SHORT).show()
     }
 
     private fun saveJournalToDatabase(journalEntry: JournalEntry) {
