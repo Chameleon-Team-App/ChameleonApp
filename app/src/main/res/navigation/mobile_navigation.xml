@@ -11,11 +11,6 @@
         android:label="@string/title_dashboard"
         tools:layout="@layout/fragment_dashboard">
 
-        <!-- Navigate to Home -->
-        <action
-            android:id="@+id/action_navigation_dashboard_to_navigation_home"
-            app:destination="@id/navigation_home" />
-
         <!-- Navigate to Journal -->
         <action
             android:id="@+id/action_navigation_dashboard_to_navigation_journal"
@@ -32,7 +27,18 @@
         android:id="@+id/navigation_journal"
         android:name="com.example.mainchameleon.ui.journal.JournalFragment"
         android:label="@string/title_journal"
-        tools:layout="@layout/fragment_journal" />
+        tools:layout="@layout/fragment_journal">
+
+        <!-- Navigate to Dashboard -->
+        <action
+            android:id="@+id/action_navigation_journal_to_navigation_dashboard"
+            app:destination="@id/navigation_dashboard" />
+
+        <!-- Navigate to Camera -->
+        <action
+            android:id="@+id/action_navigation_journal_to_navigation_camera"
+            app:destination="@id/navigation_camera" />
+    </fragment>
 
     <!-- Profile Fragment -->
     <fragment
@@ -41,5 +47,10 @@
         android:label="@string/title_profile"
         tools:layout="@layout/fragment_user_profile" />
 
-
+    <!-- Camera Fragment -->
+    <fragment
+        android:id="@+id/navigation_camera"
+        android:name="com.example.mainchameleon.ui.camera.CameraFragment"
+        android:label="@string/title_camera"
+        tools:layout="@layout/fragment_camera" />
 </navigation>

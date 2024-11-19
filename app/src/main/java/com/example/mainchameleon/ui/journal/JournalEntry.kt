@@ -7,7 +7,7 @@ data class JournalEntry(
     val title: String = "",
     val text: String = "",
     val mood: String? = null, // New field for storing mood emoji
-    val imageUrl: String? = null, // URL for uploaded image
+    var imageUrl: String? = null, // URL for uploaded image
     var userId: String = "",
     val backgroundColor: Int = generateRandomColor(), // Randomly generated background color
     val timestamp: Long = System.currentTimeMillis()
