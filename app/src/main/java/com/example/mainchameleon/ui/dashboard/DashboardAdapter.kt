@@ -1,6 +1,7 @@
 package com.example.mainchameleon.ui.dashboard
 
 import android.app.AlertDialog
+import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -64,13 +65,13 @@ class DashboardAdapter : RecyclerView.Adapter<DashboardAdapter.DashboardViewHold
 
             // Background color
             when (entry.mood) {
-                "😊" -> cardView.setCardBackgroundColor(3)
-                "😢" -> cardView.setCardBackgroundColor(4)
-                "😡" -> cardView.setCardBackgroundColor(1)
-                "😟" -> cardView.setCardBackgroundColor(2)
-                "😐" -> cardView.setCardBackgroundColor(6)
+                "😊" -> cardView.setCardBackgroundColor(Color.parseColor("#67DB60"))
+                "😢" -> cardView.setCardBackgroundColor(Color.parseColor("#B0E0E6"))
+                "😡" -> cardView.setCardBackgroundColor(Color.parseColor("#f07f7f"))
+                "😟" -> cardView.setCardBackgroundColor(Color.parseColor("#F5A15D"))
+                else -> { cardView.setCardBackgroundColor(Color.parseColor("#7A7A7A"))}
             }
-
+            //cardView.setCardBackgroundColor(entry.backgroundColor)
 
             // Date formatting
             val dateFormat = SimpleDateFormat("MM/dd/yyyy", Locale.getDefault())
