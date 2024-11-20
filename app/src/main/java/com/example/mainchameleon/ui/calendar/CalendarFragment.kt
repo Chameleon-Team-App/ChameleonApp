@@ -66,9 +66,15 @@ class CalendarFragment : Fragment(), OnDayClickListener {
 
         // Initialize Activities RecyclerView
         activitiesRecyclerView = rootView.findViewById(R.id.activitiesRecyclerView)
-        activityAdapter = ActivityAdapter(activitiesForSelectedDate) { position ->
-            markActivityAsCompleted(position)
-        }
+        activityAdapter = ActivityAdapter(
+            activitiesForSelectedDate,
+            onActivityCompleted = { position ->
+                saveActivities(selectedDate.format(DateTimeFormatter.ofPattern("MMMM d, yyyy")))
+            },
+            onDeleteClick = { position ->
+                deleteActivity(position)
+            }
+        )
         activitiesRecyclerView.layoutManager = LinearLayoutManager(requireContext())
         activitiesRecyclerView.adapter = activityAdapter
 
@@ -210,4 +216,11 @@ class CalendarFragment : Fragment(), OnDayClickListener {
         val type = object : TypeToken<MutableMap<String, MutableList<Pair<String, Boolean>>>>() {}.type
         activitiesMap = Gson().fromJson(activitiesJson, type) ?: mutableMapOf()
     }
+
+    private fun deleteActivity(position: Int) {
+        activitiesForSelectedDate.removeAt(position)
+        activityAdapter.notifyItemRemoved(position)
+        saveActivities(selectedDate.format(DateTimeFormatter.ofPattern("MMMM d, yyyy")))
+    }
+
 }

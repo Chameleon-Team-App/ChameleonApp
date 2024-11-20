@@ -10,12 +10,14 @@ import com.example.mainchameleon.R
 
 class ActivityAdapter(
     private var activities: MutableList<Pair<String, Boolean>>,
-    private val onActivityCompleted: (Int) -> Unit
+    private val onActivityCompleted: (Int) -> Unit,
+    private val onDeleteClick: (Int) -> Unit
 ) : RecyclerView.Adapter<ActivityAdapter.ActivityViewHolder>() {
 
     inner class ActivityViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val activityName: TextView = itemView.findViewById(R.id.activityNameTextView)
         val completedCheckBox: CheckBox = itemView.findViewById(R.id.completedCheckBox)
+        val deleteButton: View = itemView.findViewById(R.id.deleteButton) // Add this
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ActivityViewHolder {
@@ -27,15 +29,21 @@ class ActivityAdapter(
     override fun onBindViewHolder(holder: ActivityViewHolder, position: Int) {
         val (activityName, isCompleted) = activities[position]
 
+        // Set the activity name
         holder.activityName.text = activityName
+
+        // Set the checkbox state
         holder.completedCheckBox.isChecked = isCompleted
 
-        // Disable checkbox if the activity is completed
-        holder.completedCheckBox.isEnabled = !isCompleted
-
-        // Handle checkbox state change
+        // Handle checkbox clicks to toggle completion
         holder.completedCheckBox.setOnCheckedChangeListener { _, isChecked ->
-            if (isChecked) onActivityCompleted(position)
+            activities[position] = activityName to isChecked
+            onActivityCompleted(position) // Call the callback to save changes
+        }
+
+        // Handle delete button click
+        holder.deleteButton.setOnClickListener {
+            onDeleteClick(position)
         }
     }
 
