@@ -51,8 +51,9 @@ class UserProfileFragment : Fragment() {
 
         // Set up click listener for the edit button to navigate to ProfileCustomizationFragment
         binding.editButton.setOnClickListener {
-            findNavController().navigate(R.id.navigation_profile_customization)
+            findNavController().navigate(R.id.action_navigation_profile_to_navigation_profile_customization)
         }
+
 
         val backButton: ImageButton = binding.root.findViewById(R.id.back_button)
         backButton.setOnClickListener {

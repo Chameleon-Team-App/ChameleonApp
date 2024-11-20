@@ -26,13 +26,13 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@drawable/ic_rounded_corner"
-            android:hint="Username/Email"
+            android:hint="Email"
             android:inputType="text"
             android:padding="18dp"
+            android:text="christopherarias29@gmail.com"
             android:textColor="@color/white"
             android:textColorHint="@color/white"
-            android:textSize="20sp"
-            tools:text="ohmy@gmail.com" />
+            android:textSize="20sp" />
 
         <EditText
             android:id="@+id/passwordInput"
@@ -43,10 +43,11 @@
             android:hint="Password"
             android:inputType="textPassword"
             android:padding="18dp"
+            android:text="Darkninja24"
             android:textColor="@color/white"
             android:textColorHint="@color/white"
             android:textSize="20sp"
-            tools:text="alexiscool" />
+            tools:text="Darkninja24" />
 
         <Button
             android:layout_width="match_parent"

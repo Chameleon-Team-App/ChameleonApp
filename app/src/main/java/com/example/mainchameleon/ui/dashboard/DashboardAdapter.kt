@@ -1,19 +1,31 @@
 package com.example.mainchameleon.ui.dashboard
 
+import android.app.AlertDialog
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
-import androidx.cardview.widget.CardView
+import android.widget.Toast
 import androidx.recyclerview.widget.DiffUtil
-import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.mainchameleon.R
+import com.example.mainchameleon.ui.journal.JournalEntry
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
 import com.squareup.picasso.Picasso
+import java.text.SimpleDateFormat
+import java.util.*
 
-class DashboardAdapter : ListAdapter<DashboardEntry, DashboardAdapter.DashboardViewHolder>(DashboardDiffCallback()) {
+class DashboardAdapter : RecyclerView.Adapter<DashboardAdapter.DashboardViewHolder>() {
+
+    private val entries = mutableListOf<JournalEntry>()
+
+    fun submitList(newEntries: List<JournalEntry>) {
+        entries.clear()
+        entries.addAll(newEntries)
+        notifyDataSetChanged()
+    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): DashboardViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.fragment_journal_entry, parent, false)
@@ -21,103 +33,118 @@ class DashboardAdapter : ListAdapter<DashboardEntry, DashboardAdapter.DashboardV
     }
 
     override fun onBindViewHolder(holder: DashboardViewHolder, position: Int) {
-        val entry = getItem(position)
+        val entry = entries[position]
         holder.bind(entry)
     }
 
-    class DashboardViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        private val cardView: CardView = itemView.findViewById(R.id.cardView)
+    override fun getItemCount(): Int = entries.size
+
+    inner class DashboardViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        private val profileImageView: ImageView = itemView.findViewById(R.id.profileImageView)
         private val usernameTextView: TextView = itemView.findViewById(R.id.usernameTextView)
+        private val moodTextView: TextView = itemView.findViewById(R.id.moodTextView)
         private val titleTextView: TextView = itemView.findViewById(R.id.titleTextView)
         private val entryTextView: TextView = itemView.findViewById(R.id.entryTextView)
+        private val createdDateTextView: TextView = itemView.findViewById(R.id.createdDateTextView)
         private val imageView: ImageView = itemView.findViewById(R.id.imageView)
-        private val profileImageView: ImageView = itemView.findViewById(R.id.profileImageView)
-        private val moodTextView: TextView = itemView.findViewById(R.id.moodTextView)
+        private val cardView: androidx.cardview.widget.CardView = itemView.findViewById(R.id.cardView)
 
-        fun bind(entry: DashboardEntry) {
-            when (entry) {
-                is DashboardEntry.Journal -> {
-                    val journal = entry.journalEntry
-                    titleTextView.text = journal.title
-                    entryTextView.text = journal.text
-                    moodTextView.visibility = View.VISIBLE
-                    moodTextView.text = "Journal"
+        fun bind(entry: JournalEntry) {
+            // Title and text
+            titleTextView.text = entry.title
+            entryTextView.text = entry.text
 
-                    // Set background color
-                    cardView.setCardBackgroundColor(journal.backgroundColor)
+            // Mood emoji
+            if (!entry.mood.isNullOrEmpty()) {
+                moodTextView.visibility = View.VISIBLE
+                moodTextView.text = entry.mood
+            } else {
+                moodTextView.visibility = View.GONE
+            }
 
-                    // Handle image
-                    if (!journal.imageUrl.isNullOrEmpty()) {
-                        imageView.visibility = View.VISIBLE
-                        Picasso.get().load(journal.imageUrl).into(imageView)
-                    } else {
-                        imageView.visibility = View.GONE
-                    }
+            // Background color
+            cardView.setCardBackgroundColor(entry.backgroundColor)
 
-                    // Retrieve and display the username and profile picture for the entry's userId
-                    loadUserData(journal.userId)
+            // Date formatting
+            val dateFormat = SimpleDateFormat("MM/dd/yyyy", Locale.getDefault())
+            createdDateTextView.text = "Date: ${dateFormat.format(Date(entry.timestamp))}"
+
+            // Image handling
+            if (!entry.imageUrl.isNullOrEmpty()) {
+                imageView.visibility = View.VISIBLE
+                Picasso.get().load(entry.imageUrl).into(imageView)
+            } else {
+                imageView.visibility = View.GONE
+            }
+
+            // Load user data (profile picture and username)
+            loadUserData(entry.userId)
+
+            // Enable deletion on long press
+            itemView.setOnLongClickListener {
+                val currentUserId = FirebaseAuth.getInstance().currentUser?.uid
+                if (currentUserId == entry.userId) {
+                    showDeleteConfirmationDialog(entry)
                 }
-
-                is DashboardEntry.Mood -> {
-                    val mood = entry.moodEntry
-                    titleTextView.text = "Mood: ${mood.mood}"
-                    entryTextView.text = mood.sentence
-                    moodTextView.visibility = View.VISIBLE
-                    moodTextView.text = mood.mood // Display the mood emoji or label
-
-                    // Set background color
-                    cardView.setCardBackgroundColor(mood.backgroundColor)
-
-                    // No image for moods by default; adjust if necessary
-                    imageView.visibility = View.GONE
-
-                    // Retrieve and display the username and profile picture for the entry's userId
-                    loadUserData(mood.userId)
-                }
+                true
             }
         }
 
         private fun loadUserData(userId: String) {
             val userRef = FirebaseDatabase.getInstance().getReference("Users").child(userId)
 
-            // Retrieve username
             userRef.child("Username").get().addOnSuccessListener { dataSnapshot ->
                 val username = dataSnapshot.getValue(String::class.java)
                 usernameTextView.text = username ?: "Unknown User"
-            }.addOnFailureListener {
-                usernameTextView.text = "Error Loading User"
             }
 
-            // Retrieve profile picture URL
             userRef.child("profilePictureUrl").get().addOnSuccessListener { dataSnapshot ->
                 val profilePictureUrl = dataSnapshot.getValue(String::class.java)
                 if (!profilePictureUrl.isNullOrEmpty()) {
-                    Picasso.get()
-                        .load(profilePictureUrl)
-                        .placeholder(R.drawable.default_profile)
-                        .error(R.drawable.default_profile)
-                        .into(profileImageView)
+                    Picasso.get().load(profilePictureUrl).into(profileImageView)
                 } else {
                     profileImageView.setImageResource(R.drawable.default_profile)
                 }
+            }
+        }
+
+        private fun showDeleteConfirmationDialog(entry: JournalEntry) {
+            AlertDialog.Builder(itemView.context)
+                .setTitle("Delete Entry")
+                .setMessage("Are you sure you want to delete this entry?")
+                .setPositiveButton("Yes") { _, _ -> deleteEntry(entry) }
+                .setNegativeButton("No", null)
+                .show()
+        }
+
+        private fun deleteEntry(entry: JournalEntry) {
+            val entryRef = FirebaseDatabase.getInstance()
+                .getReference("Users")
+                .child(entry.userId)
+                .child("journals")
+                .child(entry.id)
+
+            entryRef.removeValue().addOnSuccessListener {
+                Toast.makeText(itemView.context, "Entry deleted", Toast.LENGTH_SHORT).show()
+
+                // Remove the deleted entry from the list and refresh the adapter
+                val position = entries.indexOf(entry)
+                if (position != -1) {
+                    entries.removeAt(position)
+                    notifyItemRemoved(position)
+                }
             }.addOnFailureListener {
-                profileImageView.setImageResource(R.drawable.default_profile)
+                Toast.makeText(itemView.context, "Failed to delete entry", Toast.LENGTH_SHORT).show()
             }
         }
     }
 
-    class DashboardDiffCallback : DiffUtil.ItemCallback<DashboardEntry>() {
-        override fun areItemsTheSame(oldItem: DashboardEntry, newItem: DashboardEntry): Boolean {
-            return when {
-                oldItem is DashboardEntry.Journal && newItem is DashboardEntry.Journal ->
-                    oldItem.journalEntry.id == newItem.journalEntry.id
-                oldItem is DashboardEntry.Mood && newItem is DashboardEntry.Mood ->
-                    oldItem.moodEntry.id == newItem.moodEntry.id
-                else -> false
-            }
+    class DashboardDiffCallback : DiffUtil.ItemCallback<JournalEntry>() {
+        override fun areItemsTheSame(oldItem: JournalEntry, newItem: JournalEntry): Boolean {
+            return oldItem.id == newItem.id
         }
 
-        override fun areContentsTheSame(oldItem: DashboardEntry, newItem: DashboardEntry): Boolean {
+        override fun areContentsTheSame(oldItem: JournalEntry, newItem: JournalEntry): Boolean {
             return oldItem == newItem
         }
     }

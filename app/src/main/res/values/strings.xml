@@ -31,5 +31,7 @@
     <string name="user_bio">Tell us about yourself...</string>
     <string name="save_button">Update Profile</string>
     <string name="user_profile">Profile</string>
+    <string name="title_journal" />
+    <string name="title_profile" />
 
 </resources>

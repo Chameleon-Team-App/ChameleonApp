@@ -2,93 +2,73 @@
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/mobile_navigation"
-    app:startDestination="@+id/navigation_dashboard">
+    app:startDestination="@id/navigation_dashboard">
 
     <!-- Dashboard Fragment -->
     <fragment
         android:id="@+id/navigation_dashboard"
         android:name="com.example.mainchameleon.ui.dashboard.DashboardFragment"
         android:label="@string/title_dashboard"
-        tools:layout="@layout/fragment_dashboard" >
-        <action
-            android:id="@+id/action_navigation_dashboard_to_navigation_home"
-            app:destination="@id/navigation_home" />
+        tools:layout="@layout/fragment_dashboard">
+
+        <!-- Navigate to Journal -->
         <action
             android:id="@+id/action_navigation_dashboard_to_navigation_journal"
             app:destination="@id/navigation_journal" />
+
+        <!-- Navigate to Profile -->
         <action
             android:id="@+id/action_navigation_dashboard_to_navigation_profile"
-            app:destination="@id/navigation_journal" />
+            app:destination="@id/navigation_profile" />
     </fragment>
-
-
-    <fragment
-        android:id="@+id/navigation_home"
-        android:name="com.example.mainchameleon.ui.home.HomeFragment"
-        android:label="@string/title_home"
-        tools:layout="@layout/fragment_home" />
-
 
     <!-- Journal Fragment -->
     <fragment
         android:id="@+id/navigation_journal"
         android:name="com.example.mainchameleon.ui.journal.JournalFragment"
-        android:label="@string/journal"
+        android:label="@string/title_journal"
         tools:layout="@layout/fragment_journal">
-        <!-- Action to navigate from JournalFragment to CameraFragment -->
+
+        <!-- Navigate to Dashboard -->
         <action
-            android:id="@+id/action_journalFragment_to_cameraFragment"
+            android:id="@+id/action_navigation_journal_to_navigation_dashboard"
+            app:destination="@id/navigation_dashboard" />
+
+        <!-- Navigate to Camera -->
+        <action
+            android:id="@+id/action_navigation_journal_to_navigation_camera"
             app:destination="@id/navigation_camera" />
     </fragment>
 
-    <!-- Register Screen -->
-    <fragment
-        android:id="@+id/registerScreen"
-        android:name="com.example.mainchameleon.ui.loginScreen.registerScreen"
-        android:label="Register Screen"
-        tools:layout="@layout/register_screen">
-        <!-- Define any actions from the register screen -->
-        <action
-            android:id="@+id/action_registerScreen_to_dashboard"
-            app:destination="@id/navigation_dashboard"
-            app:popUpTo="@id/navigation_dashboard"
-            app:popUpToInclusive="true" />
-        <action
-            android:id="@+id/action_registerScreen_to_navigation_camera"
-            app:destination="@id/navigation_camera" />
-    </fragment>
-
-    <!-- Camera Fragment -->
-    <fragment
-        android:id="@+id/navigation_camera"
-        android:name="com.example.mainchameleon.ui.camera.CameraFragment"
-        android:label="@string/title_camera"
-        tools:layout="@layout/fragment_camera">
-        <argument
-            android:name="source"
-            app:argType="string"
-            android:defaultValue="journal" />
-    </fragment>
-
-    <!-- Calendar Fragment -->
-    <fragment
-        android:id="@+id/navigation_calendar"
-        android:name="com.example.mainchameleon.ui.calendar.CalendarFragment"
-        android:label="@string/title_calendar"
-        tools:layout="@layout/fragment_calendar" />
-
+    <!-- Profile Fragment -->
     <fragment
         android:id="@+id/navigation_profile"
         android:name="com.example.mainchameleon.ui.userProfile.UserProfileFragment"
-        android:label="Profile"
-        tools:layout="@layout/fragment_user_profile" />
+        android:label="@string/title_profile"
+        tools:layout="@layout/fragment_user_profile">
 
+        <!-- Navigate to Profile Customization (Editor) -->
+        <action
+            android:id="@+id/action_navigation_profile_to_navigation_profile_customization"
+            app:destination="@id/navigation_profile_customization" />
+
+        <!-- Navigate Back to Dashboard -->
+        <action
+            android:id="@+id/action_navigation_profile_to_navigation_dashboard"
+            app:destination="@id/navigation_dashboard" />
+    </fragment>
+
+    <!-- Profile Customization (Editor) Fragment -->
     <fragment
         android:id="@+id/navigation_profile_customization"
         android:name="com.example.mainchameleon.ui.userProfile.ProfileCustomizationFragment"
         android:label="Profile Customization"
         tools:layout="@layout/fragment_profile_customization" />
 
-
+    <!-- Camera Fragment -->
+    <fragment
+        android:id="@+id/navigation_camera"
+        android:name="com.example.mainchameleon.ui.camera.CameraFragment"
+        android:label="@string/title_camera"
+        tools:layout="@layout/fragment_camera" />
 </navigation>
