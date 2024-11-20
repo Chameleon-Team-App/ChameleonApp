@@ -1,28 +1,44 @@
 package com.example.mainchameleon.ui.journal
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.*
 
 class JournalViewModel : ViewModel() {
 
-    // Store the list of journal entries
-    private val _journalEntries = MutableLiveData<MutableList<JournalEntry>>().apply {
-        value = mutableListOf() // Initialize with an empty list
+    private val _currentUserJournalEntries = MutableLiveData<List<JournalEntry>>()
+    val currentUserJournalEntries: LiveData<List<JournalEntry>> get() = _currentUserJournalEntries
+
+    init {
+        loadCurrentUserJournals()
     }
 
-    // Expose the list as LiveData so the UI can observe it
-    val journalEntries: LiveData<MutableList<JournalEntry>> = _journalEntries
+    private fun loadCurrentUserJournals() {
+        val userId = FirebaseAuth.getInstance().currentUser?.uid
+        if (userId == null) {
+            Log.e("JournalViewModel", "User not logged in")
+            return
+        }
+        val databaseRef = FirebaseDatabase.getInstance().getReference("Users/$userId/journals")
+        databaseRef.addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val journals = mutableListOf<JournalEntry>()
+                for (entrySnapshot in snapshot.children) {
+                    val entry = entrySnapshot.getValue(JournalEntry::class.java)
+                    entry?.let {
+                        it.userId = userId
+                        journals.add(it)
+                    }
+                }
+                _currentUserJournalEntries.value = journals.sortedByDescending { it.timestamp }
+            }
 
-    // Method to add a new journal entry
-    fun addJournalEntry(title: String, entry: String) {
-        val currentEntries = _journalEntries.value ?: mutableListOf()
-        currentEntries.add(JournalEntry(title, entry))
-        currentEntries.also { _journalEntries.value = it }
-    }
-
-    // Optional: Method to clear all journal entries (if needed)
-    fun clearJournalEntries() {
-        _journalEntries.value = mutableListOf()
+            override fun onCancelled(error: DatabaseError) {
+                Log.e("JournalViewModel", "Failed to load journals.", error.toException())
+            }
+        })
     }
 }

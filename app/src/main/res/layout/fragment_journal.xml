@@ -1,91 +1,157 @@
-<?xml version="1.0" encoding="utf-8"?>
-
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#292929">
-
+    android:fillViewport="true"
+    android:background="#292929"
+    tools:context=".ui.journal.JournalFragment">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="#292929"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:padding="16dp">
 
-        <!--TITLE TEXT-->
-
-        <!--YELLOW BACKGROUND CARD VIEW-->
-        <androidx.cardview.widget.CardView
-            android:id="@+id/myCardView"
+        <!-- Title Entry -->
+        <EditText
+            android:id="@+id/titleEntryBox"
             android:layout_width="match_parent"
-            android:layout_height="252dp"
-            android:layout_gravity="center"
-            android:layout_margin="16dp"
-            app:cardBackgroundColor="#E9CC35"
-            app:cardCornerRadius="20dp">
+            android:layout_height="wrap_content"
+            android:hint="Enter title here"
+            android:textColor="#FFFFFF"
+            android:textColorHint="#AAAAAA"
+            android:textSize="16sp"
+            android:background="@android:color/transparent"
+            android:padding="8dp"
+            android:layout_marginBottom="8dp" />
 
-
-            <!--WHITE BACKGROUND CARD VIEW-->
-            <androidx.cardview.widget.CardView
-                android:layout_width="match_parent"
-                android:layout_height="55dp">
-
-                <!-- TITLE INPUT TEXT -->
-                <EditText
-                    android:id="@+id/titleEntryBox"
-                    android:layout_width="match_parent"
-                    android:layout_height="55dp"
-                    android:autofillHints=""
-                    android:hint="@string/title_entry"
-                    android:inputType="text"
-                    android:textAlignment="center"
-                    android:textColor="#000000"
-                    android:textColorHint="#000000"
-                    tools:ignore="VisualLintTextFieldSize" />
-
-                <!--DATE BACKGROUND CARD VIEW-->
-                <!-- TODO -->
-
-            </androidx.cardview.widget.CardView>
-
-            <EditText
-                android:id="@+id/journalEntryText"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:autofillHints=""
-                android:ems="10"
-                android:hint="@string/text_entry"
-                android:inputType="textMultiLine"
-                android:minHeight="48dp"
-                android:textAlignment="textStart"
-                android:translationY="55dp"
-                tools:ignore="VisualLintTextFieldSize" />
-
-        </androidx.cardview.widget.CardView>
-
-        <Button
-            android:id="@+id/button2"
+        <!-- Mood Selection -->
+        <TextView
+            android:id="@+id/moodPrompt"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_margin="0dp"
-            android:backgroundTint="#FFFFFF"
-            android:elevation="4dp"
-            android:padding="5dp"
-            android:text="@string/save_text"
-            android:textColor="#000000"
-            android:textSize="16sp" />
+            android:text="Select your mood:"
+            android:textColor="#FFFFFF"
+            android:textSize="16sp"
+            android:layout_marginBottom="8dp" />
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recyclerView"
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="282dp"
-            android:layout_marginTop="20dp"
-            android:padding="16dp" />
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_horizontal">
 
+            <!-- Mood Buttons -->
+            <Button
+                android:id="@+id/buttonHappy"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="😊"
+                android:textSize="24sp"
+                android:layout_marginEnd="8dp" />
+
+            <Button
+                android:id="@+id/buttonSad"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="😢"
+                android:textSize="24sp"
+                android:layout_marginEnd="8dp" />
+
+            <Button
+                android:id="@+id/buttonAngry"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="😡"
+                android:textSize="24sp"
+                android:layout_marginEnd="8dp" />
+
+            <Button
+                android:id="@+id/buttonAnxious"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="😟"
+                android:textSize="24sp"
+                android:layout_marginEnd="8dp" />
+
+            <Button
+                android:id="@+id/buttonNeutral"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="😐"
+                android:textSize="24sp" />
+        </LinearLayout>
+
+        <!-- Journal Text -->
+        <EditText
+            android:id="@+id/journalEntryText"
+            android:layout_width="match_parent"
+            android:layout_height="150dp"
+            android:hint="Write your journal entry here..."
+            android:textColor="#FFFFFF"
+            android:textColorHint="#AAAAAA"
+            android:textSize="16sp"
+            android:background="@android:color/transparent"
+            android:gravity="top"
+            android:padding="8dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp" />
+
+        <!-- Image Preview -->
+        <ImageView
+            android:id="@+id/imageViewPlaceholder"
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            android:scaleType="centerCrop"
+            android:adjustViewBounds="true"
+            android:visibility="gone"
+            android:layout_marginBottom="8dp" />
+
+        <!-- Image Selection Buttons -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_horizontal"
+            android:layout_marginBottom="16dp">
+
+            <Button
+                android:id="@+id/openCameraButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Custom Camera"
+                android:textColor="#FFFFFF"
+                android:layout_marginEnd="16dp" />
+
+            <Button
+                android:id="@+id/uploadFromGalleryButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Gallery"
+                android:textColor="#FFFFFF" />
+        </LinearLayout>
+
+        <!-- Save Button -->
+        <Button
+            android:id="@+id/saveJournalButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Save Journal"
+            android:textColor="#FFFFFF"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="16dp" />
+
+        <!-- Back Button -->
+        <Button
+            android:id="@+id/backButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Back"
+            android:textColor="#FFFFFF"
+            android:textSize="16sp"
+            android:visibility="visible" />
     </LinearLayout>
 </ScrollView>
-
-

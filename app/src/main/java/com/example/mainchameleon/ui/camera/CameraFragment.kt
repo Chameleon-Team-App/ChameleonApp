@@ -1,28 +1,27 @@
+// CameraFragment.kt
 package com.example.mainchameleon.ui.camera
 
-import android.Manifest
-import android.content.pm.PackageManager
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.graphics.Matrix
+import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.camera.core.CameraSelector
-import androidx.camera.core.ImageCapture
-import androidx.camera.core.ImageCaptureException
-import androidx.camera.core.Preview
+import androidx.camera.core.*
 import androidx.camera.lifecycle.ProcessCameraProvider
-import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.exifinterface.media.ExifInterface
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
-import com.example.mainchameleon.R
 import com.example.mainchameleon.databinding.FragmentCameraBinding
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.storage.FirebaseStorage
 import java.io.File
-import java.text.SimpleDateFormat
-import java.util.Locale
+import java.util.UUID
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
@@ -32,138 +31,151 @@ class CameraFragment : Fragment() {
     private val binding get() = _binding!!
 
     private lateinit var imageCapture: ImageCapture
-    private lateinit var outputDirectory: File
     private lateinit var cameraExecutor: ExecutorService
-    private lateinit var cameraViewModel: CameraViewModel
+    private val TAG = "CameraFragment"
 
     override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
+        inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentCameraBinding.inflate(inflater, container, false)
-        val root: View = binding.root
 
-        // Initialize ViewModel
-        cameraViewModel = ViewModelProvider(requireActivity()).get(CameraViewModel::class.java)
-
-        // Request camera permissions
         if (allPermissionsGranted()) {
             startCamera()
         } else {
-            ActivityCompat.requestPermissions(
-                requireActivity(),
-                REQUIRED_PERMISSIONS,
-                REQUEST_CODE_PERMISSIONS
-            )
+            Toast.makeText(requireContext(), "Camera permissions not granted.", Toast.LENGTH_SHORT).show()
+            findNavController().navigateUp()
         }
 
-        // Set up the listener for the capture button
-        binding.cameraCaptureButton.setOnClickListener { takePhoto() }
+        binding.cameraCaptureButton.setOnClickListener {
+            takePhoto()
+        }
 
-        // Set up the back button to navigate back to PhotoGalleryFragment
         binding.backButton.setOnClickListener {
-            findNavController().navigateUp() // Navigate back to the previous fragment
+            findNavController().navigateUp()
         }
 
-        outputDirectory = getOutputDirectory()
         cameraExecutor = Executors.newSingleThreadExecutor()
-
-        return root
-    }
-
-    private fun takePhoto() {
-        // Get a stable reference of the modifiable image capture use case
-        val imageCapture = imageCapture ?: return
-
-        // Create time-stamped output file to hold the image
-        val photoFile = File(
-            outputDirectory,
-            SimpleDateFormat(FILENAME_FORMAT, Locale.US).format(System.currentTimeMillis()) + ".jpg"
-        )
-
-        // Create output options object which contains file + metadata
-        val outputOptions = ImageCapture.OutputFileOptions.Builder(photoFile).build()
-
-        // Set up image capture listener, which is triggered after the photo has been taken
-        imageCapture.takePicture(
-            outputOptions,
-            ContextCompat.getMainExecutor(requireContext()),
-            object : ImageCapture.OnImageSavedCallback {
-                override fun onError(exc: ImageCaptureException) {
-                    Log.e(TAG, "Photo capture failed: ${exc.message}", exc)
-                }
-
-                override fun onImageSaved(output: ImageCapture.OutputFileResults) {
-                    val msg = "Photo capture succeeded: ${photoFile.absolutePath}"
-                    Toast.makeText(requireContext(), msg, Toast.LENGTH_SHORT).show()
-                    Log.d(TAG, msg)
-
-                    // Notify the ViewModel about the new photo path
-                    cameraViewModel.addImagePath(photoFile.absolutePath)
-                }
-            }
-        )
+        return binding.root
     }
 
     private fun startCamera() {
         val cameraProviderFuture = ProcessCameraProvider.getInstance(requireContext())
 
         cameraProviderFuture.addListener({
-            // Used to bind the lifecycle of cameras to the lifecycle owner
-            val cameraProvider: ProcessCameraProvider = cameraProviderFuture.get()
+            val cameraProvider = cameraProviderFuture.get()
 
-            // Preview
+            val rotation = binding.viewFinder.display.rotation
+
             val preview = Preview.Builder()
+                .setTargetRotation(rotation)
                 .build()
                 .also {
                     it.setSurfaceProvider(binding.viewFinder.surfaceProvider)
                 }
 
-            // Select back camera as a default
-            val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
+            imageCapture = ImageCapture.Builder()
+                .setTargetRotation(rotation)
+                .build()
 
             try {
-                // Unbind use cases before rebinding
                 cameraProvider.unbindAll()
-
-                // Bind use cases to camera
-                imageCapture = ImageCapture.Builder().build()
                 cameraProvider.bindToLifecycle(
-                    this, cameraSelector, preview, imageCapture
+                    this, CameraSelector.DEFAULT_BACK_CAMERA, preview, imageCapture
                 )
-
             } catch (exc: Exception) {
                 Log.e(TAG, "Use case binding failed", exc)
             }
-
         }, ContextCompat.getMainExecutor(requireContext()))
     }
 
-    private fun getOutputDirectory(): File {
-        val mediaDir = requireContext().externalMediaDirs.firstOrNull()?.let {
-            File(it, resources.getString(R.string.app_name)).apply { mkdirs() }
-        }
-        return if (mediaDir != null && mediaDir.exists())
-            mediaDir else requireContext().filesDir
+    private fun takePhoto() {
+        val imageCapture = imageCapture ?: return
+
+        val photoFile = File(
+            requireContext().externalMediaDirs.firstOrNull(),
+            "${System.currentTimeMillis()}.jpg"
+        )
+
+        val outputOptions = ImageCapture.OutputFileOptions.Builder(photoFile).build()
+
+        imageCapture.takePicture(
+            outputOptions,
+            ContextCompat.getMainExecutor(requireContext()),
+            object : ImageCapture.OnImageSavedCallback {
+                override fun onError(exc: ImageCaptureException) {
+                    Toast.makeText(requireContext(), "Failed to capture photo", Toast.LENGTH_SHORT).show()
+                }
+
+                override fun onImageSaved(output: ImageCapture.OutputFileResults) {
+                    val savedUri = Uri.fromFile(photoFile)
+                    uploadCapturedImageToFirebase(savedUri)
+                }
+            }
+        )
     }
 
-    private fun allPermissionsGranted() = REQUIRED_PERMISSIONS.all {
-        ContextCompat.checkSelfPermission(
-            requireContext(), it
-        ) == PackageManager.PERMISSION_GRANTED
+    private fun uploadCapturedImageToFirebase(photoUri: Uri) {
+        val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return
+        val storageRef = FirebaseStorage.getInstance().getReference("Users/$userId/photos/${UUID.randomUUID()}.jpg")
+
+        try {
+            // Read the image file and correct its orientation
+            val inputStream = requireContext().contentResolver.openInputStream(photoUri)
+            val exif = inputStream?.let { ExifInterface(it) }
+            val rotation = exif?.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL)
+            val rotationInDegrees = exifToDegrees(rotation ?: ExifInterface.ORIENTATION_NORMAL)
+            inputStream?.close()
+
+            val bitmap = BitmapFactory.decodeFile(photoUri.path)
+            val rotatedBitmap = rotateBitmap(bitmap, rotationInDegrees)
+
+            // Convert the rotated bitmap back to a file
+            val file = File(requireContext().cacheDir, "${UUID.randomUUID()}.jpg")
+            val outputStream = file.outputStream()
+            rotatedBitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream)
+            outputStream.close()
+
+            // Upload the corrected image file
+            val correctedUri = Uri.fromFile(file)
+            storageRef.putFile(correctedUri)
+                .addOnSuccessListener {
+                    storageRef.downloadUrl.addOnSuccessListener { downloadUri ->
+                        findNavController().previousBackStackEntry?.savedStateHandle?.set("photoUrl", downloadUri.toString())
+                        findNavController().navigateUp()
+                    }
+                }
+                .addOnFailureListener {
+                    Toast.makeText(requireContext(), "Failed to upload captured image", Toast.LENGTH_SHORT).show()
+                }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            Toast.makeText(requireContext(), "Failed to process image", Toast.LENGTH_SHORT).show()
+        }
     }
+
+    private fun exifToDegrees(exifOrientation: Int): Int {
+        return when (exifOrientation) {
+            ExifInterface.ORIENTATION_ROTATE_90 -> 90
+            ExifInterface.ORIENTATION_ROTATE_180 -> 180
+            ExifInterface.ORIENTATION_ROTATE_270 -> 270
+            else -> 0
+        }
+    }
+
+    private fun rotateBitmap(bitmap: Bitmap, degrees: Int): Bitmap {
+        if (degrees == 0) return bitmap
+        val matrix = Matrix().apply { postRotate(degrees.toFloat()) }
+        return Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true)
+    }
+
+    private fun allPermissionsGranted() = ContextCompat.checkSelfPermission(
+        requireContext(), android.Manifest.permission.CAMERA
+    ) == android.content.pm.PackageManager.PERMISSION_GRANTED
 
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
         cameraExecutor.shutdown()
-    }
-
-    companion object {
-        private const val TAG = "CameraFragment"
-        private const val FILENAME_FORMAT = "yyyy-MM-dd-HH-mm-ss-SSS"
-        private const val REQUEST_CODE_PERMISSIONS = 10
-        private val REQUIRED_PERMISSIONS = arrayOf(Manifest.permission.CAMERA)
     }
 }
