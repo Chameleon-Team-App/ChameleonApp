@@ -15,6 +15,12 @@ data class JournalEntry(
 ) {
     companion object {
         private val COLORS = listOf(
+            Color.parseColor("#f25252"), //Light Red
+            Color.parseColor("#f5a15d"), //Orange
+            Color.parseColor("#67db60"), //Chameleon Green
+            Color.parseColor("#B0E0E6"),  // Powder Blue
+            Color.parseColor("#af5fd4"), //Purple
+            Color.parseColor("7A7A7A"), //Grey's Anatomy
             Color.parseColor("#FFE4B5"), // Moccasin
             Color.parseColor("#FFDAB9"), // Peach Puff
             Color.parseColor("#FFDEAD"), // Navajo White
