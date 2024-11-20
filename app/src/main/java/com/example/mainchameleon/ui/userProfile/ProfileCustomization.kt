@@ -74,6 +74,19 @@ class ProfileCustomizationFragment : Fragment() {
 
         // Set an OnClickListener for the MaterialCardView
         saveButtonCard.setOnClickListener {
+            if (photoUri != null) {
+                profileViewModel.uploadProfilePicture(photoUri!!)
+                profileViewModel.uploadStatus.observe(viewLifecycleOwner) { status ->
+                    if (status == true) {
+                        updateProfileData()
+                    } else {
+                        Toast.makeText(requireContext(), "Failed to save profile picture", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            } else {
+                updateProfileData()
+            }
+
             // Perform your save action here
             Toast.makeText(requireContext(), "Save clicked", Toast.LENGTH_SHORT).show()
         }
@@ -99,45 +112,28 @@ class ProfileCustomizationFragment : Fragment() {
         val bio = bioEditText.text.toString().trim()
 
         if (firstName.isEmpty() || lastName.isEmpty()) {
-            Toast.makeText(requireContext(), "Please enter your First Name and Last Name", Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), "First and Last Name cannot be empty", Toast.LENGTH_SHORT).show()
             return
         }
 
-        val userId = auth.currentUser?.uid ?: ""
-        if (userId.isNotEmpty()) {
-            val userRef = database.getReference("Users").child(userId)
+        val userId = auth.currentUser?.uid ?: return
+        val userRef = database.getReference("Users").child(userId)
 
-            // Check for an existing profile picture URL in the database
-            userRef.child("profilePictureUrl").get().addOnSuccessListener { dataSnapshot ->
-                val existingProfilePictureUrl = dataSnapshot.getValue(String::class.java)
+        val userMap = mapOf(
+            "First Name" to firstName,
+            "Last Name" to lastName,
+            "bio" to bio,
+            "profilePictureUrl" to (photoUri?.toString() ?: "")
+        )
 
-                // If a new photo URI is set, use it; otherwise, use the existing profile picture URL
-                val profileImageUrl = photoUri?.toString() ?: existingProfilePictureUrl ?: ""
-
-                // Prepare data map for database update
-                val userMap = mapOf(
-                    "First Name" to firstName,
-                    "Last Name" to lastName,
-                    "bio" to bio,
-                    "profilePictureUrl" to profileImageUrl
-                )
-
-                userRef.updateChildren(userMap).addOnCompleteListener { task ->
-                    if (task.isSuccessful) {
-                        Toast.makeText(requireContext(), "Profile updated successfully", Toast.LENGTH_SHORT).show()
-                    } else {
-                        Toast.makeText(requireContext(), "Failed to update profile: ${task.exception?.message}", Toast.LENGTH_SHORT).show()
-                    }
-                }
-            }.addOnFailureListener {
-                Toast.makeText(requireContext(), "Failed to fetch existing profile picture", Toast.LENGTH_SHORT).show()
+        userRef.updateChildren(userMap).addOnCompleteListener { task ->
+            if (task.isSuccessful) {
+                Toast.makeText(requireContext(), "Profile updated successfully", Toast.LENGTH_SHORT).show()
+            } else {
+                Toast.makeText(requireContext(), "Failed to update profile", Toast.LENGTH_SHORT).show()
             }
-        } else {
-            Toast.makeText(requireContext(), "User not authenticated", Toast.LENGTH_SHORT).show()
         }
-    }
-
-    private fun loadUserData() {
+    }private fun loadUserData() {
         val userId = auth.currentUser?.uid
         if (userId != null) {
             database.getReference("Users").child(userId).get()

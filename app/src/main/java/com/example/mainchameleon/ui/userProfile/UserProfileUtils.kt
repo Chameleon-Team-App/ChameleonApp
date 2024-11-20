@@ -15,7 +15,7 @@ object UserProfileUtils {
         profileImageUri: Uri,
         onComplete: (String) -> Unit
     ) {
-        val storageRef: StorageReference = storage.reference.child("Users/$userId/profilePictures/${profileImageUri.lastPathSegment}")
+        val storageRef: StorageReference = storage.reference.child("Users/$userId/profilePictures/${System.currentTimeMillis()}.jpg")
         storageRef.putFile(profileImageUri)
             .addOnSuccessListener { taskSnapshot ->
                 taskSnapshot.storage.downloadUrl.addOnSuccessListener { downloadUri ->
