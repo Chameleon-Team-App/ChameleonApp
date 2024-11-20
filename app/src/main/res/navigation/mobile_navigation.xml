@@ -20,6 +20,16 @@
         <action
             android:id="@+id/action_navigation_dashboard_to_navigation_profile"
             app:destination="@id/navigation_profile" />
+
+        <!-- Navigate to Calendar -->
+        <action
+            android:id="@+id/action_navigation_dashboard_to_navigation_calendar"
+            app:destination="@id/navigation_calendar" />
+
+        <action
+            android:id="@+id/action_navigation_dashboard_to_navigation_mental_health"
+            app:destination="@id/navigation_mental_health" />
+
     </fragment>
 
     <!-- Journal Fragment -->
@@ -71,4 +81,18 @@
         android:name="com.example.mainchameleon.ui.camera.CameraFragment"
         android:label="@string/title_camera"
         tools:layout="@layout/fragment_camera" />
+
+    <!-- Calendar Fragment -->
+    <fragment
+        android:id="@+id/navigation_calendar"
+        android:name="com.example.mainchameleon.ui.calendar.CalendarFragment"
+        android:label="@string/title_calendar"
+        tools:layout="@layout/fragment_calendar" />
+
+    <fragment
+        android:id="@+id/navigation_mental_health"
+        android:name="com.example.mainchameleon.ui.mentalhealth.MentalHealthFragment"
+        android:label="Mental Health"
+        tools:layout="@layout/fragment_mental_health" />
+
 </navigation>
