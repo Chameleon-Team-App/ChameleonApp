@@ -34,6 +34,17 @@
                 android:padding="20dp"
                 android:background="#4CAF50">
 
+                <!-- Weekly Calendar RecyclerView at the very top -->
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/weeklyCalendarRecycler"
+                    android:layout_width="match_parent"
+                    android:layout_height="70dp"
+                    android:orientation="horizontal"
+                    android:paddingStart="8dp"
+                    android:paddingEnd="8dp"
+                    android:paddingTop="16dp"
+                    android:paddingBottom="16dp" />
+
                 <ImageView
                     android:id="@+id/profile_image"
                     android:layout_width="100dp"
@@ -114,12 +125,14 @@
                     </RelativeLayout>
                 </com.google.android.material.card.MaterialCardView>
 
+
+                <!-- Mental Health Button -->
                 <com.google.android.material.card.MaterialCardView
-                    android:id="@+id/NewButton"
+                    android:id="@+id/MentalHealthButton"
                     android:layout_width="0dp"
                     android:layout_height="120dp"
                     android:layout_weight="1"
-                    app:cardBackgroundColor="#FF9800"
+                    app:cardBackgroundColor="#8BC34A"
                     app:cardElevation="10dp"
                     android:layout_margin="10dp"
                     android:clickable="true"
@@ -134,17 +147,18 @@
                             android:layout_width="40dp"
                             android:layout_height="40dp"
                             android:layout_centerHorizontal="true"
-                            android:src="@drawable/ic_activities_black_24dp"
+                            android:src="@drawable/ic_mental_health_black_24dp"
                             android:visibility="visible" />
 
                         <TextView
-                            android:id="@+id/newButtonText"
+                            android:id="@+id/mentalHealthText"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:text="Mental Health"
                             android:layout_centerInParent="true"
-                            android:text="Activities "
                             android:textSize="20sp" />
                     </RelativeLayout>
+
                 </com.google.android.material.card.MaterialCardView>
 
             </LinearLayout>

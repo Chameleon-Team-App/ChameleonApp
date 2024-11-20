@@ -5,7 +5,12 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.*
+import android.widget.Button
+import android.widget.EditText
+import android.widget.ImageButton
+import android.widget.ImageView
+import android.widget.TextView
+import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.FileProvider
@@ -14,12 +19,12 @@ import androidx.lifecycle.ViewModelProvider
 import com.example.mainchameleon.R
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
-import com.google.firebase.storage.FirebaseStorage
 import com.squareup.picasso.Picasso
 import java.io.File
 import java.io.IOException
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Date
+import java.util.Locale
 
 class ProfileCustomizationFragment : Fragment() {
 
@@ -28,12 +33,11 @@ class ProfileCustomizationFragment : Fragment() {
     private lateinit var bioEditText: EditText
     private lateinit var firstNameEditText: EditText
     private lateinit var lastNameEditText: EditText
-    private var photoUri: Uri? = null // Temporary storage for selected photo
+    private var photoUri: Uri? = null
     private lateinit var profileViewModel: ProfileViewModel
     private lateinit var auth: FirebaseAuth
     private lateinit var database: FirebaseDatabase
     private lateinit var usernameTextView: TextView
-    private var selectedProfilePictureUri: Uri? = null // Final URI for updating profile
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -41,7 +45,7 @@ class ProfileCustomizationFragment : Fragment() {
     ): View? {
         val rootView = inflater.inflate(R.layout.fragment_profile_customization, container, false)
 
-        profileImageView = rootView.findViewById(R.id.change_picture_button)
+        profileImageView = rootView.findViewById(R.id.change_picture_button) // Initialize profileImageView
         profileViewModel = ViewModelProvider(this)[ProfileViewModel::class.java]
         auth = FirebaseAuth.getInstance()
         database = FirebaseDatabase.getInstance()
@@ -65,7 +69,6 @@ class ProfileCustomizationFragment : Fragment() {
             showPictureOptionDialog()
         }
 
-        // Save profile data when the "Save" button is clicked
         buttonSaveProfile.setOnClickListener {
             updateProfileData()
         }
@@ -99,38 +102,30 @@ class ProfileCustomizationFragment : Fragment() {
         if (userId.isNotEmpty()) {
             val userRef = database.getReference("Users").child(userId)
 
-            // Prepare data map for database update
-            val userMap = mutableMapOf<String, Any>(
-                "First Name" to firstName,
-                "Last Name" to lastName,
-                "bio" to bio
-            )
+            // Check for an existing profile picture URL in the database
+            userRef.child("profilePictureUrl").get().addOnSuccessListener { dataSnapshot ->
+                val existingProfilePictureUrl = dataSnapshot.getValue(String::class.java)
 
-            // Add profile picture URL if available
-            selectedProfilePictureUri?.let { uri ->
-                val storageRef = FirebaseStorage.getInstance().getReference("users/profilePictures/$userId.jpg")
-                storageRef.putFile(uri)
-                    .addOnSuccessListener {
-                        storageRef.downloadUrl.addOnSuccessListener { downloadUri ->
-                            userMap["profilePictureUrl"] = downloadUri.toString()
-                            userRef.updateChildren(userMap).addOnCompleteListener { task ->
-                                if (task.isSuccessful) {
-                                    Toast.makeText(requireContext(), "Profile updated successfully", Toast.LENGTH_SHORT).show()
-                                } else {
-                                    Toast.makeText(requireContext(), "Failed to update profile", Toast.LENGTH_SHORT).show()
-                                }
-                            }
-                        }
+                // If a new photo URI is set, use it; otherwise, use the existing profile picture URL
+                val profileImageUrl = photoUri?.toString() ?: existingProfilePictureUrl ?: ""
+
+                // Prepare data map for database update
+                val userMap = mapOf(
+                    "First Name" to firstName,
+                    "Last Name" to lastName,
+                    "bio" to bio,
+                    "profilePictureUrl" to profileImageUrl
+                )
+
+                userRef.updateChildren(userMap).addOnCompleteListener { task ->
+                    if (task.isSuccessful) {
+                        Toast.makeText(requireContext(), "Profile updated successfully", Toast.LENGTH_SHORT).show()
+                    } else {
+                        Toast.makeText(requireContext(), "Failed to update profile: ${task.exception?.message}", Toast.LENGTH_SHORT).show()
                     }
-                    .addOnFailureListener {
-                        Toast.makeText(requireContext(), "Failed to upload profile picture", Toast.LENGTH_SHORT).show()
-                    }
-            } ?: userRef.updateChildren(userMap).addOnCompleteListener { task ->
-                if (task.isSuccessful) {
-                    Toast.makeText(requireContext(), "Profile updated successfully", Toast.LENGTH_SHORT).show()
-                } else {
-                    Toast.makeText(requireContext(), "Failed to update profile", Toast.LENGTH_SHORT).show()
                 }
+            }.addOnFailureListener {
+                Toast.makeText(requireContext(), "Failed to fetch existing profile picture", Toast.LENGTH_SHORT).show()
             }
         } else {
             Toast.makeText(requireContext(), "User not authenticated", Toast.LENGTH_SHORT).show()
@@ -154,8 +149,10 @@ class ProfileCustomizationFragment : Fragment() {
                     bioEditText.setText(bio)
 
                     if (!profilePictureUrl.isNullOrEmpty()) {
+                        // Only load the image if the URL is valid
                         Picasso.get().load(profilePictureUrl).placeholder(R.drawable.default_profile).into(profileImageView)
                     } else {
+                        // Set a default image if the URL is null or empty
                         profileImageView.setImageResource(R.drawable.default_profile)
                     }
                 }
@@ -166,6 +163,7 @@ class ProfileCustomizationFragment : Fragment() {
             Toast.makeText(requireContext(), "User not authenticated", Toast.LENGTH_SHORT).show()
         }
     }
+
 
     private fun showPictureOptionDialog() {
         val options = arrayOf("Take Photo with Camera", "Choose from Gallery")
@@ -183,7 +181,11 @@ class ProfileCustomizationFragment : Fragment() {
     private fun openCamera() {
         try {
             val photoFile = createImageFile()
-            photoUri = FileProvider.getUriForFile(requireContext(), "${requireContext().packageName}.provider", photoFile)
+            photoUri = FileProvider.getUriForFile(
+                requireContext(),
+                "${requireContext().packageName}.provider",
+                photoFile
+            )
             takePictureLauncher.launch(photoUri)
         } catch (e: IOException) {
             Toast.makeText(requireContext(), "Error while creating file", Toast.LENGTH_SHORT).show()
@@ -204,8 +206,11 @@ class ProfileCustomizationFragment : Fragment() {
 
     private val takePictureLauncher = registerForActivityResult(ActivityResultContracts.TakePicture()) { success ->
         if (success) {
-            selectedProfilePictureUri = photoUri
             profileImageView.setImageURI(photoUri)
+            photoUri?.let { uri ->
+                profileViewModel.setProfileImageUri(uri)
+                profileViewModel.uploadProfilePicture(uri)
+            }
         } else {
             Toast.makeText(requireContext(), "Camera action failed", Toast.LENGTH_SHORT).show()
         }
@@ -213,12 +218,13 @@ class ProfileCustomizationFragment : Fragment() {
 
     private val pickImageLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
         uri?.let { selectedUri ->
-            selectedProfilePictureUri = selectedUri
             profileImageView.setImageURI(selectedUri)
-        } ?: Toast.makeText(requireContext(), "No image selected", Toast.LENGTH_SHORT).show()
+            photoUri = selectedUri
+            profileViewModel.uploadProfilePicture(selectedUri)
+        }
     }
 
     private fun navigateBack() {
-        requireActivity().onBackPressedDispatcher.onBackPressed()
+        requireActivity().onBackPressedDispatcher.onBackPressed() // Proper way to navigate back
     }
 }

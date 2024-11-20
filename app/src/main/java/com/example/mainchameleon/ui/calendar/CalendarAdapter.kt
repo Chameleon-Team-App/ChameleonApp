@@ -1,30 +1,66 @@
 package com.example.mainchameleon.ui.calendar
 
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.example.mainchameleon.R
+import java.time.LocalDate
 
 class CalendarAdapter(
-    private val daysOfMonth: List<String>,
+    private val days: List<LocalDate?>,
     private val onDayClickListener: OnDayClickListener
-) : RecyclerView.Adapter<CalendarViewHolder>() {
+) : RecyclerView.Adapter<CalendarAdapter.DayViewHolder>() {
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CalendarViewHolder {
-        val inflater = LayoutInflater.from(parent.context)
-        val view = inflater.inflate(R.layout.calendar_cell, parent, false)
-        val layoutParams = view.layoutParams
-        layoutParams.height = (parent.height * 0.166666666).toInt()
-        return CalendarViewHolder(view, onDayClickListener)
+    private var selectedPosition: Int = RecyclerView.NO_POSITION
+
+    inner class DayViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        val dayText: TextView = itemView.findViewById(R.id.dayText)
+
+        init {
+            itemView.setOnClickListener {
+                val position = adapterPosition
+                if (position != RecyclerView.NO_POSITION) {
+                    selectedPosition = position
+                    notifyDataSetChanged()
+                    onDayClickListener.onItemClick(position, days[position])
+                }
+            }
+        }
     }
 
-    override fun onBindViewHolder(holder: CalendarViewHolder, position: Int) {
-        holder.dayOfMonth.text = daysOfMonth[position]
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): DayViewHolder {
+        val view = LayoutInflater.from(parent.context).inflate(R.layout.item_day, parent, false)
+        return DayViewHolder(view)
     }
 
-    override fun getItemCount(): Int = daysOfMonth.size
+    override fun onBindViewHolder(holder: DayViewHolder, position: Int) {
+        val day = days[position]
 
-    interface OnDayClickListener {
-        fun onItemClick(position: Int, dayText: String?)
+        if (day != null) {
+            // Display the day number
+            holder.dayText.text = day.dayOfMonth.toString()
+            holder.dayText.setTextColor(ContextCompat.getColor(holder.itemView.context, R.color.white))
+            holder.itemView.isClickable = true
+
+            // Highlight the current day
+            if (day == LocalDate.now()) {
+                holder.dayText.background = ContextCompat.getDrawable(holder.itemView.context, R.drawable.highlight_background)
+            } else if (position == selectedPosition) {
+                holder.dayText.background = ContextCompat.getDrawable(holder.itemView.context, R.drawable.selected_background)
+            } else {
+                holder.dayText.background = null // Reset background
+            }
+        } else {
+            // Display empty placeholders
+            holder.dayText.text = ""
+            holder.dayText.setTextColor(ContextCompat.getColor(holder.itemView.context, R.color.gray))
+            holder.itemView.isClickable = false
+            holder.dayText.background = null
+        }
     }
+
+    override fun getItemCount(): Int = days.size
 }
