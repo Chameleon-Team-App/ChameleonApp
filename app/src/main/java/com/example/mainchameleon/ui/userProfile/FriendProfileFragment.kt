@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageButton
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -41,6 +42,12 @@ class FriendProfileFragment : Fragment() {
         binding.journalRecyclerView.layoutManager = LinearLayoutManager(requireContext())
         binding.journalRecyclerView.adapter = journalAdapter
 
+        // Set up back button
+        val backButton: ImageButton = binding.root.findViewById(R.id.back_button)
+        backButton.setOnClickListener {
+            requireActivity().onBackPressedDispatcher.onBackPressed()
+        }
+
         loadFriendProfile()
         loadFriendJournals()
 
@@ -51,23 +58,18 @@ class FriendProfileFragment : Fragment() {
         friendId?.let { id ->
             database.child("Users").child(id).addListenerForSingleValueEvent(object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
-                    if (snapshot.exists()) {
-                        val username = snapshot.child("Username").value?.toString() ?: "Unknown"
-                        val bio = snapshot.child("bio").value?.toString() ?: "No bio available"
-                        val profilePictureUrl = snapshot.child("profilePictureUrl").value?.toString() ?: ""
+                    val username = snapshot.child("Username").value?.toString() ?: "Unknown"
+                    val bio = snapshot.child("bio").value?.toString() ?: "No bio available"
+                    val profilePictureUrl = snapshot.child("profilePictureUrl").value?.toString() ?: ""
 
-                        binding.usernameText.text = username
-                        binding.bioText.text = bio
+                    binding.usernameText.text = username
+                    binding.bioText.text = bio
 
-                        // Load profile picture
-                        if (profilePictureUrl.isNotEmpty()) {
-                            Picasso.get().load(profilePictureUrl).placeholder(R.drawable.default_profile).into(binding.profileImage)
-                        } else {
-                            binding.profileImage.setImageResource(R.drawable.default_profile)
-                        }
+                    // Load profile picture
+                    if (profilePictureUrl.isNotEmpty()) {
+                        Picasso.get().load(profilePictureUrl).placeholder(R.drawable.default_profile).into(binding.profileImage)
                     } else {
-                        Toast.makeText(requireContext(), "User not found", Toast.LENGTH_SHORT).show()
-                        requireActivity().onBackPressed()
+                        binding.profileImage.setImageResource(R.drawable.default_profile)
                     }
                 }
 
@@ -82,19 +84,12 @@ class FriendProfileFragment : Fragment() {
         friendId?.let { id ->
             database.child("Users").child(id).child("journals").addListenerForSingleValueEvent(object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
-                    if (snapshot.exists()) {
-                        val journals = mutableListOf<com.example.mainchameleon.ui.journal.JournalEntry>()
-                        for (journalSnapshot in snapshot.children) {
-                            val journal = journalSnapshot.getValue(com.example.mainchameleon.ui.journal.JournalEntry::class.java)
-                            journal?.let {
-                                it.userId = id // Set the userId for the journal
-                                journals.add(it)
-                            }
-                        }
-                        journalAdapter.submitList(journals)
-                    } else {
-                        Toast.makeText(requireContext(), "No journals found", Toast.LENGTH_SHORT).show()
+                    val journals = mutableListOf<com.example.mainchameleon.ui.journal.JournalEntry>()
+                    for (journalSnapshot in snapshot.children) {
+                        val journal = journalSnapshot.getValue(com.example.mainchameleon.ui.journal.JournalEntry::class.java)
+                        journal?.let { journals.add(it) }
                     }
+                    journalAdapter.submitList(journals.sortedByDescending { it.timestamp })
                 }
 
                 override fun onCancelled(error: DatabaseError) {
