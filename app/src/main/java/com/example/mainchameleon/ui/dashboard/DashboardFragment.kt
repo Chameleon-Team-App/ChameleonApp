@@ -8,14 +8,11 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.Observer
-import androidx.navigation.fragment.findNavController
+import androidx.navigation.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.mainchameleon.R
 import com.example.mainchameleon.databinding.FragmentDashboardBinding
-import com.example.mainchameleon.ui.calendar.WeeklyCalendarAdapter
 import com.squareup.picasso.Picasso
-import java.util.Date
 
 class DashboardFragment : Fragment() {
 
@@ -33,137 +30,91 @@ class DashboardFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         _binding = FragmentDashboardBinding.inflate(inflater, container, false)
-        val view = binding.root
-
-        // Initialize weekly calendar RecyclerView
-        val currentDate = Date() // Current date
-        val weeklyCalendarAdapter = WeeklyCalendarAdapter(requireContext(), currentDate)
-
-        binding.weeklyCalendarRecycler.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
-        binding.weeklyCalendarRecycler.adapter = weeklyCalendarAdapter
-
-        // Initialize the ViewModel
-        dashboardViewModel = ViewModelProvider(this).get(DashboardViewModel::class.java)
 
         // Initialize RecyclerView adapter
         dashboardAdapter = DashboardAdapter()
         binding.recyclerView.adapter = dashboardAdapter
         binding.recyclerView.layoutManager = LinearLayoutManager(requireContext())
 
-        // Initialize UI elements
-        profileImageView = binding.profileImage
-        userNameTextView = binding.userName
-        fullNameTextView = binding.fullName
-        streakTextView = binding.streakTextView
-
-        // Observe the allEntries LiveData from the ViewModel
-        dashboardViewModel.allEntries.observe(viewLifecycleOwner, Observer { entries ->
-            dashboardAdapter.submitList(entries)
-        })
-
-        // Observe the streak LiveData from the ViewModel
-        dashboardViewModel.streak.observe(viewLifecycleOwner, Observer { streak ->
-            val streakCount = streak.currentStreak
-            streakTextView.text = if (streakCount > 0) "🔥 $streakCount" else "🔥 0"
-            // Optionally, change the color or appearance based on the streak
-            // For example:
-            // streakTextView.setTextColor(resources.getColor(R.color.streakColor))
-            // Ensure you have defined `streakColor` in your colors.xml
-        })
-
-        // Set click listeners for navigation buttons
-        binding.JournalButton.setOnClickListener {
-            findNavController().navigate(R.id.navigation_journal)
-        }
-        binding.moodJournalButton.setOnClickListener {
-            findNavController().navigate(R.id.navigation_home)
-        }
-
         // Initialize profile views
-        profileImageView = binding.profileImage // Ensure this ID matches your XML
-        userNameTextView = binding.userName // Ensure this ID matches your XML
-        fullNameTextView = binding.fullName // Ensure this ID matches your XML
+        profileImageView = binding.root.findViewById(R.id.profile_image)
+        userNameTextView = binding.root.findViewById(R.id.user_name)
+        fullNameTextView = binding.root.findViewById(R.id.fullName)
+        streakTextView = binding.root.findViewById(R.id.streakTextView)
 
-        // Set click listener for profile image to navigate to UserProfileFragment
-        profileImageView.setOnClickListener {
-            findNavController().navigate(R.id.navigation_profile)
+        // Initialize the ViewModel
+        dashboardViewModel = ViewModelProvider(this).get(DashboardViewModel::class.java)
+
+        // Observe journal entries
+        dashboardViewModel.allEntries.observe(viewLifecycleOwner) { entries ->
+            dashboardAdapter.submitList(entries)
+            binding.swipeRefreshLayout.isRefreshing = false // Stop the refresh animation
+        }
+
+        // Observe streak updates
+        dashboardViewModel.streak.observe(viewLifecycleOwner) { streak ->
+            streakTextView.text = if (streak.currentStreak > 0) "🔥 ${streak.currentStreak}" else "🔥 0"
         }
 
         // Load user profile data
         loadUserProfile()
 
-        return view
+        // Set up swipe-to-refresh
+        setupSwipeToRefresh()
+
+        // Set click listeners for navigation buttons
+        setupNavigationButtons()
+
+        return binding.root
     }
 
-    private fun loadUserProfile() {
-        val userId = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser?.uid
-        if (userId != null) {
-            val userRef = com.google.firebase.database.FirebaseDatabase.getInstance().getReference("Users").child(userId)
-
-            // Retrieve and set username
-            userRef.child("Username").get().addOnSuccessListener { dataSnapshot ->
-                val username = dataSnapshot.getValue(String::class.java)
-                userNameTextView.text = username ?: "Unknown User"
-            }.addOnFailureListener {
-                userNameTextView.text = "Error Loading User"
-            }
-
-            // Initialize variables to hold first and last name
-            var firstName: String? = null
-            var lastName: String? = null
-
-            // Retrieve first name
-            userRef.child("First Name").get().addOnSuccessListener { dataSnapshot ->
-                firstName = dataSnapshot.getValue(String::class.java)
-                if (lastName != null) {
-                    updateFullName(firstName, lastName)
-                }
-            }.addOnFailureListener {
-                fullNameTextView.text = "Unknown First Name"
-            }
-
-            // Retrieve last name
-            userRef.child("Last Name").get().addOnSuccessListener { dataSnapshot ->
-                lastName = dataSnapshot.getValue(String::class.java)
-                if (firstName != null) {
-                    updateFullName(firstName, lastName)
-                }
-            }.addOnFailureListener {
-                fullNameTextView.text = "Unknown Last Name"
-            }
-
-            // Retrieve profile picture URL
-            userRef.child("profilePictureUrl").get().addOnSuccessListener { dataSnapshot ->
-                val profilePictureUrl = dataSnapshot.getValue(String::class.java)
-                if (!profilePictureUrl.isNullOrEmpty()) {
-                    Picasso.get()
-                        .load(profilePictureUrl)
-                        .placeholder(R.drawable.default_profile) // Placeholder image
-                        .error(R.drawable.default_profile) // Error image if URL is invalid
-                        .into(profileImageView)
-                } else {
-                    profileImageView.setImageResource(R.drawable.default_profile)
-                }
-            }.addOnFailureListener {
-                profileImageView.setImageResource(R.drawable.default_profile)
-            }
-        } else {
-            // Handle case where user ID is null
-            userNameTextView.text = "No User Logged In"
-            fullNameTextView.text = "Unknown Full Name"
-            profileImageView.setImageResource(R.drawable.default_profile)
+    private fun setupSwipeToRefresh() {
+        binding.swipeRefreshLayout.setOnRefreshListener {
+            dashboardViewModel.loadAllEntries()
+            dashboardViewModel.loadStreak()
         }
     }
 
-    // Function to update the full name once both parts are retrieved
-    private fun updateFullName(firstName: String?, lastName: String?) {
-        fullNameTextView.text = when {
-            firstName != null && lastName != null -> "$firstName $lastName"
-            firstName != null -> firstName
-            lastName != null -> lastName
-            else -> "Unknown Full Name"
+    private fun setupNavigationButtons() {
+        // Navigate to JournalFragment
+        binding.root.findViewById<View>(R.id.JournalButton).setOnClickListener { view ->
+            view.findNavController().navigate(R.id.action_navigation_dashboard_to_navigation_journal)
+        }
+
+        // Navigate to UserProfileFragment
+        profileImageView.setOnClickListener { view ->
+            view.findNavController().navigate(R.id.action_navigation_dashboard_to_navigation_profile)
+        }
+    }
+
+    private fun loadUserProfile() {
+        val userId = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser?.uid ?: return
+        val userRef = com.google.firebase.database.FirebaseDatabase.getInstance().getReference("Users").child(userId)
+
+        // Retrieve and set username
+        userRef.child("Username").get().addOnSuccessListener { dataSnapshot ->
+            userNameTextView.text = dataSnapshot.getValue(String::class.java) ?: "Unknown User"
+        }
+
+        // Retrieve and set full name
+        userRef.child("First Name").get().addOnSuccessListener { dataSnapshot ->
+            val firstName = dataSnapshot.getValue(String::class.java) ?: ""
+            userRef.child("Last Name").get().addOnSuccessListener { lastSnapshot ->
+                val lastName = lastSnapshot.getValue(String::class.java) ?: ""
+                fullNameTextView.text = "$firstName $lastName"
+            }
+        }
+
+        // Retrieve and set profile picture
+        userRef.child("profilePictureUrl").get().addOnSuccessListener { dataSnapshot ->
+            val profilePictureUrl = dataSnapshot.getValue(String::class.java)
+            if (!profilePictureUrl.isNullOrEmpty()) {
+                Picasso.get().load(profilePictureUrl).into(profileImageView)
+            } else {
+                profileImageView.setImageResource(R.drawable.default_profile)
+            }
         }
     }
 
