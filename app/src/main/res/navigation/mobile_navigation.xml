@@ -11,6 +11,10 @@
         android:label="@string/title_dashboard"
         tools:layout="@layout/fragment_dashboard">
 
+        <action
+            android:id="@+id/action_dashboardFragment_to_activityFragment"
+            app:destination="@id/fragment_activities" />
+
         <!-- Navigate to Journal -->
         <action
             android:id="@+id/action_navigation_dashboard_to_navigation_journal"
@@ -64,6 +68,14 @@
         android:name="com.example.mainchameleon.ui.userProfile.ProfileCustomizationFragment"
         android:label="Profile Customization"
         tools:layout="@layout/fragment_profile_customization" />
+
+    <!-- Activities Fragment -->
+    <fragment
+        android:id="@+id/fragment_activities"
+        android:name="com.example.mainchameleon.ui.activities.ActivitiesFragment"
+        android:label="Activities"
+        tools:layout="@layout/fragment_activities" />
+
 
     <!-- Camera Fragment -->
     <fragment

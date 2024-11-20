@@ -83,6 +83,11 @@ class DashboardFragment : Fragment() {
             view.findNavController().navigate(R.id.action_navigation_dashboard_to_navigation_journal)
         }
 
+        // Navigate to ActivitiesFragment
+        binding.root.findViewById<View>(R.id.NewButton).setOnClickListener { view ->
+            view.findNavController().navigate(R.id.action_dashboardFragment_to_activityFragment)
+        }
+
         // Navigate to UserProfileFragment
         profileImageView.setOnClickListener { view ->
             view.findNavController().navigate(R.id.action_navigation_dashboard_to_navigation_profile)
