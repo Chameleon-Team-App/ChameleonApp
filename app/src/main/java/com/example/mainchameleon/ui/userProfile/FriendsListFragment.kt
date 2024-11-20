@@ -94,16 +94,22 @@ class FriendsListFragment : Fragment() {
 
     private fun addFriend(friendId: String) {
         val currentUserId = auth.currentUser?.uid ?: return
-        val friendsRef = database.child("Users").child(currentUserId).child("friends")
+        val currentUserFriendsRef = database.child("Users").child(currentUserId).child("friends")
+        val friendUserFriendsRef = database.child("Users").child(friendId).child("friends")
 
-        // Check if the friend ID exists
         database.child("Users").child(friendId).get().addOnSuccessListener { snapshot ->
             if (snapshot.exists()) {
-                friendsRef.child(friendId).setValue(true).addOnSuccessListener {
-                    Toast.makeText(requireContext(), "Friend added successfully!", Toast.LENGTH_SHORT).show()
-                    loadFriends() // Refresh the list
-                }.addOnFailureListener { error ->
-                    Toast.makeText(requireContext(), "Failed to add friend: ${error.message}", Toast.LENGTH_SHORT).show()
+                // Add friendId to the current user's friends
+                currentUserFriendsRef.child(friendId).setValue(true).addOnSuccessListener {
+                    // Add currentUserId to the friend's friends
+                    friendUserFriendsRef.child(currentUserId).setValue(true).addOnSuccessListener {
+                        Toast.makeText(requireContext(), "Friend added successfully!", Toast.LENGTH_SHORT).show()
+                        loadFriends() // Refresh the list
+                    }.addOnFailureListener {
+                        Toast.makeText(requireContext(), "Failed to add to friend's list", Toast.LENGTH_SHORT).show()
+                    }
+                }.addOnFailureListener {
+                    Toast.makeText(requireContext(), "Failed to add friend", Toast.LENGTH_SHORT).show()
                 }
             } else {
                 Toast.makeText(requireContext(), "Friend code not found", Toast.LENGTH_SHORT).show()
@@ -112,6 +118,7 @@ class FriendsListFragment : Fragment() {
             Toast.makeText(requireContext(), "Error checking friend code", Toast.LENGTH_SHORT).show()
         }
     }
+
 
 
     private fun showAddFriendDialog() {
