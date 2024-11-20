@@ -10,7 +10,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.mainchameleon.R
 import com.example.mainchameleon.databinding.FragmentFriendProfileBinding
 import com.example.mainchameleon.ui.journal.JournalAdapter
-import com.example.mainchameleon.ui.journal.JournalEntry
 import com.google.firebase.database.*
 import com.squareup.picasso.Picasso
 
@@ -52,16 +51,23 @@ class FriendProfileFragment : Fragment() {
         friendId?.let { id ->
             database.child("Users").child(id).addListenerForSingleValueEvent(object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
-                    val username = snapshot.child("Username").value.toString()
-                    val bio = snapshot.child("bio").value.toString()
-                    val profilePictureUrl = snapshot.child("profilePictureUrl").value.toString()
+                    if (snapshot.exists()) {
+                        val username = snapshot.child("Username").value?.toString() ?: "Unknown"
+                        val bio = snapshot.child("bio").value?.toString() ?: "No bio available"
+                        val profilePictureUrl = snapshot.child("profilePictureUrl").value?.toString() ?: ""
 
-                    binding.usernameText.text = username
-                    binding.bioText.text = bio
+                        binding.usernameText.text = username
+                        binding.bioText.text = bio
 
-                    // Load profile picture
-                    if (profilePictureUrl.isNotEmpty()) {
-                        Picasso.get().load(profilePictureUrl).placeholder(R.drawable.default_profile).into(binding.profileImage)
+                        // Load profile picture
+                        if (profilePictureUrl.isNotEmpty()) {
+                            Picasso.get().load(profilePictureUrl).placeholder(R.drawable.default_profile).into(binding.profileImage)
+                        } else {
+                            binding.profileImage.setImageResource(R.drawable.default_profile)
+                        }
+                    } else {
+                        Toast.makeText(requireContext(), "User not found", Toast.LENGTH_SHORT).show()
+                        requireActivity().onBackPressed()
                     }
                 }
 
@@ -76,12 +82,19 @@ class FriendProfileFragment : Fragment() {
         friendId?.let { id ->
             database.child("Users").child(id).child("journals").addListenerForSingleValueEvent(object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
-                    val journals = mutableListOf<JournalEntry>()
-                    for (journalSnapshot in snapshot.children) {
-                        val journal = journalSnapshot.getValue(JournalEntry::class.java)
-                        journal?.let { journals.add(it) }
+                    if (snapshot.exists()) {
+                        val journals = mutableListOf<com.example.mainchameleon.ui.journal.JournalEntry>()
+                        for (journalSnapshot in snapshot.children) {
+                            val journal = journalSnapshot.getValue(com.example.mainchameleon.ui.journal.JournalEntry::class.java)
+                            journal?.let {
+                                it.userId = id // Set the userId for the journal
+                                journals.add(it)
+                            }
+                        }
+                        journalAdapter.submitList(journals)
+                    } else {
+                        Toast.makeText(requireContext(), "No journals found", Toast.LENGTH_SHORT).show()
                     }
-                    journalAdapter.submitList(journals)
                 }
 
                 override fun onCancelled(error: DatabaseError) {

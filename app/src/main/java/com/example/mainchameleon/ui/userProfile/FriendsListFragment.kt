@@ -93,7 +93,7 @@ class FriendsListFragment : Fragment() {
 
 
     private fun addFriend(friendId: String) {
-        val currentUserId = auth.currentUser?.uid ?: return
+        val currentUserId = FirebaseAuth.getInstance().currentUser?.uid ?: return
         val currentUserFriendsRef = database.child("Users").child(currentUserId).child("friends")
         val friendUserFriendsRef = database.child("Users").child(friendId).child("friends")
 
@@ -118,6 +118,7 @@ class FriendsListFragment : Fragment() {
             Toast.makeText(requireContext(), "Error checking friend code", Toast.LENGTH_SHORT).show()
         }
     }
+
 
 
 
