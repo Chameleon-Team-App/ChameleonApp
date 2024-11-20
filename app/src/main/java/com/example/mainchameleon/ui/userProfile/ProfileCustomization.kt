@@ -17,6 +17,7 @@ import androidx.core.content.FileProvider
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.example.mainchameleon.R
+import com.google.android.material.card.MaterialCardView
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
 import com.squareup.picasso.Picasso
@@ -45,7 +46,7 @@ class ProfileCustomizationFragment : Fragment() {
     ): View? {
         val rootView = inflater.inflate(R.layout.fragment_profile_customization, container, false)
 
-        profileImageView = rootView.findViewById(R.id.change_picture_button) // Initialize profileImageView
+        profileImageView = rootView.findViewById(R.id.change_picture_button)
         profileViewModel = ViewModelProvider(this)[ProfileViewModel::class.java]
         auth = FirebaseAuth.getInstance()
         database = FirebaseDatabase.getInstance()
@@ -54,7 +55,9 @@ class ProfileCustomizationFragment : Fragment() {
         firstNameEditText = rootView.findViewById(R.id.fname_edit_text)
         lastNameEditText = rootView.findViewById(R.id.lname_edit_text)
         bioEditText = rootView.findViewById(R.id.bio_edit_text)
-        buttonSaveProfile = rootView.findViewById(R.id.save_button)
+        val saveButtonCard: MaterialCardView = rootView.findViewById(R.id.save_button)
+
+        val backButton = rootView.findViewById<View>(R.id.back_button)
 
         // Load current user data
         loadUserData()
@@ -69,11 +72,13 @@ class ProfileCustomizationFragment : Fragment() {
             showPictureOptionDialog()
         }
 
-        buttonSaveProfile.setOnClickListener {
-            updateProfileData()
+        // Set an OnClickListener for the MaterialCardView
+        saveButtonCard.setOnClickListener {
+            // Perform your save action here
+            Toast.makeText(requireContext(), "Save clicked", Toast.LENGTH_SHORT).show()
         }
 
-        val backButton: ImageButton = rootView.findViewById(R.id.back_button)
+        // Set click listener for Back button
         backButton.setOnClickListener {
             navigateBack()
         }

@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
@@ -88,7 +89,7 @@ class DashboardFragment : Fragment() {
         streakTextView = binding.root.findViewById(R.id.streakTextView)
     }
 
-    private fun initializeViewModel() {
+    private fun initializeViewModel(): ConstraintLayout {
         dashboardViewModel = ViewModelProvider(this).get(DashboardViewModel::class.java)
 
         dashboardViewModel.allEntries.observe(viewLifecycleOwner) { entries ->
