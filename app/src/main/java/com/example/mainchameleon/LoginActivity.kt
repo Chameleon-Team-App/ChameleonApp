@@ -47,6 +47,12 @@ class LoginActivity : AppCompatActivity() {
         binding.registerButton.setOnClickListener {
             startActivity(Intent(this, RegisterScreen::class.java))
         }
+
+        //forgot password
+        binding.forgotPassword.setOnClickListener {
+            val intent = Intent(this, ForgotPasswordActivity::class.java)
+            startActivity(intent)
+        }
     }
 
     private fun loginWithEmail(email: String, password: String) {
