@@ -49,7 +49,7 @@ class DashboardFragment : Fragment() {
 
         // Observe journal entries
         dashboardViewModel.allEntries.observe(viewLifecycleOwner) { entries ->
-            dashboardAdapter.submitList(entries)
+            dashboardAdapter.submitList(entries.sortedByDescending { it.timestamp }) // Ensure newest entries appear first
             binding.swipeRefreshLayout.isRefreshing = false // Stop the refresh animation
         }
 
@@ -67,13 +67,16 @@ class DashboardFragment : Fragment() {
         // Set click listeners for navigation buttons
         setupNavigationButtons()
 
+        // Update streak when the fragment is created
+        dashboardViewModel.updateStreak()
+
         return binding.root
     }
 
     private fun setupSwipeToRefresh() {
         binding.swipeRefreshLayout.setOnRefreshListener {
             dashboardViewModel.loadAllEntries()
-            dashboardViewModel.loadStreak()
+            dashboardViewModel.updateStreak()
         }
     }
 

@@ -66,7 +66,7 @@ class UserProfileFragment : Fragment() {
                 .setTitle("Choose an option")
                 .setItems(options) { _, which ->
                     when (which) {
-                        0 -> showAddFriendDialog()
+
                         1 -> findNavController().navigate(R.id.navigation_friends_list)
                     }
                 }
