@@ -101,7 +101,7 @@
                             android:layout_width="40dp"
                             android:layout_height="40dp"
                             android:layout_centerHorizontal="true"
-                            android:src="@drawable/ic_journal_black_24dp"
+                            android:src="@drawable/journal_64dp"
                             android:visibility="visible" />
 
                         <TextView
