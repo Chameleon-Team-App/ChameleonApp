@@ -5,21 +5,26 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.*
+import android.widget.Button
+import android.widget.EditText
+import android.widget.ImageButton
+import android.widget.ImageView
+import android.widget.TextView
+import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.FileProvider
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.example.mainchameleon.R
-import com.google.firebase.auth.EmailAuthProvider
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
 import com.squareup.picasso.Picasso
 import java.io.File
 import java.io.IOException
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Date
+import java.util.Locale
 
 class ProfileCustomizationFragment : Fragment() {
 
@@ -28,7 +33,6 @@ class ProfileCustomizationFragment : Fragment() {
     private lateinit var bioEditText: EditText
     private lateinit var firstNameEditText: EditText
     private lateinit var lastNameEditText: EditText
-    private lateinit var passwordEditText: EditText // New Password EditText
     private var photoUri: Uri? = null
     private lateinit var profileViewModel: ProfileViewModel
     private lateinit var auth: FirebaseAuth
@@ -41,7 +45,7 @@ class ProfileCustomizationFragment : Fragment() {
     ): View? {
         val rootView = inflater.inflate(R.layout.fragment_profile_customization, container, false)
 
-        profileImageView = rootView.findViewById(R.id.change_picture_button)
+        profileImageView = rootView.findViewById(R.id.change_picture_button) // Initialize profileImageView
         profileViewModel = ViewModelProvider(this)[ProfileViewModel::class.java]
         auth = FirebaseAuth.getInstance()
         database = FirebaseDatabase.getInstance()
@@ -50,7 +54,6 @@ class ProfileCustomizationFragment : Fragment() {
         firstNameEditText = rootView.findViewById(R.id.fname_edit_text)
         lastNameEditText = rootView.findViewById(R.id.lname_edit_text)
         bioEditText = rootView.findViewById(R.id.bio_edit_text)
-        passwordEditText = rootView.findViewById(R.id.password_edit_text) // Initialize password field
         buttonSaveProfile = rootView.findViewById(R.id.save_button)
 
         // Load current user data
@@ -67,7 +70,7 @@ class ProfileCustomizationFragment : Fragment() {
         }
 
         buttonSaveProfile.setOnClickListener {
-            handleSaveProfile()
+            updateProfileData()
         }
 
         val backButton: ImageButton = rootView.findViewById(R.id.back_button)
@@ -85,97 +88,47 @@ class ProfileCustomizationFragment : Fragment() {
         }
     }
 
-    private fun handleSaveProfile() {
+    private fun updateProfileData() {
         val firstName = firstNameEditText.text.toString().trim()
         val lastName = lastNameEditText.text.toString().trim()
         val bio = bioEditText.text.toString().trim()
-        val newPassword = passwordEditText.text.toString().trim()
 
         if (firstName.isEmpty() || lastName.isEmpty()) {
             Toast.makeText(requireContext(), "Please enter your First Name and Last Name", Toast.LENGTH_SHORT).show()
             return
         }
 
-        if (newPassword.isNotEmpty()) {
-            // Prompt for current password if a new password is provided
-            promptForCurrentPassword { currentPassword ->
-                reauthenticateUser(currentPassword, newPassword) {
-                    updateProfile(firstName, lastName, bio)
+        val userId = auth.currentUser?.uid ?: ""
+        if (userId.isNotEmpty()) {
+            val userRef = database.getReference("Users").child(userId)
+
+            // Check for an existing profile picture URL in the database
+            userRef.child("profilePictureUrl").get().addOnSuccessListener { dataSnapshot ->
+                val existingProfilePictureUrl = dataSnapshot.getValue(String::class.java)
+
+                // If a new photo URI is set, use it; otherwise, use the existing profile picture URL
+                val profileImageUrl = photoUri?.toString() ?: existingProfilePictureUrl ?: ""
+
+                // Prepare data map for database update
+                val userMap = mapOf(
+                    "First Name" to firstName,
+                    "Last Name" to lastName,
+                    "bio" to bio,
+                    "profilePictureUrl" to profileImageUrl
+                )
+
+                userRef.updateChildren(userMap).addOnCompleteListener { task ->
+                    if (task.isSuccessful) {
+                        Toast.makeText(requireContext(), "Profile updated successfully", Toast.LENGTH_SHORT).show()
+                    } else {
+                        Toast.makeText(requireContext(), "Failed to update profile: ${task.exception?.message}", Toast.LENGTH_SHORT).show()
+                    }
                 }
+            }.addOnFailureListener {
+                Toast.makeText(requireContext(), "Failed to fetch existing profile picture", Toast.LENGTH_SHORT).show()
             }
         } else {
-            // Proceed with profile update if no password change
-            updateProfile(firstName, lastName, bio)
-        }
-    }
-
-    private fun promptForCurrentPassword(onPasswordEntered: (String) -> Unit) {
-        val input = EditText(requireContext()).apply {
-            inputType = android.text.InputType.TYPE_CLASS_TEXT or android.text.InputType.TYPE_TEXT_VARIATION_PASSWORD
-            hint = "Enter Current Password"
-        }
-
-        AlertDialog.Builder(requireContext())
-            .setTitle("Re-authenticate")
-            .setMessage("Please enter your current password to proceed.")
-            .setView(input)
-            .setPositiveButton("Submit") { _, _ ->
-                val currentPassword = input.text.toString().trim()
-                if (currentPassword.isNotEmpty()) {
-                    onPasswordEntered(currentPassword)
-                } else {
-                    Toast.makeText(requireContext(), "Password is required to proceed.", Toast.LENGTH_SHORT).show()
-                }
-            }
-            .setNegativeButton("Cancel", null)
-            .show()
-    }
-
-    private fun reauthenticateUser(currentPassword: String, newPassword: String, onReauthenticated: () -> Unit) {
-        val user = auth.currentUser
-        val email = user?.email ?: return
-
-        val credential = EmailAuthProvider.getCredential(email, currentPassword)
-        user.reauthenticate(credential)
-            .addOnCompleteListener { task ->
-                if (task.isSuccessful) {
-                    updatePassword(newPassword, onReauthenticated)
-                } else {
-                    Toast.makeText(requireContext(), "Re-authentication failed: ${task.exception?.message}", Toast.LENGTH_SHORT).show()
-                }
-            }
-    }
-
-    private fun updatePassword(newPassword: String, onPasswordUpdated: () -> Unit) {
-        val user = auth.currentUser
-
-        user?.updatePassword(newPassword)?.addOnCompleteListener { task ->
-            if (task.isSuccessful) {
-                Toast.makeText(requireContext(), "Password updated successfully!", Toast.LENGTH_SHORT).show()
-                onPasswordUpdated()
-            } else {
-                Toast.makeText(requireContext(), "Password update failed: ${task.exception?.message}", Toast.LENGTH_SHORT).show()
-            }
-        }
-    }
-
-    private fun updateProfile(firstName: String, lastName: String, bio: String) {
-        val userId = auth.currentUser?.uid ?: return
-        val userRef = database.getReference("Users").child(userId)
-
-        val userMap = mapOf(
-            "First Name" to firstName,
-            "Last Name" to lastName,
-            "bio" to bio,
-            "profilePictureUrl" to (photoUri?.toString() ?: "")
-        )
-
-        userRef.updateChildren(userMap).addOnCompleteListener { task ->
-            if (task.isSuccessful) {
-                Toast.makeText(requireContext(), "Profile updated successfully!", Toast.LENGTH_SHORT).show()
-            } else {
-                Toast.makeText(requireContext(), "Failed to update profile: ${task.exception?.message}", Toast.LENGTH_SHORT).show()
-            }
+            Toast.makeText(requireContext(), "User not authenticated", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -196,8 +149,10 @@ class ProfileCustomizationFragment : Fragment() {
                     bioEditText.setText(bio)
 
                     if (!profilePictureUrl.isNullOrEmpty()) {
+                        // Only load the image if the URL is valid
                         Picasso.get().load(profilePictureUrl).placeholder(R.drawable.default_profile).into(profileImageView)
                     } else {
+                        // Set a default image if the URL is null or empty
                         profileImageView.setImageResource(R.drawable.default_profile)
                     }
                 }
@@ -209,9 +164,6 @@ class ProfileCustomizationFragment : Fragment() {
         }
     }
 
-    private fun navigateBack() {
-        requireActivity().onBackPressedDispatcher.onBackPressed()
-    }
 
     private fun showPictureOptionDialog() {
         val options = arrayOf("Take Photo with Camera", "Choose from Gallery")
@@ -270,5 +222,9 @@ class ProfileCustomizationFragment : Fragment() {
             photoUri = selectedUri
             profileViewModel.uploadProfilePicture(selectedUri)
         }
+    }
+
+    private fun navigateBack() {
+        requireActivity().onBackPressedDispatcher.onBackPressed() // Proper way to navigate back
     }
 }

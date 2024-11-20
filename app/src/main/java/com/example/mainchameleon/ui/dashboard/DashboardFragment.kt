@@ -92,19 +92,33 @@ class DashboardFragment : Fragment() {
         dashboardViewModel = ViewModelProvider(this).get(DashboardViewModel::class.java)
 
         dashboardViewModel.allEntries.observe(viewLifecycleOwner) { entries ->
-            dashboardAdapter.submitList(entries)
+            dashboardAdapter.submitList(entries.sortedByDescending { it.timestamp }) // Ensure newest entries appear first
             binding.swipeRefreshLayout.isRefreshing = false // Stop the refresh animation
         }
 
         dashboardViewModel.streak.observe(viewLifecycleOwner) { streak ->
             streakTextView.text = if (streak.currentStreak > 0) "🔥 ${streak.currentStreak}" else "🔥 0"
         }
+
+        // Load user profile data
+        loadUserProfile()
+
+        // Set up swipe-to-refresh
+        setupSwipeToRefresh()
+
+        // Set click listeners for navigation buttons
+        setupNavigationButtons()
+
+        // Update streak when the fragment is created
+        dashboardViewModel.updateStreak()
+
+        return binding.root
     }
 
     private fun setupSwipeToRefresh() {
         binding.swipeRefreshLayout.setOnRefreshListener {
             dashboardViewModel.loadAllEntries()
-            dashboardViewModel.loadStreak()
+            dashboardViewModel.updateStreak()
         }
     }
 

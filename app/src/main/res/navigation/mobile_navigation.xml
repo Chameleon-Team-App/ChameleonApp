@@ -57,7 +57,7 @@
         android:label="@string/title_profile"
         tools:layout="@layout/fragment_user_profile">
 
-        <!-- Navigate to Profile Customization (Editor) -->
+        <!-- Navigate to Profile Customization -->
         <action
             android:id="@+id/action_navigation_profile_to_navigation_profile_customization"
             app:destination="@id/navigation_profile_customization" />
@@ -68,12 +68,34 @@
             app:destination="@id/navigation_dashboard" />
     </fragment>
 
-    <!-- Profile Customization (Editor) Fragment -->
+    <!-- Profile Customization Fragment -->
     <fragment
         android:id="@+id/navigation_profile_customization"
         android:name="com.example.mainchameleon.ui.userProfile.ProfileCustomizationFragment"
         android:label="Profile Customization"
         tools:layout="@layout/fragment_profile_customization" />
+
+    <!-- Friends List Fragment -->
+    <fragment
+        android:id="@+id/navigation_friends_list"
+        android:name="com.example.mainchameleon.ui.userProfile.FriendsListFragment"
+        android:label="Friends List"
+        tools:layout="@layout/fragment_friends_lists">
+        <action
+            android:id="@+id/action_friends_list_to_friend_profile"
+            app:destination="@id/navigation_friend_profile">
+            <argument
+                android:name="friendId"
+                app:argType="string" />
+        </action>
+    </fragment>
+
+    <!-- Friend Profile Fragment -->
+    <fragment
+        android:id="@+id/navigation_friend_profile"
+        android:name="com.example.mainchameleon.ui.userProfile.FriendProfileFragment"
+        android:label="Friend Profile"
+        tools:layout="@layout/fragment_friend_profile" />
 
     <!-- Camera Fragment -->
     <fragment
