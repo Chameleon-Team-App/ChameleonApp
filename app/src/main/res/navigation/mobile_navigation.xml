@@ -64,7 +64,11 @@
         android:name="com.example.mainchameleon.ui.userProfile.ProfileCustomizationFragment"
         android:label="Profile Customization"
         tools:layout="@layout/fragment_profile_customization" />
-
+    <fragment
+        android:id="@+id/navigation_friends_list"
+        android:name="com.example.mainchameleon.ui.userProfile.FriendsListFragment"
+        android:label="Friends List"
+        tools:layout="@layout/fragment_friends_lists" />
     <!-- Camera Fragment -->
     <fragment
         android:id="@+id/navigation_camera"

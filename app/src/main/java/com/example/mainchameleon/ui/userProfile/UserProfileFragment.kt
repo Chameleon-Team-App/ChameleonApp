@@ -2,12 +2,12 @@ package com.example.mainchameleon.ui.userProfile
 
 import android.content.Intent
 import android.os.Bundle
+import android.text.InputType
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
-import android.widget.ImageButton
-import android.widget.Toast
+import android.widget.*
+import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
@@ -46,7 +46,6 @@ class UserProfileFragment : Fragment() {
             navigateToLoginScreen()
         }
 
-
         loadUserProfile()
 
         // Set up click listener for the edit button to navigate to ProfileCustomizationFragment
@@ -54,6 +53,25 @@ class UserProfileFragment : Fragment() {
             findNavController().navigate(R.id.action_navigation_profile_to_navigation_profile_customization)
         }
 
+        // Set up friend code and add friend functionality
+        val friendCodeText = binding.friendCodeText
+        val addFriendButton = binding.addFriendButton
+
+        val userId = profileViewModel.getCurrentUserId()
+        friendCodeText.text = "Friend Code: $userId"
+
+        addFriendButton.setOnClickListener {
+            val options = arrayOf("Add a Friend", "View Friends")
+            AlertDialog.Builder(requireContext())
+                .setTitle("Choose an option")
+                .setItems(options) { _, which ->
+                    when (which) {
+                        0 -> showAddFriendDialog()
+                        1 -> findNavController().navigate(R.id.navigation_friends_list)
+                    }
+                }
+                .show()
+        }
 
         val backButton: ImageButton = binding.root.findViewById(R.id.back_button)
         backButton.setOnClickListener {
@@ -96,5 +114,22 @@ class UserProfileFragment : Fragment() {
 
     private fun navigateBack() {
         requireActivity().onBackPressedDispatcher.onBackPressed() // Proper way to navigate back
+    }
+
+    private fun showAddFriendDialog() {
+        val dialog = AlertDialog.Builder(requireContext())
+            .setTitle("Add Friend")
+            .setMessage("Enter Friend Code:")
+            .setView(EditText(requireContext()).apply {
+                inputType = InputType.TYPE_CLASS_TEXT
+            })
+            .setPositiveButton("Add") { dialog, _ ->
+                val friendCode = (dialog as AlertDialog).findViewById<EditText>(android.R.id.text1)?.text.toString()
+                profileViewModel.addFriendByCode(friendCode)
+                dialog.dismiss()
+            }
+            .setNegativeButton("Cancel") { dialog, _ -> dialog.dismiss() }
+            .create()
+        dialog.show()
     }
 }

@@ -29,6 +29,18 @@ class ProfileViewModel : ViewModel() {
     private val auth = FirebaseAuth.getInstance()
     private val database = FirebaseDatabase.getInstance()
 
+    // Get current user ID
+    fun getCurrentUserId(): String {
+        return auth.currentUser?.uid ?: "Unknown"
+    }
+
+    // Add friend by code
+    fun addFriendByCode(friendCode: String) {
+        val currentUserId = getCurrentUserId()
+        val databaseRef = database.reference
+        databaseRef.child("users").child(currentUserId).child("friends").push().setValue(friendCode)
+    }
+
     // Setters for profile information
     fun setProfileImageUri(uri: Uri?) {
         _profileImageUri.value = uri
@@ -64,13 +76,9 @@ class ProfileViewModel : ViewModel() {
     }
 
     // Save or update profile data to Firebase Database
-    fun saveProfileDataToDatabase(userId: String, profileImageUrl: String, firstName: String, lastName: String, bio: String) {
-        val userId = auth.currentUser?.uid ?: run {
-            Log.e("ProfileViewModel", "User not authenticated")
-            return
-        }
-
-        val userRef = database.getReference("Users").child(userId)
+    fun saveProfileDataToDatabase(profileImageUrl: String, bio: String) {
+        val userId = getCurrentUserId()
+        val userRef = database.reference.child("Users").child(userId)
 
         val userMap = mapOf(
             "profilePictureUrl" to profileImageUrl,
