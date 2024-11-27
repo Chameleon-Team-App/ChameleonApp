@@ -62,35 +62,48 @@ class ProfileViewModel : ViewModel() {
             return
         }
 
-        val storageRef = storage.reference.child("Users/$userId/profilePictures/${uri.lastPathSegment}")
+        val storageRef = storage.reference.child("Users/$userId/profilePictures/${System.currentTimeMillis()}.jpg")
 
         storageRef.putFile(uri)
             .addOnSuccessListener {
-                _uploadStatus.value = true  // Set status to true when upload succeeds
-                Log.d("ProfileViewModel", "Profile picture uploaded successfully.")
+                storageRef.downloadUrl.addOnSuccessListener { downloadUri ->
+                    _uploadStatus.value = true
+                    saveProfileDataToDatabase(profileImageUrl = downloadUri.toString(), bio = null) // Only update the picture
+                    Log.d("ProfileViewModel", "Profile picture uploaded successfully.")
+                }
             }
             .addOnFailureListener { exception ->
-                _uploadStatus.value = false  // Set status to false when upload fails
+                _uploadStatus.value = false
                 Log.e("ProfileViewModel", "Failed to upload profile picture", exception)
             }
     }
 
     // Save or update profile data to Firebase Database
-    fun saveProfileDataToDatabase(profileImageUrl: String, bio: String) {
+    fun saveProfileDataToDatabase(profileImageUrl: String?, bio: String?) {
         val userId = getCurrentUserId()
         val userRef = database.reference.child("Users").child(userId)
 
-        val userMap = mapOf(
-            "profilePictureUrl" to profileImageUrl,
-            "bio" to bio,
-        )
+        userRef.get().addOnSuccessListener { dataSnapshot ->
+            val existingBio = dataSnapshot.child("bio").value as? String
+            val existingProfilePictureUrl = dataSnapshot.child("profilePictureUrl").value as? String
 
-        userRef.updateChildren(userMap).addOnCompleteListener { task ->
-            if (task.isSuccessful) {
-                Log.d("ProfileViewModel", "Profile data updated successfully.")
-            } else {
-                Log.e("ProfileViewModel", "Failed to update profile data: ${task.exception?.message}")
+            // Merge updates with existing data
+            val updatedBio = bio ?: existingBio
+            val updatedProfilePictureUrl = profileImageUrl ?: existingProfilePictureUrl
+
+            val userMap = mutableMapOf<String, Any?>()
+            updatedBio?.let { userMap["bio"] = it }
+            updatedProfilePictureUrl?.let { userMap["profilePictureUrl"] = it }
+
+            userRef.updateChildren(userMap).addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    Log.d("ProfileViewModel", "Profile data updated successfully.")
+                } else {
+                    Log.e("ProfileViewModel", "Failed to update profile data: ${task.exception?.message}")
+                }
             }
+        }.addOnFailureListener {
+            Log.e("ProfileViewModel", "Failed to fetch current profile data: ${it.message}")
         }
     }
 }
