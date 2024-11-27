@@ -13,7 +13,8 @@ import java.util.*
 
 class WeeklyCalendarAdapter(
     private val context: Context,
-    private val currentDate: Date
+    private val currentDate: Date,
+    private val onItemClick: (Date) -> Unit
 ) : RecyclerView.Adapter<WeeklyCalendarAdapter.DayViewHolder>() {
 
     private val weekDays: List<Date> = generateWeekDates()
@@ -25,16 +26,20 @@ class WeeklyCalendarAdapter(
 
     override fun onBindViewHolder(holder: DayViewHolder, position: Int) {
         val date = weekDays[position]
-        val dayFormat = SimpleDateFormat("EEE", Locale.getDefault())
-        val dayText = dayFormat.format(date)
+        holder.dayTextView.text = SimpleDateFormat("EEE", Locale.getDefault()).format(date)
 
-        holder.dayTextView.text = dayText
+        // Highlight current date
+        holder.dayTextView.setBackgroundColor(
+            if (SimpleDateFormat("yyyyMMdd").format(date) == SimpleDateFormat("yyyyMMdd").format(currentDate)) {
+                ContextCompat.getColor(context, R.color.highlight)
+            } else {
+                ContextCompat.getColor(context, android.R.color.transparent)
+            }
+        )
 
-        // Highlight the current date
-        if (SimpleDateFormat("yyyyMMdd").format(date) == SimpleDateFormat("yyyyMMdd").format(currentDate)) {
-            holder.dayTextView.setBackgroundColor(ContextCompat.getColor(context, R.color.highlight))
-        } else {
-            holder.dayTextView.setBackgroundColor(ContextCompat.getColor(context, android.R.color.transparent))
+        // Set click listener
+        holder.itemView.setOnClickListener {
+            onItemClick(date)
         }
     }
 
@@ -43,8 +48,6 @@ class WeeklyCalendarAdapter(
     private fun generateWeekDates(): List<Date> {
         val calendar = Calendar.getInstance()
         calendar.time = currentDate
-
-        // Move to the start of the week (e.g., Sunday or Monday)
         calendar.set(Calendar.DAY_OF_WEEK, calendar.firstDayOfWeek)
 
         return List(7) {

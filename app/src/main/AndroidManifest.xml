@@ -40,6 +40,9 @@
             </intent-filter>
         </activity>
 
+        <activity android:name=".ForgotPasswordActivity">
+        </activity>
+
         <!-- Registration Screen Activity -->
         <activity
             android:name=".ui.loginScreen.RegisterScreen"

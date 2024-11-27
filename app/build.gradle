@@ -55,26 +55,29 @@ dependencies {
     implementation libs.material
 
     // SwipeRefreshLayout (required for pull-to-refresh functionality)
-    implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0'
+    implementation libs.androidx.swiperefreshlayout
 
     // Firebase BOM (ensures consistent versions of Firebase libraries)
-    implementation platform("com.google.firebase:firebase-bom:33.5.1")
+    implementation platform(libs.firebase.bom)
     implementation libs.firebase.storage.ktx
     implementation libs.firebase.database.ktx
     implementation libs.firebase.auth.ktx
 
     // CameraX (for custom camera functionality)
-    implementation("androidx.camera:camera-core:${libs.versions.camerax.get()}")
-    implementation("androidx.camera:camera-camera2:${libs.versions.camerax.get()}")
-    implementation("androidx.camera:camera-lifecycle:${libs.versions.camerax.get()}")
-    implementation("androidx.camera:camera-view:${libs.versions.camerax.get()}")
+    implementation(libs.androidx.camera.core)
+    implementation(libs.androidx.camera.camera2.v120)
+    implementation(libs.androidx.camera.lifecycle.v120)
+    implementation(libs.androidx.camera.view.v120)
 
     // Image Loading Libraries
     implementation libs.glide
     implementation libs.picasso
+    implementation libs.firebase.crashlytics.buildtools
 
     // Testing Libraries
     testImplementation libs.junit
     androidTestImplementation libs.androidx.junit
     androidTestImplementation libs.androidx.espresso.core
+
+    implementation libs.gson
 }
