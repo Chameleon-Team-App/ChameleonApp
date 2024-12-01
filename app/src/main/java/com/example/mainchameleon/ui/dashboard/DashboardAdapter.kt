@@ -28,7 +28,7 @@ class DashboardAdapter : RecyclerView.Adapter<DashboardAdapter.DashboardViewHold
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): DashboardViewHolder {
-        val view = LayoutInflater.from(parent.context).inflate(R.layout.fragment_journal_entry, parent, false)
+        val view = LayoutInflater.from(parent.context).inflate(R.layout.fragment_dashboard, parent, false)
         return DashboardViewHolder(view)
     }
 
@@ -40,54 +40,57 @@ class DashboardAdapter : RecyclerView.Adapter<DashboardAdapter.DashboardViewHold
     override fun getItemCount(): Int = entries.size
 
     inner class DashboardViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        private val recentJournalCard: androidx.cardview.widget.CardView =
+            itemView.findViewById(R.id.recentJournalCard)
         private val profileImageView: ImageView = itemView.findViewById(R.id.profileImageView)
-        private val usernameTextView: TextView = itemView.findViewById(R.id.usernameTextView)
-        private val moodTextView: TextView = itemView.findViewById(R.id.moodTextView)
-        private val titleTextView: TextView = itemView.findViewById(R.id.titleTextView)
-        private val entryTextView: TextView = itemView.findViewById(R.id.entryTextView)
-        private val createdDateTextView: TextView = itemView.findViewById(R.id.createdDateTextView)
-        private val imageView: ImageView = itemView.findViewById(R.id.imageView)
-        private val cardView: androidx.cardview.widget.CardView = itemView.findViewById(R.id.cardView)
+        private val recentJournalUsername: TextView = itemView.findViewById(R.id.recentJournalUsername)
+        private val recentJournalMood: TextView = itemView.findViewById(R.id.recentJournalMood)
+        private val recentJournalTitle: TextView = itemView.findViewById(R.id.recentJournalTitle)
+        private val recentJournalText: TextView = itemView.findViewById(R.id.recentJournalText)
+        private val recentJournalImage: ImageView = itemView.findViewById(R.id.recentJournalImage)
+        private val recentJournalDate: TextView = itemView.findViewById(R.id.recentJournalDate)
 
         fun bind(entry: JournalEntry) {
             // Title and text
-            titleTextView.text = entry.title
-            entryTextView.text = entry.text
+            recentJournalTitle.text = entry.title
+            recentJournalText.text = entry.text
 
             // Mood emoji
             if (!entry.mood.isNullOrEmpty()) {
-                moodTextView.visibility = View.VISIBLE
-                moodTextView.text = entry.mood
+                recentJournalMood.visibility = View.VISIBLE
+                recentJournalMood.text = entry.mood
             } else {
-                moodTextView.visibility = View.GONE
+                recentJournalMood.visibility = View.GONE
             }
 
             // Background color
-            cardView.setCardBackgroundColor(entry.backgroundColor)
+            try {
+                recentJournalCard.setCardBackgroundColor(entry.backgroundColor)
+            } catch (e: Exception) {
+                recentJournalCard.setCardBackgroundColor(
+                    itemView.context.getColor(R.color.default_background)
+                )
+            }
 
             // Date formatting
             val dateFormat = SimpleDateFormat("MM/dd/yyyy", Locale.getDefault())
-            createdDateTextView.text = "Date: ${dateFormat.format(Date(entry.timestamp))}"
+            recentJournalDate.text = try {
+                val date = Date(entry.timestamp)
+                "Date: ${dateFormat.format(date)}"
+            } catch (e: Exception) {
+                "Date: Unknown"
+            }
 
             // Image handling
             if (!entry.imageUrl.isNullOrEmpty()) {
-                imageView.visibility = View.VISIBLE
-                Picasso.get().load(entry.imageUrl).into(imageView)
+                recentJournalImage.visibility = View.VISIBLE
+                Picasso.get().load(entry.imageUrl).into(recentJournalImage)
             } else {
-                imageView.visibility = View.GONE
+                recentJournalImage.visibility = View.GONE
             }
 
             // Load user data (profile picture and username)
             loadUserData(entry.userId)
-
-            // Enable deletion on long press
-            itemView.setOnLongClickListener {
-                val currentUserId = FirebaseAuth.getInstance().currentUser?.uid
-                if (currentUserId == entry.userId) {
-                    showDeleteConfirmationDialog(entry)
-                }
-                true
-            }
         }
 
         private fun loadUserData(userId: String) {
@@ -95,7 +98,7 @@ class DashboardAdapter : RecyclerView.Adapter<DashboardAdapter.DashboardViewHold
 
             userRef.child("Username").get().addOnSuccessListener { dataSnapshot ->
                 val username = dataSnapshot.getValue(String::class.java)
-                usernameTextView.text = username ?: "Unknown User"
+                recentJournalUsername.text = username ?: "Unknown User"
             }
 
             userRef.child("profilePictureUrl").get().addOnSuccessListener { dataSnapshot ->
@@ -107,37 +110,8 @@ class DashboardAdapter : RecyclerView.Adapter<DashboardAdapter.DashboardViewHold
                 }
             }
         }
-
-        private fun showDeleteConfirmationDialog(entry: JournalEntry) {
-            AlertDialog.Builder(itemView.context)
-                .setTitle("Delete Entry")
-                .setMessage("Are you sure you want to delete this entry?")
-                .setPositiveButton("Yes") { _, _ -> deleteEntry(entry) }
-                .setNegativeButton("No", null)
-                .show()
-        }
-
-        private fun deleteEntry(entry: JournalEntry) {
-            val entryRef = FirebaseDatabase.getInstance()
-                .getReference("Users")
-                .child(entry.userId)
-                .child("journals")
-                .child(entry.id)
-
-            entryRef.removeValue().addOnSuccessListener {
-                Toast.makeText(itemView.context, "Entry deleted", Toast.LENGTH_SHORT).show()
-
-                // Remove the deleted entry from the list and refresh the adapter
-                val position = entries.indexOf(entry)
-                if (position != -1) {
-                    entries.removeAt(position)
-                    notifyItemRemoved(position)
-                }
-            }.addOnFailureListener {
-                Toast.makeText(itemView.context, "Failed to delete entry", Toast.LENGTH_SHORT).show()
-            }
-        }
     }
+
 
     class DashboardDiffCallback : DiffUtil.ItemCallback<JournalEntry>() {
         override fun areItemsTheSame(oldItem: JournalEntry, newItem: JournalEntry): Boolean {

@@ -25,7 +25,6 @@ class JournalAdapter :
 
     override fun onBindViewHolder(holder: JournalViewHolder, position: Int) {
         val entry = getItem(position)
-        holder.itemView.setBackgroundColor(entry.backgroundColor) // Set background color
         holder.bind(entry)
         holder.loadUserDetails(entry.userId) // Fetch and set username and profile image
     }
@@ -36,54 +35,64 @@ class JournalAdapter :
         private val moodTextView: TextView = view.findViewById(R.id.moodTextView)
         private val entryTextView: TextView = view.findViewById(R.id.entryTextView)
         private val imageView: ImageView = view.findViewById(R.id.imageView)
-        private val profileImageView: ImageView = view.findViewById(R.id.profileImageView) // Add this for profile image
+        private val profileImageView: ImageView = view.findViewById(R.id.profileImageView)
         private val createdDateTextView: TextView = view.findViewById(R.id.createdDateTextView)
-
         private val database: DatabaseReference = FirebaseDatabase.getInstance().reference
 
         fun bind(entry: JournalEntry) {
+            // Title and entry text
             titleTextView.text = entry.title
+            entryTextView.text = entry.text
 
+            // Mood emoji
             if (!entry.mood.isNullOrEmpty()) {
-                moodTextView.text = entry.mood
                 moodTextView.visibility = View.VISIBLE
+                moodTextView.text = entry.mood
             } else {
                 moodTextView.visibility = View.GONE
             }
 
-            entryTextView.text = entry.text
-
+            // Entry image
             if (!entry.imageUrl.isNullOrEmpty()) {
                 imageView.visibility = View.VISIBLE
-                Picasso.get().load(entry.imageUrl).placeholder(R.drawable.default_profile).into(imageView)
+                Picasso.get()
+                    .load(entry.imageUrl)
+                    .placeholder(R.drawable.default_profile)
+                    .into(imageView)
             } else {
                 imageView.visibility = View.GONE
             }
 
+            // Created date formatting
             val dateFormat = SimpleDateFormat("MM/dd/yyyy", Locale.getDefault())
             createdDateTextView.text = "Date: ${dateFormat.format(Date(entry.timestamp))}"
         }
 
         fun loadUserDetails(userId: String) {
-            database.child("Users").child(userId).addListenerForSingleValueEvent(object : ValueEventListener {
-                override fun onDataChange(snapshot: DataSnapshot) {
-                    val username = snapshot.child("Username").value?.toString() ?: "Unknown"
-                    val profilePictureUrl = snapshot.child("profilePictureUrl").value?.toString()
+            database.child("Users").child(userId)
+                .addListenerForSingleValueEvent(object : ValueEventListener {
+                    override fun onDataChange(snapshot: DataSnapshot) {
+                        val username = snapshot.child("Username").value?.toString() ?: "Unknown User"
+                        val profilePictureUrl = snapshot.child("profilePictureUrl").value?.toString()
 
-                    usernameTextView.text = username
+                        // Set username
+                        usernameTextView.text = username
 
-                    // Load profile image
-                    if (!profilePictureUrl.isNullOrEmpty()) {
-                        Picasso.get().load(profilePictureUrl).placeholder(R.drawable.default_profile).into(profileImageView)
-                    } else {
-                        profileImageView.setImageResource(R.drawable.default_profile)
+                        // Load profile picture
+                        if (!profilePictureUrl.isNullOrEmpty()) {
+                            Picasso.get()
+                                .load(profilePictureUrl)
+                                .placeholder(R.drawable.default_profile)
+                                .into(profileImageView)
+                        } else {
+                            profileImageView.setImageResource(R.drawable.default_profile)
+                        }
                     }
-                }
 
-                override fun onCancelled(error: DatabaseError) {
-                    usernameTextView.text = "Unknown"
-                }
-            })
+                    override fun onCancelled(error: DatabaseError) {
+                        usernameTextView.text = "Unknown User"
+                    }
+                })
         }
     }
 

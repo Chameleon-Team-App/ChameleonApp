@@ -17,7 +17,9 @@ import com.example.mainchameleon.R
 import com.example.mainchameleon.databinding.FragmentDashboardBinding
 import com.example.mainchameleon.ui.calendar.WeeklyCalendarAdapter
 import com.squareup.picasso.Picasso
+import java.text.SimpleDateFormat
 import java.util.Date
+import java.util.Locale
 
 class DashboardFragment : Fragment() {
 
@@ -114,10 +116,28 @@ class DashboardFragment : Fragment() {
             if (journal != null) {
                 recentJournalCard.visibility = View.VISIBLE
 
-                // Set data to UI
+                // Set title, text, and mood
                 binding.recentJournalTitle.text = journal.title
                 binding.recentJournalText.text = journal.text
-                binding.recentJournalMood.text = journal.mood
+                binding.recentJournalMood.text = journal.mood ?: ""
+
+                // Set background color
+                try {
+                    binding.recentJournalCard.setCardBackgroundColor(journal.backgroundColor)
+                } catch (e: Exception) {
+                    binding.recentJournalCard.setCardBackgroundColor(
+                        requireContext().getColor(R.color.default_background)
+                    )
+                }
+
+                // Set date
+                val dateFormat = SimpleDateFormat("MM/dd/yyyy", Locale.getDefault())
+                binding.recentJournalDate.text = try {
+                    val date = Date(journal.timestamp)
+                    "Date: ${dateFormat.format(date)}"
+                } catch (e: Exception) {
+                    "Date: Unknown"
+                }
 
                 // Load image
                 if (!journal.imageUrl.isNullOrEmpty()) {
@@ -130,16 +150,19 @@ class DashboardFragment : Fragment() {
                 // Fetch user details
                 val userRef = dashboardViewModel.getUserReference(journal.userId)
                 userRef.child("Username").get().addOnSuccessListener { snapshot ->
-                    binding.recentJournalUsername.text = snapshot.getValue(String::class.java) ?: "Unknown User"
+                    binding.recentJournalUsername.text =
+                        snapshot.getValue(String::class.java) ?: "Unknown User"
                 }
                 userRef.child("profilePictureUrl").get().addOnSuccessListener { snapshot ->
                     val profilePictureUrl = snapshot.getValue(String::class.java)
                     if (!profilePictureUrl.isNullOrEmpty()) {
                         Picasso.get().load(profilePictureUrl).into(binding.profileImage)
+                    } else {
+                        binding.profileImage.setImageResource(R.drawable.default_profile)
                     }
                 }
 
-                // On click
+                // On click listener
                 recentJournalCard.setOnClickListener {
                     findNavController().navigate(R.id.action_navigation_dashboard_to_navigation_journal)
                 }
@@ -148,6 +171,7 @@ class DashboardFragment : Fragment() {
             }
         }
     }
+
 
     private fun setupSwipeToRefresh() {
         binding.swipeRefreshLayout.setOnRefreshListener {
