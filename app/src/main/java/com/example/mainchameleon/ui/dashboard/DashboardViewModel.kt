@@ -21,9 +21,14 @@ class DashboardViewModel : ViewModel() {
     private val _streak = MutableLiveData<Streak>()
     val streak: LiveData<Streak> = _streak
 
+    // LiveData for most recent journal entry
+    private val _mostRecentJournal = MutableLiveData<JournalEntry>()
+    private val mostRecentJournal: LiveData<JournalEntry> = _mostRecentJournal
+
     init {
         loadAllEntries()
         loadStreak()
+        loadMostRecentJournal()
     }
 
     // Fetch all journal entries from the database
@@ -54,16 +59,17 @@ class DashboardViewModel : ViewModel() {
     }
 
     // Fetch the most recent journal entry for the current user
-    fun getMostRecentJournal(): LiveData<JournalEntry> {
-        val mostRecentJournal = MutableLiveData<JournalEntry>()
-        val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return mostRecentJournal
-
+    private fun loadMostRecentJournal() {
+        val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return
         val ref = FirebaseDatabase.getInstance().getReference("Users/$userId/journals")
         ref.orderByChild("timestamp").limitToLast(1).addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 for (data in snapshot.children) {
                     val journal = data.getValue(JournalEntry::class.java)
-                    journal?.let { mostRecentJournal.postValue(it) }
+                    journal?.let {
+                        it.userId = userId
+                        _mostRecentJournal.postValue(it)
+                    }
                 }
             }
 
@@ -71,6 +77,9 @@ class DashboardViewModel : ViewModel() {
                 Log.e("DashboardViewModel", "Failed to fetch most recent journal", error.toException())
             }
         })
+    }
+
+    fun getMostRecentJournal(): LiveData<JournalEntry> {
         return mostRecentJournal
     }
 
@@ -145,5 +154,10 @@ class DashboardViewModel : ViewModel() {
 
     private fun formatDate(timestamp: Long): String {
         return SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date(timestamp))
+    }
+
+    // Get reference to a specific user's data
+    fun getUserReference(userId: String): DatabaseReference {
+        return FirebaseDatabase.getInstance().getReference("Users").child(userId)
     }
 }

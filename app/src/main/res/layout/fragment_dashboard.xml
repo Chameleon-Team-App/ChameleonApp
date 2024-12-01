@@ -34,7 +34,7 @@
                     android:padding="20dp"
                     android:background="#4CAF50">
 
-                    <!-- Weekly Calendar RecyclerView at the very top -->
+                    <!-- Weekly Calendar RecyclerView -->
                     <androidx.recyclerview.widget.RecyclerView
                         android:id="@+id/weeklyCalendarRecycler"
                         android:layout_width="match_parent"
@@ -144,20 +144,38 @@
                             android:orientation="vertical">
 
                             <TextView
+                                android:id="@+id/recentJournalUsername"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="Username"
+                                android:textColor="#000000"
+                                android:textSize="16sp"
+                                android:paddingBottom="5dp" />
+
+                            <TextView
+                                android:id="@+id/recentJournalMood"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="Mood"
+                                android:textColor="#000000"
+                                android:textSize="14sp"
+                                android:paddingBottom="5dp" />
+
+                            <TextView
                                 android:id="@+id/recentJournalTitle"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:text="Title of Most Recent Journal"
+                                android:text="Journal Title"
                                 android:textColor="#000000"
                                 android:textSize="18sp"
                                 android:textStyle="bold"
                                 android:paddingBottom="5dp" />
 
                             <TextView
-                                android:id="@+id/recentJournalSnippet"
+                                android:id="@+id/recentJournalText"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:text="Snippet of the most recent journal entry..."
+                                android:text="Journal Text..."
                                 android:textColor="#666666"
                                 android:textSize="14sp" />
 
@@ -211,9 +229,7 @@
                     android:layout_height="match_parent"
                     android:clipToPadding="false"
                     android:paddingBottom="100dp" />
-
             </LinearLayout>
-
         </androidx.core.widget.NestedScrollView>
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

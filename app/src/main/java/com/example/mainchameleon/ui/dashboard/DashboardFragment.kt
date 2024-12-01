@@ -76,7 +76,6 @@ class DashboardFragment : Fragment() {
     private fun setupWeeklyCalendar() {
         val currentDate = Date()
         val weeklyCalendarAdapter = WeeklyCalendarAdapter(requireContext(), currentDate) { selectedDate ->
-            // Handle click on a date in the weekly calendar
             navigateToCalendarFragment(selectedDate)
         }
         binding.weeklyCalendarRecycler.apply {
@@ -96,15 +95,14 @@ class DashboardFragment : Fragment() {
         dashboardViewModel = ViewModelProvider(this).get(DashboardViewModel::class.java)
 
         dashboardViewModel.allEntries.observe(viewLifecycleOwner) { entries ->
-            dashboardAdapter.submitList(entries.sortedByDescending { it.timestamp }) // Ensure newest entries appear first
-            binding.swipeRefreshLayout.isRefreshing = false // Stop the refresh animation
+            dashboardAdapter.submitList(entries.sortedByDescending { it.timestamp })
+            binding.swipeRefreshLayout.isRefreshing = false
         }
 
         dashboardViewModel.streak.observe(viewLifecycleOwner) { streak ->
             streakTextView.text = if (streak.currentStreak > 0) "🔥 ${streak.currentStreak}" else "🔥 0"
         }
 
-        // Update streak when the fragment is created
         dashboardViewModel.updateStreak()
 
         return binding.root
@@ -115,14 +113,33 @@ class DashboardFragment : Fragment() {
             val recentJournalCard = binding.recentJournalCard
             if (journal != null) {
                 recentJournalCard.visibility = View.VISIBLE
+
+                // Set data to UI
                 binding.recentJournalTitle.text = journal.title
-                binding.recentJournalSnippet.text = journal.text.take(100) + "..."
+                binding.recentJournalText.text = journal.text
+                binding.recentJournalMood.text = journal.mood
+
+                // Load image
                 if (!journal.imageUrl.isNullOrEmpty()) {
                     binding.recentJournalImage.visibility = View.VISIBLE
                     Picasso.get().load(journal.imageUrl).into(binding.recentJournalImage)
                 } else {
                     binding.recentJournalImage.visibility = View.GONE
                 }
+
+                // Fetch user details
+                val userRef = dashboardViewModel.getUserReference(journal.userId)
+                userRef.child("Username").get().addOnSuccessListener { snapshot ->
+                    binding.recentJournalUsername.text = snapshot.getValue(String::class.java) ?: "Unknown User"
+                }
+                userRef.child("profilePictureUrl").get().addOnSuccessListener { snapshot ->
+                    val profilePictureUrl = snapshot.getValue(String::class.java)
+                    if (!profilePictureUrl.isNullOrEmpty()) {
+                        Picasso.get().load(profilePictureUrl).into(binding.profileImage)
+                    }
+                }
+
+                // On click
                 recentJournalCard.setOnClickListener {
                     findNavController().navigate(R.id.action_navigation_dashboard_to_navigation_journal)
                 }
@@ -140,7 +157,7 @@ class DashboardFragment : Fragment() {
     }
 
     private fun setupNavigationButtons() {
-        binding.root.findViewById<View>(R.id.JournalButton).setOnClickListener {
+        binding.JournalButton.setOnClickListener {
             it.findNavController().navigate(R.id.action_navigation_dashboard_to_navigation_journal)
         }
 
@@ -148,7 +165,7 @@ class DashboardFragment : Fragment() {
             it.findNavController().navigate(R.id.action_navigation_dashboard_to_navigation_profile)
         }
 
-        binding.root.findViewById<View>(R.id.MentalHealthButton).setOnClickListener {
+        binding.MentalHealthButton.setOnClickListener {
             it.findNavController().navigate(R.id.action_navigation_dashboard_to_navigation_mental_health)
         }
     }
