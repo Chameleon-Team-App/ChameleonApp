@@ -99,6 +99,8 @@ class DashboardAdapter : RecyclerView.Adapter<DashboardAdapter.DashboardViewHold
             userRef.child("Username").get().addOnSuccessListener { dataSnapshot ->
                 val username = dataSnapshot.getValue(String::class.java)
                 recentJournalUsername.text = username ?: "Unknown User"
+            }.addOnFailureListener {
+                recentJournalUsername.text = "Unknown User"
             }
 
             userRef.child("profilePictureUrl").get().addOnSuccessListener { dataSnapshot ->
@@ -108,10 +110,11 @@ class DashboardAdapter : RecyclerView.Adapter<DashboardAdapter.DashboardViewHold
                 } else {
                     profileImageView.setImageResource(R.drawable.default_profile)
                 }
+            }.addOnFailureListener {
+                profileImageView.setImageResource(R.drawable.default_profile)
             }
         }
     }
-
 
     class DashboardDiffCallback : DiffUtil.ItemCallback<JournalEntry>() {
         override fun areItemsTheSame(oldItem: JournalEntry, newItem: JournalEntry): Boolean {

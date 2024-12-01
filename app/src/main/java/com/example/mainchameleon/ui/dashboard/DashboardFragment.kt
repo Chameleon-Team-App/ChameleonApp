@@ -26,7 +26,6 @@ class DashboardFragment : Fragment() {
     private var _binding: FragmentDashboardBinding? = null
     private val binding get() = _binding!!
     private lateinit var dashboardViewModel: DashboardViewModel
-    private lateinit var dashboardAdapter: DashboardAdapter
 
     // Profile views
     private lateinit var profileImageView: ImageView
@@ -39,9 +38,6 @@ class DashboardFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentDashboardBinding.inflate(inflater, container, false)
-
-        // Initialize RecyclerView adapter
-        setupDashboardRecyclerView()
 
         // Initialize Weekly Calendar RecyclerView
         setupWeeklyCalendar()
@@ -67,14 +63,6 @@ class DashboardFragment : Fragment() {
         return binding.root
     }
 
-    private fun setupDashboardRecyclerView() {
-        dashboardAdapter = DashboardAdapter()
-        binding.recyclerView.apply {
-            layoutManager = LinearLayoutManager(requireContext())
-            adapter = dashboardAdapter
-        }
-    }
-
     private fun setupWeeklyCalendar() {
         val currentDate = Date()
         val weeklyCalendarAdapter = WeeklyCalendarAdapter(requireContext(), currentDate) { selectedDate ->
@@ -96,11 +84,7 @@ class DashboardFragment : Fragment() {
     private fun initializeViewModel(): ConstraintLayout {
         dashboardViewModel = ViewModelProvider(this).get(DashboardViewModel::class.java)
 
-        dashboardViewModel.allEntries.observe(viewLifecycleOwner) { entries ->
-            dashboardAdapter.submitList(entries.sortedByDescending { it.timestamp })
-            binding.swipeRefreshLayout.isRefreshing = false
-        }
-
+        // Removed feed-related observer
         dashboardViewModel.streak.observe(viewLifecycleOwner) { streak ->
             streakTextView.text = if (streak.currentStreak > 0) "🔥 ${streak.currentStreak}" else "🔥 0"
         }
@@ -172,10 +156,8 @@ class DashboardFragment : Fragment() {
         }
     }
 
-
     private fun setupSwipeToRefresh() {
         binding.swipeRefreshLayout.setOnRefreshListener {
-            dashboardViewModel.loadAllEntries()
             dashboardViewModel.updateStreak()
         }
     }
