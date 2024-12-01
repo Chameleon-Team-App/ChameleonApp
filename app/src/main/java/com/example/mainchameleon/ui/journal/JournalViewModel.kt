@@ -41,4 +41,9 @@ class JournalViewModel : ViewModel() {
             }
         })
     }
+
+    // Method to get the most recent journal entry
+    fun getMostRecentJournal(): JournalEntry? {
+        return _currentUserJournalEntries.value?.maxByOrNull { it.timestamp }
+    }
 }

@@ -1,4 +1,3 @@
-// JournalFragment.kt
 package com.example.mainchameleon.ui.journal
 
 import android.app.Activity
@@ -28,7 +27,7 @@ class JournalFragment : Fragment() {
     private lateinit var journalViewModel: JournalViewModel
 
     private var imageUri: Uri? = null
-    private var imageUrl: String? = null // New variable to store the remote image URL
+    private var imageUrl: String? = null
     private var selectedMood: String? = null
 
     companion object {
@@ -47,16 +46,36 @@ class JournalFragment : Fragment() {
         setupSaveButton()
         setupBackButton()
 
-        // Listen for the photo URL from the CameraFragment
-        findNavController().currentBackStackEntry?.savedStateHandle?.getLiveData<String>("photoUrl")
-            ?.observe(viewLifecycleOwner) { photoUrl ->
-                imageUrl = photoUrl
-                // Load the image from the remote URL using Picasso
-                Picasso.get().load(imageUrl).into(binding.imageViewPlaceholder)
-                binding.imageViewPlaceholder.visibility = View.VISIBLE
-            }
+        // Display the most recent journal entry
+        displayMostRecentJournal()
 
         return binding.root
+    }
+
+    private fun displayMostRecentJournal() {
+        val mostRecentJournal = journalViewModel.getMostRecentJournal()
+        if (mostRecentJournal != null) {
+            binding.titleEntryBox.setText(mostRecentJournal.title)
+            binding.journalEntryText.setText(mostRecentJournal.text)
+            selectedMood = mostRecentJournal.mood
+
+            // Update mood buttons
+            when (selectedMood) {
+                "😊" -> binding.buttonHappy.isSelected = true
+                "😢" -> binding.buttonSad.isSelected = true
+                "😡" -> binding.buttonAngry.isSelected = true
+                "😟" -> binding.buttonAnxious.isSelected = true
+                "😐" -> binding.buttonNeutral.isSelected = true
+            }
+
+            // Display image if present
+            if (!mostRecentJournal.imageUrl.isNullOrEmpty()) {
+                Picasso.get().load(mostRecentJournal.imageUrl).into(binding.imageViewPlaceholder)
+                binding.imageViewPlaceholder.visibility = View.VISIBLE
+            }
+        } else {
+            Toast.makeText(requireContext(), "No recent journal entries found.", Toast.LENGTH_SHORT).show()
+        }
     }
 
     private fun setupMoodButtons() {
@@ -68,13 +87,11 @@ class JournalFragment : Fragment() {
     }
 
     private fun setupImageButtons() {
-        // Open custom camera
         binding.openCameraButton.setOnClickListener {
             val bundle = Bundle().apply { putString("source", "journal") }
             findNavController().navigate(R.id.action_navigation_journal_to_navigation_camera, bundle)
         }
 
-        // Open gallery
         binding.uploadFromGalleryButton.setOnClickListener {
             val pickPhotoIntent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
             startActivityForResult(pickPhotoIntent, REQUEST_IMAGE_PICK)
@@ -87,7 +104,7 @@ class JournalFragment : Fragment() {
             when (requestCode) {
                 REQUEST_IMAGE_PICK -> {
                     imageUri = data?.data
-                    imageUrl = null // Reset imageUrl since we're using a local image
+                    imageUrl = null
                     binding.imageViewPlaceholder.setImageURI(imageUri)
                     binding.imageViewPlaceholder.visibility = View.VISIBLE
                 }
@@ -117,7 +134,6 @@ class JournalFragment : Fragment() {
                 timestamp = System.currentTimeMillis()
             )
 
-            // Handle image saving based on whether it's a remote URL or a local URI
             when {
                 imageUrl != null -> {
                     journalEntry.imageUrl = imageUrl
@@ -129,9 +145,7 @@ class JournalFragment : Fragment() {
                         saveJournalToDatabase(journalEntry)
                     }
                 }
-                else -> {
-                    saveJournalToDatabase(journalEntry)
-                }
+                else -> saveJournalToDatabase(journalEntry)
             }
         }
     }
@@ -142,7 +156,7 @@ class JournalFragment : Fragment() {
             storageRef.putFile(uri)
                 .addOnSuccessListener {
                     storageRef.downloadUrl.addOnSuccessListener { downloadUri ->
-                        callback(downloadUri.toString()) // Pass the download URL back via the callback
+                        callback(downloadUri.toString())
                     }
                 }
                 .addOnFailureListener {

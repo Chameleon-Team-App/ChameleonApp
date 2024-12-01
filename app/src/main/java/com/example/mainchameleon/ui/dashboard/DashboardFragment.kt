@@ -50,6 +50,9 @@ class DashboardFragment : Fragment() {
         // Initialize ViewModel
         initializeViewModel()
 
+        // Observe most recent journal
+        observeMostRecentJournal()
+
         // Load user profile data
         loadUserProfile()
 
@@ -101,19 +104,32 @@ class DashboardFragment : Fragment() {
             streakTextView.text = if (streak.currentStreak > 0) "🔥 ${streak.currentStreak}" else "🔥 0"
         }
 
-        // Load user profile data
-        loadUserProfile()
-
-        // Set up swipe-to-refresh
-        setupSwipeToRefresh()
-
-        // Set click listeners for navigation buttons
-        setupNavigationButtons()
-
         // Update streak when the fragment is created
         dashboardViewModel.updateStreak()
 
         return binding.root
+    }
+
+    private fun observeMostRecentJournal() {
+        dashboardViewModel.getMostRecentJournal().observe(viewLifecycleOwner) { journal ->
+            val recentJournalCard = binding.recentJournalCard
+            if (journal != null) {
+                recentJournalCard.visibility = View.VISIBLE
+                binding.recentJournalTitle.text = journal.title
+                binding.recentJournalSnippet.text = journal.text.take(100) + "..."
+                if (!journal.imageUrl.isNullOrEmpty()) {
+                    binding.recentJournalImage.visibility = View.VISIBLE
+                    Picasso.get().load(journal.imageUrl).into(binding.recentJournalImage)
+                } else {
+                    binding.recentJournalImage.visibility = View.GONE
+                }
+                recentJournalCard.setOnClickListener {
+                    findNavController().navigate(R.id.action_navigation_dashboard_to_navigation_journal)
+                }
+            } else {
+                recentJournalCard.visibility = View.GONE
+            }
+        }
     }
 
     private fun setupSwipeToRefresh() {
@@ -124,17 +140,14 @@ class DashboardFragment : Fragment() {
     }
 
     private fun setupNavigationButtons() {
-        // Existing Journal button
         binding.root.findViewById<View>(R.id.JournalButton).setOnClickListener {
             it.findNavController().navigate(R.id.action_navigation_dashboard_to_navigation_journal)
         }
 
-        // Existing Profile button
         profileImageView.setOnClickListener {
             it.findNavController().navigate(R.id.action_navigation_dashboard_to_navigation_profile)
         }
 
-        // New Mental Health button
         binding.root.findViewById<View>(R.id.MentalHealthButton).setOnClickListener {
             it.findNavController().navigate(R.id.action_navigation_dashboard_to_navigation_mental_health)
         }
@@ -144,12 +157,10 @@ class DashboardFragment : Fragment() {
         val userId = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser?.uid ?: return
         val userRef = com.google.firebase.database.FirebaseDatabase.getInstance().getReference("Users").child(userId)
 
-        // Retrieve and set username
         userRef.child("Username").get().addOnSuccessListener { dataSnapshot ->
             userNameTextView.text = dataSnapshot.getValue(String::class.java) ?: "Unknown User"
         }
 
-        // Retrieve and set full name
         userRef.child("First Name").get().addOnSuccessListener { dataSnapshot ->
             val firstName = dataSnapshot.getValue(String::class.java) ?: ""
             userRef.child("Last Name").get().addOnSuccessListener { lastSnapshot ->
@@ -158,7 +169,6 @@ class DashboardFragment : Fragment() {
             }
         }
 
-        // Retrieve and set profile picture
         userRef.child("profilePictureUrl").get().addOnSuccessListener { dataSnapshot ->
             val profilePictureUrl = dataSnapshot.getValue(String::class.java)
             if (!profilePictureUrl.isNullOrEmpty()) {
@@ -170,7 +180,6 @@ class DashboardFragment : Fragment() {
     }
 
     private fun navigateToCalendarFragment(selectedDate: Date) {
-        // Add logic for navigating or passing data to CalendarFragment
         findNavController().navigate(R.id.action_navigation_dashboard_to_navigation_calendar)
         Toast.makeText(requireContext(), "Selected Date: $selectedDate", Toast.LENGTH_SHORT).show()
     }
