@@ -64,14 +64,7 @@ class DashboardAdapter : RecyclerView.Adapter<DashboardAdapter.DashboardViewHold
             }
 
             // Background color
-            when (entry.mood) {
-                "😊" -> cardView.setCardBackgroundColor(Color.parseColor("#67DB60"))
-                "😢" -> cardView.setCardBackgroundColor(Color.parseColor("#B0E0E6"))
-                "😡" -> cardView.setCardBackgroundColor(Color.parseColor("#f07f7f"))
-                "😟" -> cardView.setCardBackgroundColor(Color.parseColor("#F5A15D"))
-                else -> { cardView.setCardBackgroundColor(Color.parseColor("#7A7A7A"))}
-            }
-            //cardView.setCardBackgroundColor(entry.backgroundColor)
+            cardView.setCardBackgroundColor(entry.backgroundColor)
 
             // Date formatting
             val dateFormat = SimpleDateFormat("MM/dd/yyyy", Locale.getDefault())
