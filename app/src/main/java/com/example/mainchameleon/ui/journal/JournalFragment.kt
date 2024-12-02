@@ -1,3 +1,4 @@
+// JournalFragment.kt
 package com.example.mainchameleon.ui.journal
 
 import android.app.Activity
@@ -46,36 +47,16 @@ class JournalFragment : Fragment() {
         setupSaveButton()
         setupBackButton()
 
-        // Display the most recent journal entry
-        displayMostRecentJournal()
+        // Observe for photo URL passed from CameraFragment
+        findNavController().currentBackStackEntry?.savedStateHandle?.getLiveData<String>("photoUrl")
+            ?.observe(viewLifecycleOwner) { photoUrl ->
+                imageUrl = photoUrl
+                // Show the image in the placeholder
+                binding.imageViewPlaceholder.visibility = View.VISIBLE
+                Picasso.get().load(photoUrl).into(binding.imageViewPlaceholder)
+            }
 
         return binding.root
-    }
-
-    private fun displayMostRecentJournal() {
-        val mostRecentJournal = journalViewModel.getMostRecentJournal()
-        if (mostRecentJournal != null) {
-            binding.titleEntryBox.setText(mostRecentJournal.title)
-            binding.journalEntryText.setText(mostRecentJournal.text)
-            selectedMood = mostRecentJournal.mood
-
-            // Update mood buttons
-            when (selectedMood) {
-                "😊" -> binding.buttonHappy.isSelected = true
-                "😢" -> binding.buttonSad.isSelected = true
-                "😡" -> binding.buttonAngry.isSelected = true
-                "😟" -> binding.buttonAnxious.isSelected = true
-                "😐" -> binding.buttonNeutral.isSelected = true
-            }
-
-            // Display image if present
-            if (!mostRecentJournal.imageUrl.isNullOrEmpty()) {
-                Picasso.get().load(mostRecentJournal.imageUrl).into(binding.imageViewPlaceholder)
-                binding.imageViewPlaceholder.visibility = View.VISIBLE
-            }
-        } else {
-            Toast.makeText(requireContext(), "No recent journal entries found.", Toast.LENGTH_SHORT).show()
-        }
     }
 
     private fun setupMoodButtons() {
@@ -88,8 +69,7 @@ class JournalFragment : Fragment() {
 
     private fun setupImageButtons() {
         binding.openCameraButton.setOnClickListener {
-            val bundle = Bundle().apply { putString("source", "journal") }
-            findNavController().navigate(R.id.action_navigation_journal_to_navigation_camera, bundle)
+            findNavController().navigate(R.id.action_navigation_journal_to_navigation_camera)
         }
 
         binding.uploadFromGalleryButton.setOnClickListener {
@@ -130,22 +110,18 @@ class JournalFragment : Fragment() {
                 title = title,
                 text = text,
                 mood = selectedMood,
+                imageUrl = imageUrl,
                 userId = userId,
                 timestamp = System.currentTimeMillis()
             )
 
-            when {
-                imageUrl != null -> {
-                    journalEntry.imageUrl = imageUrl
+            if (imageUri != null) {
+                uploadImageToFirebaseStorage(journalId) { uploadedImageUrl ->
+                    journalEntry.imageUrl = uploadedImageUrl
                     saveJournalToDatabase(journalEntry)
                 }
-                imageUri != null -> {
-                    uploadImageToFirebaseStorage(journalId) { uploadedImageUrl ->
-                        journalEntry.imageUrl = uploadedImageUrl
-                        saveJournalToDatabase(journalEntry)
-                    }
-                }
-                else -> saveJournalToDatabase(journalEntry)
+            } else {
+                saveJournalToDatabase(journalEntry)
             }
         }
     }

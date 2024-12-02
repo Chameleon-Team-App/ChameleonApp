@@ -131,19 +131,31 @@ class DashboardFragment : Fragment() {
                     binding.recentJournalImage.visibility = View.GONE
                 }
 
-                // Fetch user details
+                // Fetch user details (username and profile picture)
                 val userRef = dashboardViewModel.getUserReference(journal.userId)
+
+                // Fetch Username
                 userRef.child("Username").get().addOnSuccessListener { snapshot ->
                     binding.recentJournalUsername.text =
                         snapshot.getValue(String::class.java) ?: "Unknown User"
+                }.addOnFailureListener {
+                    binding.recentJournalUsername.text = "Unknown User"
                 }
+
+                // Fetch Profile Picture
                 userRef.child("profilePictureUrl").get().addOnSuccessListener { snapshot ->
                     val profilePictureUrl = snapshot.getValue(String::class.java)
                     if (!profilePictureUrl.isNullOrEmpty()) {
-                        Picasso.get().load(profilePictureUrl).into(binding.profileImage)
+                        Picasso.get()
+                            .load(profilePictureUrl)
+                            .placeholder(R.drawable.default_profile)
+                            .error(R.drawable.default_profile)
+                            .into(binding.profileImageView)
                     } else {
-                        binding.profileImage.setImageResource(R.drawable.default_profile)
+                        binding.profileImageView.setImageResource(R.drawable.default_profile)
                     }
+                }.addOnFailureListener {
+                    binding.profileImageView.setImageResource(R.drawable.default_profile)
                 }
 
                 // On click listener
@@ -155,6 +167,7 @@ class DashboardFragment : Fragment() {
             }
         }
     }
+
 
     private fun setupSwipeToRefresh() {
         binding.swipeRefreshLayout.setOnRefreshListener {

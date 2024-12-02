@@ -1,6 +1,7 @@
 package com.example.mainchameleon.ui.dashboard
 
 import android.app.AlertDialog
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -13,6 +14,7 @@ import com.example.mainchameleon.R
 import com.example.mainchameleon.ui.journal.JournalEntry
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
+import com.squareup.picasso.MemoryPolicy
 import com.squareup.picasso.Picasso
 import java.text.SimpleDateFormat
 import java.util.*
@@ -43,7 +45,8 @@ class DashboardAdapter : RecyclerView.Adapter<DashboardAdapter.DashboardViewHold
         private val recentJournalCard: androidx.cardview.widget.CardView =
             itemView.findViewById(R.id.recentJournalCard)
         private val profileImageView: ImageView = itemView.findViewById(R.id.profileImageView)
-        private val recentJournalUsername: TextView = itemView.findViewById(R.id.recentJournalUsername)
+        private val recentJournalUsername: TextView =
+            itemView.findViewById(R.id.recentJournalUsername)
         private val recentJournalMood: TextView = itemView.findViewById(R.id.recentJournalMood)
         private val recentJournalTitle: TextView = itemView.findViewById(R.id.recentJournalTitle)
         private val recentJournalText: TextView = itemView.findViewById(R.id.recentJournalText)
@@ -96,27 +99,47 @@ class DashboardAdapter : RecyclerView.Adapter<DashboardAdapter.DashboardViewHold
         private fun loadUserData(userId: String) {
             val userRef = FirebaseDatabase.getInstance().getReference("Users").child(userId)
 
+            // Fetch Username
             userRef.child("Username").get().addOnSuccessListener { dataSnapshot ->
                 val username = dataSnapshot.getValue(String::class.java)
                 recentJournalUsername.text = username ?: "Unknown User"
+                Log.d("DashboardAdapter", "Username: $username")
             }.addOnFailureListener {
                 recentJournalUsername.text = "Unknown User"
+                Log.e("DashboardAdapter", "Failed to load username", it)
             }
 
+            // Fetch Profile Picture URL
             userRef.child("profilePictureUrl").get().addOnSuccessListener { dataSnapshot ->
                 val profilePictureUrl = dataSnapshot.getValue(String::class.java)
+                Log.d("DashboardAdapter", "ProfilePictureUrl: $profilePictureUrl")
                 if (!profilePictureUrl.isNullOrEmpty()) {
-                    Picasso.get().load(profilePictureUrl).into(profileImageView)
+                    Picasso.get()
+                        .load(profilePictureUrl)
+                        .placeholder(R.drawable.default_profile)
+                        .error(R.drawable.default_profile)
+                        .memoryPolicy(MemoryPolicy.NO_CACHE, MemoryPolicy.NO_STORE) // Force refresh
+                        .into(profileImageView, object : com.squareup.picasso.Callback {
+                            override fun onSuccess() {
+                                Log.d("DashboardAdapter", "Profile picture loaded successfully")
+                            }
+
+                            override fun onError(e: Exception?) {
+                                Log.e("DashboardAdapter", "Error loading profile picture", e)
+                                profileImageView.setImageResource(R.drawable.default_profile)
+                            }
+                        })
                 } else {
                     profileImageView.setImageResource(R.drawable.default_profile)
                 }
             }.addOnFailureListener {
                 profileImageView.setImageResource(R.drawable.default_profile)
+                Log.e("DashboardAdapter", "Failed to load profilePictureUrl", it)
             }
         }
-    }
+        }
 
-    class DashboardDiffCallback : DiffUtil.ItemCallback<JournalEntry>() {
+        class DashboardDiffCallback : DiffUtil.ItemCallback<JournalEntry>() {
         override fun areItemsTheSame(oldItem: JournalEntry, newItem: JournalEntry): Boolean {
             return oldItem.id == newItem.id
         }
