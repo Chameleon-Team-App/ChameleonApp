@@ -1,4 +1,3 @@
-// CameraFragment.kt
 package com.example.mainchameleon.ui.camera
 
 import android.graphics.Bitmap
@@ -21,6 +20,7 @@ import com.example.mainchameleon.databinding.FragmentCameraBinding
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.storage.FirebaseStorage
 import java.io.File
+import java.io.FileOutputStream
 import java.util.UUID
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
@@ -65,18 +65,11 @@ class CameraFragment : Fragment() {
         cameraProviderFuture.addListener({
             val cameraProvider = cameraProviderFuture.get()
 
-            val rotation = binding.viewFinder.display.rotation
+            val preview = Preview.Builder().build().also {
+                it.setSurfaceProvider(binding.viewFinder.surfaceProvider)
+            }
 
-            val preview = Preview.Builder()
-                .setTargetRotation(rotation)
-                .build()
-                .also {
-                    it.setSurfaceProvider(binding.viewFinder.surfaceProvider)
-                }
-
-            imageCapture = ImageCapture.Builder()
-                .setTargetRotation(rotation)
-                .build()
+            imageCapture = ImageCapture.Builder().build()
 
             try {
                 cameraProvider.unbindAll()
@@ -90,13 +83,10 @@ class CameraFragment : Fragment() {
     }
 
     private fun takePhoto() {
-        val imageCapture = imageCapture ?: return
-
         val photoFile = File(
             requireContext().externalMediaDirs.firstOrNull(),
             "${System.currentTimeMillis()}.jpg"
         )
-
         val outputOptions = ImageCapture.OutputFileOptions.Builder(photoFile).build()
 
         imageCapture.takePicture(
@@ -104,69 +94,73 @@ class CameraFragment : Fragment() {
             ContextCompat.getMainExecutor(requireContext()),
             object : ImageCapture.OnImageSavedCallback {
                 override fun onError(exc: ImageCaptureException) {
+                    Log.e(TAG, "Photo capture failed: ${exc.message}", exc)
                     Toast.makeText(requireContext(), "Failed to capture photo", Toast.LENGTH_SHORT).show()
                 }
 
                 override fun onImageSaved(output: ImageCapture.OutputFileResults) {
                     val savedUri = Uri.fromFile(photoFile)
-                    uploadCapturedImageToFirebase(savedUri)
+                    correctImageOrientation(photoFile) { correctedFile ->
+                        uploadCapturedImageToFirebase(Uri.fromFile(correctedFile))
+                    }
                 }
             }
         )
+    }
+
+    private fun correctImageOrientation(photoFile: File, callback: (File) -> Unit) {
+        try {
+            val exif = ExifInterface(photoFile.absolutePath)
+            val orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL)
+            val rotationDegrees = when (orientation) {
+                ExifInterface.ORIENTATION_ROTATE_90 -> 90f
+                ExifInterface.ORIENTATION_ROTATE_180 -> 180f
+                ExifInterface.ORIENTATION_ROTATE_270 -> 270f
+                else -> 0f
+            }
+
+            // Decode the image into a Bitmap
+            val bitmap = BitmapFactory.decodeFile(photoFile.absolutePath)
+
+            // Apply rotation if needed
+            val rotatedBitmap = if (rotationDegrees != 0f) {
+                val matrix = Matrix().apply { postRotate(rotationDegrees) }
+                Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true)
+            } else {
+                bitmap
+            }
+
+            // Save the corrected Bitmap to a new file
+            val correctedFile = File(photoFile.parent, "corrected_${photoFile.name}")
+            val outputStream = FileOutputStream(correctedFile)
+            rotatedBitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream)
+            outputStream.flush()
+            outputStream.close()
+
+            callback(correctedFile)
+        } catch (e: Exception) {
+            Log.e(TAG, "Error correcting image orientation", e)
+            callback(photoFile) // Proceed with the original file if rotation fails
+        }
     }
 
     private fun uploadCapturedImageToFirebase(photoUri: Uri) {
         val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return
         val storageRef = FirebaseStorage.getInstance().getReference("Users/$userId/photos/${UUID.randomUUID()}.jpg")
 
-        try {
-            // Read the image file and correct its orientation
-            val inputStream = requireContext().contentResolver.openInputStream(photoUri)
-            val exif = inputStream?.let { ExifInterface(it) }
-            val rotation = exif?.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL)
-            val rotationInDegrees = exifToDegrees(rotation ?: ExifInterface.ORIENTATION_NORMAL)
-            inputStream?.close()
-
-            val bitmap = BitmapFactory.decodeFile(photoUri.path)
-            val rotatedBitmap = rotateBitmap(bitmap, rotationInDegrees)
-
-            // Convert the rotated bitmap back to a file
-            val file = File(requireContext().cacheDir, "${UUID.randomUUID()}.jpg")
-            val outputStream = file.outputStream()
-            rotatedBitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream)
-            outputStream.close()
-
-            // Upload the corrected image file
-            val correctedUri = Uri.fromFile(file)
-            storageRef.putFile(correctedUri)
-                .addOnSuccessListener {
-                    storageRef.downloadUrl.addOnSuccessListener { downloadUri ->
-                        findNavController().previousBackStackEntry?.savedStateHandle?.set("photoUrl", downloadUri.toString())
-                        findNavController().navigateUp()
-                    }
+        storageRef.putFile(photoUri)
+            .addOnSuccessListener {
+                storageRef.downloadUrl.addOnSuccessListener { downloadUri ->
+                    // Pass the image URL back to the JournalFragment
+                    findNavController().previousBackStackEntry?.savedStateHandle?.set("photoUrl", downloadUri.toString())
+                    Toast.makeText(requireContext(), "Image uploaded successfully", Toast.LENGTH_SHORT).show()
+                    findNavController().navigateUp()
                 }
-                .addOnFailureListener {
-                    Toast.makeText(requireContext(), "Failed to upload captured image", Toast.LENGTH_SHORT).show()
-                }
-        } catch (e: Exception) {
-            e.printStackTrace()
-            Toast.makeText(requireContext(), "Failed to process image", Toast.LENGTH_SHORT).show()
-        }
-    }
-
-    private fun exifToDegrees(exifOrientation: Int): Int {
-        return when (exifOrientation) {
-            ExifInterface.ORIENTATION_ROTATE_90 -> 90
-            ExifInterface.ORIENTATION_ROTATE_180 -> 180
-            ExifInterface.ORIENTATION_ROTATE_270 -> 270
-            else -> 0
-        }
-    }
-
-    private fun rotateBitmap(bitmap: Bitmap, degrees: Int): Bitmap {
-        if (degrees == 0) return bitmap
-        val matrix = Matrix().apply { postRotate(degrees.toFloat()) }
-        return Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true)
+            }
+            .addOnFailureListener {
+                Log.e(TAG, "Image upload failed: ${it.message}", it)
+                Toast.makeText(requireContext(), "Failed to upload image", Toast.LENGTH_SHORT).show()
+            }
     }
 
     private fun allPermissionsGranted() = ContextCompat.checkSelfPermission(
