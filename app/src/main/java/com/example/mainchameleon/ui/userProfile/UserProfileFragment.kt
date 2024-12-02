@@ -57,21 +57,11 @@ class UserProfileFragment : Fragment() {
         val friendCodeText = binding.friendCodeText
         val addFriendButton = binding.addFriendButton
 
-        val userId = profileViewModel.getCurrentUserId()
-        friendCodeText.text = "Friend Code: $userId"
-
         addFriendButton.setOnClickListener {
-            val options = arrayOf("Add a Friend", "View Friends")
-            AlertDialog.Builder(requireContext())
-                .setTitle("Choose an option")
-                .setItems(options) { _, which ->
-                    when (which) {
-
-                        1 -> findNavController().navigate(R.id.navigation_friends_list)
-                    }
-                }
-                .show()
+            // Directly navigate to the Friends List screen
+            findNavController().navigate(R.id.navigation_friends_list)
         }
+
 
         val backButton: ImageButton = binding.root.findViewById(R.id.back_button)
         backButton.setOnClickListener {
