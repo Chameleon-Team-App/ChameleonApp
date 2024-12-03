@@ -75,7 +75,7 @@ class UserProfileFragment : Fragment() {
 
         val backButton: ImageButton = binding.root.findViewById(R.id.back_button)
         backButton.setOnClickListener {
-            navigateBack()
+            findNavController().navigateUp() // Navigate back to the previous fragment in the stack
         }
 
         return binding.root
@@ -111,7 +111,7 @@ class UserProfileFragment : Fragment() {
             Toast.makeText(requireContext(), "Failed to load user data", Toast.LENGTH_SHORT).show()
         }
     }
-
+    
     private fun navigateBack() {
         requireActivity().onBackPressedDispatcher.onBackPressed() // Proper way to navigate back
     }
@@ -133,3 +133,4 @@ class UserProfileFragment : Fragment() {
         dialog.show()
     }
 }
+
