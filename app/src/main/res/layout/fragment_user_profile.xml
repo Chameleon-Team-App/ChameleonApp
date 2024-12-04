@@ -61,6 +61,20 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
+    <!-- Add Friend Icon -->
+    <ImageButton
+        android:id="@+id/add_friend_button"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/ic_rounded_corner"
+        android:contentDescription="Add Friend"
+        android:src="@drawable/ic_account_circle"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:tint="@color/white" />
+
     <!-- Edit Profile Button -->
     <Button
         android:id="@+id/edit_button"
