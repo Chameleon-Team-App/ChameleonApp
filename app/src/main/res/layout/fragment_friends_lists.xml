@@ -5,26 +5,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:padding="16dp"
-    android:background="@color/white">
-    <!-- Temporary Feed Button -->
-    <Button
-        android:id="@+id/feed_button"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Go to Feed"
-        android:layout_marginTop="16dp"
-        android:padding="8dp"
-        />
-
-    <!-- Back Button -->
-    <ImageButton
-        android:id="@+id/back_button"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:layout_marginBottom="8dp"
-        android:background="@null"
-        android:contentDescription="Back Button"
-        android:src="@drawable/ic_back_arrow" />
+    android:background="@drawable/background3">
 
     <!-- Title -->
     <TextView
@@ -33,18 +14,20 @@
         android:layout_height="wrap_content"
         android:text="FRIENDS"
         android:textSize="24sp"
+        android:textColor="@color/black"
         android:textStyle="bold"
         android:gravity="center"
         android:layout_gravity="center"
-        android:paddingBottom="16dp" />
+        android:paddingBottom="90dp" />
 
     <!-- Add Friends Section -->
     <TextView
         android:id="@+id/add_friends_label"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="ADD FRIENDS"
-        android:textSize="18sp"
+        android:text="Add Friends:"
+        android:textSize="16sp"
+        android:textColor="@color/black"
         android:textStyle="bold"
         android:paddingBottom="8dp" />
 
@@ -59,6 +42,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:hint="Enter Friend Code"
+            android:textColor="@color/black"
             android:padding="8dp"
             />
 
@@ -66,9 +50,9 @@
             android:id="@+id/add_friend_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:backgroundTint="#8BC34A"
             android:text="Add"
-            android:layout_marginLeft="8dp"
-            />
+            android:layout_marginStart="8dp"/>
     </LinearLayout>
 
     <!-- Friends List -->
@@ -86,6 +70,29 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:paddingTop="8dp"
-        android:clipToPadding="false" />
+        android:clipToPadding="false"
+        android:paddingTop="8dp" />
+
+    <Button
+        android:id="@+id/feed_button"
+        android:layout_width="match_parent"
+        android:layout_height="70dp"
+        android:layout_marginTop="5dp"
+        android:backgroundTint="#8BC34A"
+        android:padding="18dp"
+        android:text="Go to Friend Feed"
+        android:textColor="#FFFFFF"
+        android:textSize="18sp" />
+
+    <!-- Back button -->
+    <Button
+        android:id="@+id/backButton"
+        android:layout_width="match_parent"
+        android:layout_height="70dp"
+        android:layout_marginTop="5dp"
+        android:backgroundTint="#8BC34A"
+        android:padding="18dp"
+        android:text="Back"
+        android:textColor="#FFFFFF"
+        android:textSize="18sp" />
 </LinearLayout>

@@ -222,5 +222,4 @@ class CalendarFragment : Fragment(), OnDayClickListener {
         activityAdapter.notifyItemRemoved(position)
         saveActivities(selectedDate.format(DateTimeFormatter.ofPattern("MMMM d, yyyy")))
     }
-
 }

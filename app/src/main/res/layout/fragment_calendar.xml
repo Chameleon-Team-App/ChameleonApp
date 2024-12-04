@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#292929"
+    android:background="@drawable/background3"
     tools:context="ui.calendar.CalendarFragment">
 
     <!-- Header Section -->
@@ -12,7 +12,7 @@
         android:id="@+id/header"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="#4CAF50"
+        android:background="transparent"
         android:padding="16dp"
         app:layout_constraintTop_toTopOf="parent">
 
@@ -153,18 +153,26 @@
         android:padding="8dp" />
 
     <!-- Add Activity Button -->
-    <Button
+    <com.google.android.material.card.MaterialCardView
         android:id="@+id/addActivityButton"
         android:layout_width="0dp"
-        android:layout_height="66dp"
+        android:layout_height="60dp"
         android:backgroundTint="#8BC34A"
-        android:text="Add Activity"
-        android:textColor="#FFFFFF"
-        android:textStyle="bold"
+        app:cardElevation="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toStartOf="@id/back_button"
-        android:layout_margin="16dp" />
+        android:layout_margin="16dp">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:text="Add Activity"
+            android:textColor="#FFFFFF"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+    </com.google.android.material.card.MaterialCardView>
 
     <!-- Back Button -->
     <com.google.android.material.card.MaterialCardView

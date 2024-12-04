@@ -74,6 +74,7 @@ class JournalFragment : Fragment() {
 
         binding.uploadFromGalleryButton.setOnClickListener {
             val pickPhotoIntent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
+            Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
             startActivityForResult(pickPhotoIntent, REQUEST_IMAGE_PICK)
         }
     }
@@ -93,7 +94,7 @@ class JournalFragment : Fragment() {
     }
 
     private fun setupSaveButton() {
-        binding.saveJournalButton.setOnClickListener {
+        binding.saveButton.setOnClickListener {
             val title = binding.titleEntryBox.text.toString().trim()
             val text = binding.journalEntryText.text.toString().trim()
 

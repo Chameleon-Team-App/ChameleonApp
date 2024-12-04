@@ -5,14 +5,28 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fillViewport="true"
-    android:background="#292929"
+    android:background="@drawable/background3"
     tools:context=".ui.journal.JournalFragment">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
+        android:gravity="bottom"
         android:padding="16dp">
+
+        <!-- Title -->
+        <TextView
+            android:id="@+id/title_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="How are you feeling today?"
+            android:textSize="24sp"
+            android:textColor="@color/black"
+            android:textStyle="bold"
+            android:gravity="center"
+            android:layout_gravity="center"
+            android:paddingBottom="90dp" />
 
         <!-- Title Entry -->
         <EditText
@@ -88,7 +102,7 @@
         <EditText
             android:id="@+id/journalEntryText"
             android:layout_width="match_parent"
-            android:layout_height="150dp"
+            android:layout_height="240dp"
             android:hint="Write your journal entry here..."
             android:textColor="#FFFFFF"
             android:textColorHint="#AAAAAA"
@@ -135,23 +149,30 @@
 
         <!-- Save Button -->
         <Button
-            android:id="@+id/saveJournalButton"
+            android:id="@+id/save_button"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Save Journal"
+            android:layout_height="70dp"
+            android:backgroundTint="#8BC34A"
+            android:padding="18dp"
+            android:text="Save"
             android:textColor="#FFFFFF"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            android:layout_marginBottom="16dp" />
+            android:textSize="18sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
 
-        <!-- Back Button -->
+        <!-- Back button -->
         <Button
             android:id="@+id/backButton"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="70dp"
+            android:backgroundTint="#8BC34A"
+            android:padding="18dp"
             android:text="Back"
             android:textColor="#FFFFFF"
-            android:textSize="16sp"
-            android:visibility="visible" />
+            android:textSize="18sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
     </LinearLayout>
 </ScrollView>
