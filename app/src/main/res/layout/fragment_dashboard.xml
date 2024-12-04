@@ -109,13 +109,12 @@
                         android:layout_width="371dp"
                         android:layout_height="match_parent"
                         android:layout_gravity="center"
-                        android:background="@color/white"
                         android:layout_marginTop="60dp">
 
                         <androidx.recyclerview.widget.RecyclerView
                             android:id="@+id/weeklyCalendarRecycler"
                             android:layout_width="match_parent"
-                            android:layout_height="70dp"
+                            android:layout_height="wrap_content"
                             android:layout_gravity="center"
                             android:orientation="horizontal"
                             android:paddingStart="8dp"
@@ -278,7 +277,7 @@
                                 android:layout_width="40dp"
                                 android:layout_height="40dp"
                                 android:layout_centerHorizontal="true"
-                                android:src="@drawable/ic_mental_health_black_24dp"
+                                android:src="@drawable/baseline_add_chart_24"
                                 android:visibility="visible" />
 
                             <TextView
@@ -286,7 +285,7 @@
                                 android:id="@+id/activitiesText"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="Activities"
+                                android:text="Calendar"
                                 android:textColor="@color/white"
                                 android:layout_centerInParent="true"
                                 android:textSize="30dp" />
