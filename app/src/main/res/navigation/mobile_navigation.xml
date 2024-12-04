@@ -11,6 +11,7 @@
         android:label="@string/title_dashboard"
         tools:layout="@layout/fragment_dashboard">
 
+
         <!-- Navigate to Journal -->
         <action
             android:id="@+id/action_navigation_dashboard_to_navigation_journal"
@@ -30,6 +31,7 @@
         <action
             android:id="@+id/action_navigation_dashboard_to_navigation_mental_health"
             app:destination="@id/navigation_mental_health" />
+
     </fragment>
 
     <!-- Journal Fragment -->
@@ -142,5 +144,25 @@
         android:name="com.example.mainchameleon.ui.mentalhealth.MentalHealthFragment"
         android:label="Mental Health"
         tools:layout="@layout/fragment_mental_health" />
+
+    <!-- Encouraging Fragment -->
+    <fragment
+        android:id="@+id/encouraging_fragment"
+        android:name="com.example.mainchameleon.ui.phrases.PhrasesFragment"
+        android:label="Encouraging Phrases"
+        tools:layout="@layout/fragment_encouraging" />
+
+    <fragment
+        android:id="@+id/fragment_mental_health"
+        android:name="com.example.mainchameleon.ui.mentalhealth.MentalHealthFragment"
+        android:label="mental_health"
+        tools:layout="@layout/fragment_mental_health">
+
+    <action
+        android:id="@+id/action_dashboard_to_encouraging_fragment"
+        app:destination="@id/encouraging_fragment" />
+
+    </fragment>
+
 
 </navigation>
