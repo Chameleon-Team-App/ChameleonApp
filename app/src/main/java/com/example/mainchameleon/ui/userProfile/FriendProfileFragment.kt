@@ -4,7 +4,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageButton
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -16,7 +15,8 @@ import com.squareup.picasso.Picasso
 
 class FriendProfileFragment : Fragment() {
 
-    private lateinit var binding: FragmentFriendProfileBinding
+    private var _binding: FragmentFriendProfileBinding? = null
+    private val binding get() = _binding!!
     private lateinit var database: DatabaseReference
     private var friendId: String? = null
     private lateinit var journalAdapter: JournalAdapter
@@ -25,7 +25,7 @@ class FriendProfileFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        binding = FragmentFriendProfileBinding.inflate(inflater, container, false)
+        _binding = FragmentFriendProfileBinding.inflate(inflater, container, false)
         database = FirebaseDatabase.getInstance().reference
 
         // Retrieve friendId from arguments
@@ -37,21 +37,24 @@ class FriendProfileFragment : Fragment() {
             return binding.root
         }
 
-        // Set up RecyclerView for journals
-        journalAdapter = JournalAdapter()
-        binding.journalRecyclerView.layoutManager = LinearLayoutManager(requireContext())
-        binding.journalRecyclerView.adapter = journalAdapter
-
-        // Set up back button
-        val backButton: ImageButton = binding.root.findViewById(R.id.back_button)
-        backButton.setOnClickListener {
-            requireActivity().onBackPressedDispatcher.onBackPressed()
-        }
-
+        setupRecyclerView()
+        setupBackButton()
         loadFriendProfile()
         loadFriendJournals()
 
         return binding.root
+    }
+
+    private fun setupRecyclerView() {
+        journalAdapter = JournalAdapter()
+        binding.journalRecyclerView.layoutManager = LinearLayoutManager(requireContext())
+        binding.journalRecyclerView.adapter = journalAdapter
+    }
+
+    private fun setupBackButton() {
+        binding.backButton.setOnClickListener {
+            requireActivity().onBackPressedDispatcher.onBackPressed()
+        }
     }
 
     private fun loadFriendProfile() {
@@ -97,5 +100,10 @@ class FriendProfileFragment : Fragment() {
                 }
             })
         }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 }
