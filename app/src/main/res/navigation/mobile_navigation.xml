@@ -100,6 +100,9 @@
         <action
             android:id="@+id/action_friends_list_to_navigation_feed_fragment"
             app:destination="@id/navigation_feed_fragment" />
+        <action
+            android:id="@+id/action_friends_list_to_user_profile"
+            app:destination="@id/navigation_profile" />
     </fragment>
 
     <!-- Friend Profile Fragment -->

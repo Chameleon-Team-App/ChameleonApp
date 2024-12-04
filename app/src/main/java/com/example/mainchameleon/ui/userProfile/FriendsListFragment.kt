@@ -24,8 +24,8 @@ class FriendsListFragment : Fragment() {
     private lateinit var auth: FirebaseAuth
     private lateinit var addFriendInput: EditText
     private lateinit var addFriendButton: Button
-    private lateinit var backButton: ImageButton
-    private lateinit var feedButton: Button // Declare the feed button
+    private lateinit var backButton: Button
+    private lateinit var feedButton: Button
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -40,7 +40,7 @@ class FriendsListFragment : Fragment() {
         addFriendInput = view.findViewById(R.id.add_friend_input)
         addFriendButton = view.findViewById(R.id.add_friend_button)
         backButton = view.findViewById(R.id.back_button)
-        feedButton = view.findViewById(R.id.feed_button) // Initialize the feed button
+        feedButton = view.findViewById(R.id.feed_button)
 
         // Set up RecyclerView
         friendsRecyclerView.layoutManager = LinearLayoutManager(requireContext())
@@ -60,15 +60,14 @@ class FriendsListFragment : Fragment() {
             }
         }
 
-        // Handle back button
+        // Handle back button to navigate to User Profile
         backButton.setOnClickListener {
-            requireActivity().onBackPressedDispatcher.onBackPressed()
+            findNavController().navigate(R.id.action_friends_list_to_user_profile)
         }
 
-        // Navigate to FeedFragment when the feed button is clicked
+        // Navigate to FeedFragment
         feedButton.setOnClickListener {
             findNavController().navigate(R.id.action_friends_list_to_navigation_feed_fragment)
-
         }
 
         return view
@@ -76,32 +75,34 @@ class FriendsListFragment : Fragment() {
 
     private fun loadFriends() {
         val currentUserId = auth.currentUser?.uid ?: return
-        val friendsRef = database.child("Users").child(currentUserId).child("friends")
+        val friendsMap = mutableMapOf<String, Friend>()
 
-        friendsRef.addValueEventListener(object : ValueEventListener {
-            override fun onDataChange(snapshot: DataSnapshot) {
-                val friends = mutableListOf<Friend>()
-                for (friendSnapshot in snapshot.children) {
-                    val friendId = friendSnapshot.key ?: continue
-                    database.child("Users").child(friendId).addListenerForSingleValueEvent(object : ValueEventListener {
-                        override fun onDataChange(friendData: DataSnapshot) {
-                            val username = friendData.child("Username").value.toString()
-                            val profilePictureUrl = friendData.child("profilePictureUrl").value.toString()
-                            friends.add(Friend(friendId, username, profilePictureUrl))
-                            friendsAdapter.submitList(friends)
-                        }
+        database.child("Users").child(currentUserId).child("friends")
+            .addListenerForSingleValueEvent(object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    for (friendSnapshot in snapshot.children) {
+                        val friendId = friendSnapshot.key ?: continue
+                        database.child("Users").child(friendId).addListenerForSingleValueEvent(object : ValueEventListener {
+                            override fun onDataChange(friendData: DataSnapshot) {
+                                val username = friendData.child("Username").value.toString()
+                                val profilePictureUrl = friendData.child("profilePictureUrl").value.toString()
+                                friendsMap[friendId] = Friend(friendId, username, profilePictureUrl)
+                                if (friendsMap.size == snapshot.childrenCount.toInt()) {
+                                    friendsAdapter.submitList(friendsMap.values.toList())
+                                }
+                            }
 
-                        override fun onCancelled(error: DatabaseError) {
-                            Toast.makeText(requireContext(), "Failed to load friend data", Toast.LENGTH_SHORT).show()
-                        }
-                    })
+                            override fun onCancelled(error: DatabaseError) {
+                                Toast.makeText(requireContext(), "Failed to load friend data", Toast.LENGTH_SHORT).show()
+                            }
+                        })
+                    }
                 }
-            }
 
-            override fun onCancelled(error: DatabaseError) {
-                Toast.makeText(requireContext(), "Failed to load friends", Toast.LENGTH_SHORT).show()
-            }
-        })
+                override fun onCancelled(error: DatabaseError) {
+                    Toast.makeText(requireContext(), "Failed to load friends", Toast.LENGTH_SHORT).show()
+                }
+            })
     }
 
     private fun addFriend(friendId: String) {

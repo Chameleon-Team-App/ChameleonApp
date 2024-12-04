@@ -61,56 +61,9 @@ class UserProfileFragment : Fragment() {
             findNavController().navigateUp()
         }
 
-        // Add Friend Button
+        // Friends List Button
         binding.addFriendButton.setOnClickListener {
-            showAddFriendDialog()
-        }
-    }
-
-    private fun showAddFriendDialog() {
-        val editText = EditText(requireContext()).apply {
-            inputType = InputType.TYPE_CLASS_TEXT
-            hint = "Enter Friend Code"
-        }
-
-        AlertDialog.Builder(requireContext())
-            .setTitle("Add Friend")
-            .setMessage("Enter your friend's code:")
-            .setView(editText)
-            .setPositiveButton("Add") { dialog, _ ->
-                val friendCode = editText.text.toString().trim()
-                if (friendCode.isNotEmpty()) {
-                    addFriend(friendCode)
-                    dialog.dismiss()
-                } else {
-                    Toast.makeText(requireContext(), "Friend code cannot be empty", Toast.LENGTH_SHORT).show()
-                }
-            }
-            .setNegativeButton("Cancel") { dialog, _ ->
-                dialog.dismiss()
-            }
-            .create()
-            .show()
-    }
-
-    private fun addFriend(friendCode: String) {
-        val currentUserId = auth.currentUser?.uid ?: return
-
-        database.getReference("Users").child(friendCode).get().addOnSuccessListener { dataSnapshot ->
-            if (dataSnapshot.exists()) {
-                // Friend code is valid, add to user's friend list
-                val friendsRef = database.getReference("Users").child(currentUserId).child("friends")
-                friendsRef.child(friendCode).setValue(true).addOnSuccessListener {
-                    Toast.makeText(requireContext(), "Friend added successfully!", Toast.LENGTH_SHORT).show()
-                }.addOnFailureListener {
-                    Toast.makeText(requireContext(), "Failed to add friend. Try again.", Toast.LENGTH_SHORT).show()
-                }
-            } else {
-                // Friend code does not exist
-                Toast.makeText(requireContext(), "Invalid friend code. Please try again.", Toast.LENGTH_SHORT).show()
-            }
-        }.addOnFailureListener {
-            Toast.makeText(requireContext(), "Failed to connect. Check your internet.", Toast.LENGTH_SHORT).show()
+            findNavController().navigate(R.id.navigation_friends_list) // Navigate to the friends list
         }
     }
 
