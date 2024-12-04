@@ -16,6 +16,7 @@ class BreathTimerFragment : Fragment() {
     private lateinit var progressBar: ProgressBar
     private lateinit var breathTextView: TextView
     private lateinit var doneButton: Button
+    private lateinit var button2: Button
     private var currentState = 0
 
     override fun onCreateView(
@@ -27,10 +28,11 @@ class BreathTimerFragment : Fragment() {
         progressBar = rootView.findViewById(R.id.progressBar)
         breathTextView = rootView.findViewById(R.id.breathTextView)
         doneButton = rootView.findViewById(R.id.Donebutton)
+        button2 = rootView.findViewById(R.id.button2)
 
         startBreathingActivity()
 
-        doneButton.setOnClickListener {
+        button2.setOnClickListener {
             requireActivity().onBackPressed() // Go back to the previous screen
         }
 
@@ -38,9 +40,9 @@ class BreathTimerFragment : Fragment() {
     }
 
     private fun startBreathingActivity() {
-        object : CountDownTimer(4000, 1000) {
+        object : CountDownTimer(5000, 1000) {
             override fun onTick(millisUntilFinished: Long) {
-                progressBar.progress = (millisUntilFinished / 40).toInt()
+                progressBar.progress = (millisUntilFinished / 50).toInt()
             }
 
             override fun onFinish() {
