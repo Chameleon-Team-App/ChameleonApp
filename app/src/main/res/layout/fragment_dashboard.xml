@@ -96,23 +96,25 @@
                     <com.google.android.material.card.MaterialCardView
                         android:id="@+id/JournalButton"
                         android:layout_width="match_parent"
-                        android:layout_height="120dp"
+                        android:layout_height="wrap_content"
                         app:cardBackgroundColor="#8BC34A"
                         app:cardElevation="10dp"
                         android:layout_margin="10dp"
                         android:clickable="true"
                         android:focusable="true">
 
-                        <RelativeLayout
+                        <LinearLayout
                             android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:padding="5dp">
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:gravity="center"
+                            android:padding="10dp">
 
                             <ImageView
-                                android:layout_width="40dp"
-                                android:layout_height="40dp"
-                                android:layout_centerHorizontal="true"
+                                android:layout_width="60dp"
+                                android:layout_height="60dp"
                                 android:src="@drawable/journal_64dp"
+                                android:layout_gravity="center_horizontal"
                                 android:visibility="visible" />
 
                             <TextView
@@ -120,106 +122,107 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="Journal"
-                                android:layout_centerInParent="true"
-                                android:textSize="20sp" />
-                        </RelativeLayout>
-                    </com.google.android.material.card.MaterialCardView>
-
-                    <!-- Most Recent Journal Section -->
-                    <androidx.cardview.widget.CardView
-                        android:id="@+id/recentJournalCard"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_margin="10dp"
-                        app:cardElevation="5dp"
-                        app:cardCornerRadius="8dp"
-                        app:cardBackgroundColor="#FFFFFF"
-                        android:foreground="?android:attr/selectableItemBackground">
-
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:padding="8dp"
-                            android:orientation="vertical">
-
-                            <!-- Header: Profile Picture and Username -->
-                            <LinearLayout
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:orientation="horizontal"
-                                android:gravity="center_vertical">
-
-                                <!-- Profile Picture -->
-                                <ImageView
-                                    android:id="@+id/profileImageView"
-                                    android:layout_width="40dp"
-                                    android:layout_height="40dp"
-                                    android:src="@drawable/default_profile"
-                                    android:scaleType="centerCrop"
-                                    android:layout_marginEnd="8dp" />
-
-                                <!-- Username -->
-                                <TextView
-                                    android:id="@+id/recentJournalUsername"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text="Username"
-                                    android:textStyle="bold"
-                                    android:textSize="16sp" />
-
-                                <!-- Mood Emoji -->
-                                <TextView
-                                    android:id="@+id/recentJournalMood"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text="😊"
-                                    android:textSize="24sp"
-                                    android:layout_gravity="end"
-                                    android:layout_weight="1"
-                                    android:gravity="end"
-                                    android:layout_marginStart="8dp" />
-                            </LinearLayout>
-
-                            <!-- Title -->
-                            <TextView
-                                android:id="@+id/recentJournalTitle"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:text="Title"
-                                android:textStyle="bold"
-                                android:textSize="18sp"
+                                android:textSize="20sp"
+                                android:layout_gravity="center_horizontal"
                                 android:layout_marginTop="8dp" />
 
-                            <!-- Photo (if applicable) -->
-                            <ImageView
-                                android:id="@+id/recentJournalImage"
-                                android:layout_width="match_parent"
-                                android:layout_height="200dp"
-                                android:adjustViewBounds="true"
-                                android:scaleType="centerCrop"
-                                android:visibility="gone"
-                                android:layout_marginTop="8dp" />
-
-                            <!-- Entry Text -->
-                            <TextView
-                                android:id="@+id/recentJournalText"
+                            <!-- Most Recent Journal Section -->
+                            <androidx.cardview.widget.CardView
+                                android:id="@+id/recentJournalCard"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:text="Entry text goes here..."
-                                android:layout_marginTop="8dp"
-                                android:textSize="16sp" />
+                                android:layout_marginTop="10dp"
+                                app:cardElevation="5dp"
+                                app:cardCornerRadius="8dp"
+                                app:cardBackgroundColor="#FFFFFF"
+                                android:foreground="?android:attr/selectableItemBackground">
 
-                            <!-- Created Date -->
-                            <TextView
-                                android:id="@+id/recentJournalDate"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="Date: MM/dd/yyyy"
-                                android:layout_gravity="end"
-                                android:layout_marginTop="8dp"
-                                android:textSize="14sp" />
+                                <LinearLayout
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:padding="8dp"
+                                    android:orientation="vertical">
+
+                                    <!-- Header: Profile Picture and Username -->
+                                    <LinearLayout
+                                        android:layout_width="match_parent"
+                                        android:layout_height="wrap_content"
+                                        android:orientation="horizontal"
+                                        android:gravity="center_vertical">
+
+                                        <!-- Profile Picture -->
+                                        <ImageView
+                                            android:id="@+id/profileImageView"
+                                            android:layout_width="40dp"
+                                            android:layout_height="40dp"
+                                            android:src="@drawable/default_profile"
+                                            android:scaleType="centerCrop"
+                                            android:layout_marginEnd="8dp" />
+
+                                        <!-- Username -->
+                                        <TextView
+                                            android:id="@+id/recentJournalUsername"
+                                            android:layout_width="wrap_content"
+                                            android:layout_height="wrap_content"
+                                            android:text="Username"
+                                            android:textStyle="bold"
+                                            android:textSize="16sp" />
+
+                                        <!-- Mood Emoji -->
+                                        <TextView
+                                            android:id="@+id/recentJournalMood"
+                                            android:layout_width="wrap_content"
+                                            android:layout_height="wrap_content"
+                                            android:text="😊"
+                                            android:textSize="24sp"
+                                            android:layout_gravity="end"
+                                            android:layout_weight="1"
+                                            android:gravity="end"
+                                            android:layout_marginStart="8dp" />
+                                    </LinearLayout>
+
+                                    <!-- Title -->
+                                    <TextView
+                                        android:id="@+id/recentJournalTitle"
+                                        android:layout_width="match_parent"
+                                        android:layout_height="wrap_content"
+                                        android:text="Title"
+                                        android:textStyle="bold"
+                                        android:textSize="18sp"
+                                        android:layout_marginTop="8dp" />
+
+                                    <!-- Photo (if applicable) -->
+                                    <ImageView
+                                        android:id="@+id/recentJournalImage"
+                                        android:layout_width="match_parent"
+                                        android:layout_height="200dp"
+                                        android:adjustViewBounds="true"
+                                        android:scaleType="centerCrop"
+                                        android:visibility="gone"
+                                        android:layout_marginTop="8dp" />
+
+                                    <!-- Entry Text -->
+                                    <TextView
+                                        android:id="@+id/recentJournalText"
+                                        android:layout_width="match_parent"
+                                        android:layout_height="wrap_content"
+                                        android:text="Entry text goes here..."
+                                        android:layout_marginTop="8dp"
+                                        android:textSize="16sp" />
+
+                                    <!-- Created Date -->
+                                    <TextView
+                                        android:id="@+id/recentJournalDate"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:text="Date: MM/dd/yyyy"
+                                        android:layout_gravity="end"
+                                        android:layout_marginTop="8dp"
+                                        android:textSize="14sp" />
+                                </LinearLayout>
+                            </androidx.cardview.widget.CardView>
                         </LinearLayout>
-                    </androidx.cardview.widget.CardView>
+                    </com.google.android.material.card.MaterialCardView>
 
                     <!-- Mental Health Button -->
                     <com.google.android.material.card.MaterialCardView
@@ -254,14 +257,6 @@
                         </RelativeLayout>
                     </com.google.android.material.card.MaterialCardView>
                 </LinearLayout>
-
-                <!-- Removed or commented out the feed RecyclerView -->
-                <!-- <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/recyclerView"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:clipToPadding="false"
-                    android:paddingBottom="100dp" /> -->
             </LinearLayout>
         </androidx.core.widget.NestedScrollView>
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>

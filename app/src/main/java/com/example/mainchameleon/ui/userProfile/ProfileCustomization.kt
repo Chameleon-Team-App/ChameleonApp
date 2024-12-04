@@ -5,9 +5,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
 import android.widget.EditText
-import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
@@ -29,16 +27,15 @@ import java.util.Locale
 
 class ProfileCustomizationFragment : Fragment() {
 
-    private lateinit var buttonSaveProfile: Button
     private lateinit var profileImageView: ImageView
     private lateinit var bioEditText: EditText
     private lateinit var firstNameEditText: EditText
     private lateinit var lastNameEditText: EditText
+    private lateinit var usernameEditText: EditText
     private var photoUri: Uri? = null
     private lateinit var profileViewModel: ProfileViewModel
     private lateinit var auth: FirebaseAuth
     private lateinit var database: FirebaseDatabase
-    private lateinit var usernameTextView: TextView
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -51,47 +48,33 @@ class ProfileCustomizationFragment : Fragment() {
         auth = FirebaseAuth.getInstance()
         database = FirebaseDatabase.getInstance()
 
-        usernameTextView = rootView.findViewById(R.id.username_edit_text)
+        usernameEditText = rootView.findViewById(R.id.username_edit_text)
         firstNameEditText = rootView.findViewById(R.id.fname_edit_text)
         lastNameEditText = rootView.findViewById(R.id.lname_edit_text)
         bioEditText = rootView.findViewById(R.id.bio_edit_text)
         val saveButtonCard: MaterialCardView = rootView.findViewById(R.id.save_button)
-
         val backButton = rootView.findViewById<View>(R.id.back_button)
 
         // Load current user data
         loadUserData()
 
-        // Enable editing on click for EditText fields
+        // Enable editing for EditText fields
         enableEditing(firstNameEditText)
         enableEditing(lastNameEditText)
         enableEditing(bioEditText)
+        enableEditing(usernameEditText)
 
-        // Enable changing the profile picture on click
+        // Enable profile picture change
         profileImageView.setOnClickListener {
             showPictureOptionDialog()
         }
 
-        // Set an OnClickListener for the MaterialCardView
+        // Save profile data
         saveButtonCard.setOnClickListener {
-            if (photoUri != null) {
-                profileViewModel.uploadProfilePicture(photoUri!!)
-                profileViewModel.uploadStatus.observe(viewLifecycleOwner) { status ->
-                    if (status == true) {
-                        updateProfileData()
-                    } else {
-                        Toast.makeText(requireContext(), "Failed to save profile picture", Toast.LENGTH_SHORT).show()
-                    }
-                }
-            } else {
-                updateProfileData()
-            }
-
-            // Perform your save action here
-            Toast.makeText(requireContext(), "Save clicked", Toast.LENGTH_SHORT).show()
+            updateProfileData()
         }
 
-        // Set click listener for Back button
+        // Back button functionality
         backButton.setOnClickListener {
             navigateBack()
         }
@@ -109,51 +92,61 @@ class ProfileCustomizationFragment : Fragment() {
     private fun updateProfileData() {
         val firstName = firstNameEditText.text.toString().trim()
         val lastName = lastNameEditText.text.toString().trim()
+        val username = usernameEditText.text.toString().trim()
         val bio = bioEditText.text.toString().trim()
 
-        if (firstName.isEmpty() || lastName.isEmpty()) {
-            Toast.makeText(requireContext(), "First and Last Name cannot be empty", Toast.LENGTH_SHORT).show()
+        if (firstName.isEmpty() || lastName.isEmpty() || username.isEmpty()) {
+            Toast.makeText(requireContext(), "First Name, Last Name, and Username cannot be empty", Toast.LENGTH_SHORT).show()
             return
         }
 
         val userId = auth.currentUser?.uid ?: return
         val userRef = database.getReference("Users").child(userId)
 
-        val userMap = mapOf(
+        val userMap = mutableMapOf<String, Any>(
             "First Name" to firstName,
             "Last Name" to lastName,
-            "bio" to bio,
-            "profilePictureUrl" to (photoUri?.toString() ?: "")
+            "Username" to username,
+            "bio" to bio
         )
 
+        // Add profilePictureUrl only if photoUri is non-null
+        photoUri?.let {
+            profileViewModel.uploadProfilePicture(it) // Upload the picture when saving
+            userMap["profilePictureUrl"] = it.toString()
+        }
+
+        // Update the database
         userRef.updateChildren(userMap).addOnCompleteListener { task ->
             if (task.isSuccessful) {
                 Toast.makeText(requireContext(), "Profile updated successfully", Toast.LENGTH_SHORT).show()
             } else {
-                Toast.makeText(requireContext(), "Failed to update profile", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), "Failed to update profile: ${task.exception?.message}", Toast.LENGTH_SHORT).show()
             }
         }
-    }private fun loadUserData() {
+    }
+
+    private fun loadUserData() {
         val userId = auth.currentUser?.uid
         if (userId != null) {
             database.getReference("Users").child(userId).get()
                 .addOnSuccessListener { dataSnapshot ->
-                    val firstName = dataSnapshot.child("First Name").value as? String ?: "N/A"
-                    val lastName = dataSnapshot.child("Last Name").value as? String ?: "N/A"
-                    val username = dataSnapshot.child("Username").value as? String ?: "N/A"
-                    val bio = dataSnapshot.child("bio").value as? String ?: "N/A"
+                    val firstName = dataSnapshot.child("First Name").value as? String ?: ""
+                    val lastName = dataSnapshot.child("Last Name").value as? String ?: ""
+                    val username = dataSnapshot.child("Username").value as? String ?: ""
+                    val bio = dataSnapshot.child("bio").value as? String ?: ""
                     val profilePictureUrl = dataSnapshot.child("profilePictureUrl").value as? String
 
                     firstNameEditText.setText(firstName)
                     lastNameEditText.setText(lastName)
-                    usernameTextView.text = username
+                    usernameEditText.setText(username)
                     bioEditText.setText(bio)
 
                     if (!profilePictureUrl.isNullOrEmpty()) {
-                        // Only load the image if the URL is valid
-                        Picasso.get().load(profilePictureUrl).placeholder(R.drawable.default_profile).into(profileImageView)
+                        Picasso.get().load(profilePictureUrl)
+                            .placeholder(R.drawable.default_profile)
+                            .into(profileImageView)
                     } else {
-                        // Set a default image if the URL is null or empty
                         profileImageView.setImageResource(R.drawable.default_profile)
                     }
                 }
@@ -164,7 +157,6 @@ class ProfileCustomizationFragment : Fragment() {
             Toast.makeText(requireContext(), "User not authenticated", Toast.LENGTH_SHORT).show()
         }
     }
-
 
     private fun showPictureOptionDialog() {
         val options = arrayOf("Take Photo with Camera", "Choose from Gallery")
@@ -208,10 +200,6 @@ class ProfileCustomizationFragment : Fragment() {
     private val takePictureLauncher = registerForActivityResult(ActivityResultContracts.TakePicture()) { success ->
         if (success) {
             profileImageView.setImageURI(photoUri)
-            photoUri?.let { uri ->
-                profileViewModel.setProfileImageUri(uri)
-                profileViewModel.uploadProfilePicture(uri)
-            }
         } else {
             Toast.makeText(requireContext(), "Camera action failed", Toast.LENGTH_SHORT).show()
         }
@@ -221,11 +209,10 @@ class ProfileCustomizationFragment : Fragment() {
         uri?.let { selectedUri ->
             profileImageView.setImageURI(selectedUri)
             photoUri = selectedUri
-            profileViewModel.uploadProfilePicture(selectedUri)
         }
     }
 
     private fun navigateBack() {
-        requireActivity().onBackPressedDispatcher.onBackPressed() // Proper way to navigate back
+        requireActivity().onBackPressedDispatcher.onBackPressed()
     }
 }
