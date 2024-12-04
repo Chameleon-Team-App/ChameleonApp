@@ -24,7 +24,7 @@ class BreathTimerFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         val rootView = inflater.inflate(R.layout.activity_breath_timer, container, false)
-
+        currentState = 0;
         progressBar = rootView.findViewById(R.id.progressBar)
         breathTextView = rootView.findViewById(R.id.breathTextView)
         doneButton = rootView.findViewById(R.id.Donebutton)
@@ -35,13 +35,18 @@ class BreathTimerFragment : Fragment() {
         button2.setOnClickListener {
             requireActivity().onBackPressed() // Go back to the previous screen
         }
+        doneButton.setOnClickListener{
+            startBreathingActivity()
+        }
 
         return rootView
     }
 
     private fun startBreathingActivity() {
         object : CountDownTimer(5000, 1000) {
+
             override fun onTick(millisUntilFinished: Long) {
+
                 progressBar.progress = (millisUntilFinished / 50).toInt()
             }
 
