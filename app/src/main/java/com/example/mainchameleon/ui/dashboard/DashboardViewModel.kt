@@ -13,7 +13,7 @@ import java.util.Locale
 
 class DashboardViewModel : ViewModel() {
 
-    // LiveData to hold all journal entries from all users
+    // LiveData to hold all journal entries
     private val _allEntries = MutableLiveData<List<JournalEntry>>()
     val allEntries: LiveData<List<JournalEntry>> = _allEntries
 
@@ -21,23 +21,25 @@ class DashboardViewModel : ViewModel() {
     private val _streak = MutableLiveData<Streak>()
     val streak: LiveData<Streak> = _streak
 
+    // LiveData for most recent journal entry
+    private val _mostRecentJournal = MutableLiveData<JournalEntry>()
+    private val mostRecentJournal: LiveData<JournalEntry> = _mostRecentJournal
+
     init {
         loadAllEntries()
         loadStreak()
+        loadMostRecentJournal()
     }
 
-    // Fetches all journal entries from all users
+    // Fetch all journal entries from the database
     fun loadAllEntries() {
         val databaseRef = FirebaseDatabase.getInstance().getReference("Users")
-
         databaseRef.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 val combinedEntries = mutableListOf<JournalEntry>()
-
                 for (userSnapshot in snapshot.children) {
                     val userId = userSnapshot.key ?: continue
                     val userJournalsSnapshot = userSnapshot.child("journals")
-
                     for (journalSnapshot in userJournalsSnapshot.children) {
                         val journalEntry = journalSnapshot.getValue(JournalEntry::class.java)
                         journalEntry?.let {
@@ -46,8 +48,6 @@ class DashboardViewModel : ViewModel() {
                         }
                     }
                 }
-
-                // Sort entries by timestamp descending
                 combinedEntries.sortByDescending { it.timestamp }
                 _allEntries.value = combinedEntries
             }
@@ -58,7 +58,32 @@ class DashboardViewModel : ViewModel() {
         })
     }
 
-    // Loads the current streak data for the user
+    // Fetch the most recent journal entry for the current user
+    private fun loadMostRecentJournal() {
+        val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return
+        val ref = FirebaseDatabase.getInstance().getReference("Users/$userId/journals")
+        ref.orderByChild("timestamp").limitToLast(1).addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                for (data in snapshot.children) {
+                    val journal = data.getValue(JournalEntry::class.java)
+                    journal?.let {
+                        it.userId = userId
+                        _mostRecentJournal.postValue(it)
+                    }
+                }
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                Log.e("DashboardViewModel", "Failed to fetch most recent journal", error.toException())
+            }
+        })
+    }
+
+    fun getMostRecentJournal(): LiveData<JournalEntry> {
+        return mostRecentJournal
+    }
+
+    // Load the streak data for the current user
     fun loadStreak() {
         val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return
         val streakRef = FirebaseDatabase.getInstance().getReference("Users/$userId/streak")
@@ -75,7 +100,7 @@ class DashboardViewModel : ViewModel() {
         })
     }
 
-    // Updates streak based on the last entry date
+    // Update the user's streak based on journal entries
     fun updateStreak() {
         val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return
         val streakRef = FirebaseDatabase.getInstance().getReference("Users/$userId/streak")
@@ -85,9 +110,8 @@ class DashboardViewModel : ViewModel() {
             override fun onDataChange(snapshot: DataSnapshot) {
                 val currentDate = getCurrentDate()
                 var streakData = _streak.value ?: Streak()
-
-                // Check if there's an entry for today
                 var hasEntryToday = false
+
                 for (journalSnapshot in snapshot.children) {
                     val journal = journalSnapshot.getValue(JournalEntry::class.java)
                     if (journal != null) {
@@ -99,9 +123,7 @@ class DashboardViewModel : ViewModel() {
                     }
                 }
 
-                // Update streak based on whether there's an entry today
                 if (streakData.lastStreakDate == currentDate) {
-                    // No update needed, streak already accounted for
                     return
                 } else if (hasEntryToday) {
                     streakData.currentStreak += 1
@@ -111,7 +133,6 @@ class DashboardViewModel : ViewModel() {
                     streakData.lastStreakDate = currentDate
                 }
 
-                // Save updated streak to database
                 streakRef.setValue(streakData).addOnCompleteListener {
                     if (it.isSuccessful) {
                         _streak.value = streakData
@@ -128,12 +149,15 @@ class DashboardViewModel : ViewModel() {
     }
 
     private fun getCurrentDate(): String {
-        val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-        return sdf.format(Date())
+        return SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
     }
 
     private fun formatDate(timestamp: Long): String {
-        val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-        return sdf.format(Date(timestamp))
+        return SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date(timestamp))
+    }
+
+    // Get reference to a specific user's data
+    fun getUserReference(userId: String): DatabaseReference {
+        return FirebaseDatabase.getInstance().getReference("Users").child(userId)
     }
 }
