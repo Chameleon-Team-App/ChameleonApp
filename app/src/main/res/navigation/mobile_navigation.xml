@@ -11,7 +11,6 @@
         android:label="@string/title_dashboard"
         tools:layout="@layout/fragment_dashboard">
 
-
         <!-- Navigate to Journal -->
         <action
             android:id="@+id/action_navigation_dashboard_to_navigation_journal"
@@ -31,7 +30,6 @@
         <action
             android:id="@+id/action_navigation_dashboard_to_navigation_mental_health"
             app:destination="@id/navigation_mental_health" />
-
     </fragment>
 
     <!-- Journal Fragment -->
@@ -143,27 +141,38 @@
         android:id="@+id/navigation_mental_health"
         android:name="com.example.mainchameleon.ui.mentalhealth.MentalHealthFragment"
         android:label="Mental Health"
-        tools:layout="@layout/fragment_mental_health" />
+        tools:layout="@layout/fragment_mental_health">
 
-    <!-- Encouraging Fragment -->
+        <!-- Navigate to Mental Minute -->
+        <action
+            android:id="@+id/action_navigation_mental_health_to_mentalMinuteFragment"
+            app:destination="@id/mentalMinuteFragment" />
+
+        <!-- Navigate to Breathing Timer -->
+        <action
+            android:id="@+id/action_navigation_mental_health_to_breathTimerFragment"
+            app:destination="@id/breathTimerFragment" />
+    </fragment>
+
+    <!-- Mental Minute Fragment -->
+    <fragment
+        android:id="@+id/mentalMinuteFragment"
+        android:name="com.example.mainchameleon.ui.mentalhealth.MentalMinuteFragment"
+        android:label="Mental Minute"
+        tools:layout="@layout/fragment_mental_minute" />
+
+    <!-- Breathing Timer Fragment -->
+    <fragment
+        android:id="@+id/breathTimerFragment"
+        android:name="com.example.mainchameleon.ui.breathtimer.BreathTimerFragment"
+        android:label="Breathing Timer"
+        tools:layout="@layout/activity_breath_timer" />
+
+
+    <!-- Encouraging Phrases Fragment -->
     <fragment
         android:id="@+id/encouraging_fragment"
         android:name="com.example.mainchameleon.ui.phrases.PhrasesFragment"
         android:label="Encouraging Phrases"
         tools:layout="@layout/fragment_encouraging" />
-
-    <fragment
-        android:id="@+id/fragment_mental_health"
-        android:name="com.example.mainchameleon.ui.mentalhealth.MentalHealthFragment"
-        android:label="mental_health"
-        tools:layout="@layout/fragment_mental_health">
-
-    <action
-        android:id="@+id/action_dashboard_to_encouraging_fragment"
-        app:destination="@id/encouraging_fragment" />
-
-    </fragment>
-
-
-
 </navigation>
