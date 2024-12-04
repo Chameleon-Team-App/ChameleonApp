@@ -185,7 +185,7 @@ class DashboardFragment : Fragment() {
         }
 
         binding.MentalHealthButton.setOnClickListener {
-            it.findNavController().navigate(R.id.action_navigation_dashboard_to_navigation_mental_health)
+            it.findNavController().navigate(R.id.action_navigation_dashboard_to_navigation_calendar)
         }
     }
 
