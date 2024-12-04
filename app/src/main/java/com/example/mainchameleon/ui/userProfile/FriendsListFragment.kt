@@ -25,6 +25,7 @@ class FriendsListFragment : Fragment() {
     private lateinit var addFriendInput: EditText
     private lateinit var addFriendButton: Button
     private lateinit var backButton: ImageButton
+    private lateinit var feedButton: Button // Declare the feed button
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -39,6 +40,7 @@ class FriendsListFragment : Fragment() {
         addFriendInput = view.findViewById(R.id.add_friend_input)
         addFriendButton = view.findViewById(R.id.add_friend_button)
         backButton = view.findViewById(R.id.back_button)
+        feedButton = view.findViewById(R.id.feed_button) // Initialize the feed button
 
         // Set up RecyclerView
         friendsRecyclerView.layoutManager = LinearLayoutManager(requireContext())
@@ -61,6 +63,12 @@ class FriendsListFragment : Fragment() {
         // Handle back button
         backButton.setOnClickListener {
             requireActivity().onBackPressedDispatcher.onBackPressed()
+        }
+
+        // Navigate to FeedFragment when the feed button is clicked
+        feedButton.setOnClickListener {
+            findNavController().navigate(R.id.action_friends_list_to_navigation_feed_fragment)
+
         }
 
         return view

@@ -6,6 +6,15 @@
     android:orientation="vertical"
     android:padding="16dp"
     android:background="@color/white">
+    <!-- Temporary Feed Button -->
+    <Button
+        android:id="@+id/feed_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Go to Feed"
+        android:layout_marginTop="16dp"
+        android:padding="8dp"
+        />
 
     <!-- Back Button -->
     <ImageButton

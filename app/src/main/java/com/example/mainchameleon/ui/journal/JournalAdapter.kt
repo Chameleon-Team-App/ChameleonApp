@@ -59,7 +59,7 @@ class JournalAdapter :
                 Picasso.get()
                     .load(entry.imageUrl)
                     .placeholder(R.drawable.default_profile)
-
+                    .error(R.drawable.default_profile)
                     .into(imageView, object : Callback {
                         override fun onSuccess() {
                             // Successfully loaded
@@ -74,8 +74,12 @@ class JournalAdapter :
             }
 
             // Format and display the created date
-            val dateFormat = SimpleDateFormat("MM/dd/yyyy", Locale.getDefault())
-            createdDateTextView.text = "Date: ${dateFormat.format(Date(entry.timestamp))}"
+            try {
+                val dateFormat = SimpleDateFormat("MM/dd/yyyy", Locale.getDefault())
+                createdDateTextView.text = "Date: ${dateFormat.format(Date(entry.timestamp))}"
+            } catch (e: Exception) {
+                createdDateTextView.text = "Date: Unknown"
+            }
         }
 
         fun loadUserDetails(userId: String) {
@@ -93,7 +97,7 @@ class JournalAdapter :
                             Picasso.get()
                                 .load(profilePictureUrl)
                                 .placeholder(R.drawable.default_profile)
-                                .error(R.drawable.default_profile) // Handle errors gracefully
+                                .error(R.drawable.default_profile)
                                 .into(profileImageView, object : Callback {
                                     override fun onSuccess() {
                                         // Successfully loaded
