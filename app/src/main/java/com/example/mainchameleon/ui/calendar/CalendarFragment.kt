@@ -218,8 +218,18 @@ class CalendarFragment : Fragment(), OnDayClickListener {
     }
 
     private fun deleteActivity(position: Int) {
-        activitiesForSelectedDate.removeAt(position)
-        activityAdapter.notifyItemRemoved(position)
-        saveActivities(selectedDate.format(DateTimeFormatter.ofPattern("MMMM d, yyyy")))
+        if (position >= 0 && position < activitiesForSelectedDate.size) {
+            // Remove the activity from the list
+            activitiesForSelectedDate.removeAt(position)
+
+            // Notify adapter of the change
+            activityAdapter.notifyItemRemoved(position)
+            activityAdapter.notifyItemRangeChanged(position, activitiesForSelectedDate.size)
+
+            // Save updated list
+            saveActivities(selectedDate.format(DateTimeFormatter.ofPattern("MMMM d, yyyy")))
+        } else {
+            Toast.makeText(requireContext(), "Invalid activity position", Toast.LENGTH_SHORT).show()
+        }
     }
 }
