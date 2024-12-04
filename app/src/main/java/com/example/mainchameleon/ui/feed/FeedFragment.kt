@@ -23,6 +23,7 @@ class FeedFragment : Fragment() {
     private lateinit var database: DatabaseReference
     private lateinit var auth: FirebaseAuth
     private var isFriendsFeed = false
+    private lateinit var backButton: Button
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -36,6 +37,10 @@ class FeedFragment : Fragment() {
         feedRecyclerView = view.findViewById(R.id.feed_recycler_view)
         globalFeedButton = view.findViewById(R.id.global_feed_button)
         friendsFeedButton = view.findViewById(R.id.friends_feed_button)
+        backButton = view.findViewById(R.id.backButton)
+        backButton.setOnClickListener {
+            requireActivity().onBackPressedDispatcher.onBackPressed() // Handles back navigation
+        }
 
         // Set up RecyclerView
         feedRecyclerView.layoutManager = LinearLayoutManager(requireContext())
