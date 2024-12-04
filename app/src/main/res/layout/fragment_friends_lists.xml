@@ -1,41 +1,100 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
+<LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white">
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:background="@drawable/background3">
 
-    <!-- Back button -->
-    <ImageButton
-        android:id="@+id/back_button"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:layout_margin="16dp"
-        android:background="@drawable/ic_rounded_corner"
-        android:contentDescription="Back Button"
-        android:src="@drawable/ic_back_arrow"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+    <!-- Title -->
+    <TextView
+        android:id="@+id/title_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="FRIENDS"
+        android:textSize="24sp"
+        android:textColor="@color/black"
+        android:textStyle="bold"
+        android:gravity="center"
+        android:layout_gravity="center"
+        android:paddingBottom="90dp" />
 
-    <!-- Add Friend Button -->
-    <ImageButton
-        android:id="@+id/add_friend_button"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:layout_margin="16dp"
-        android:contentDescription="Add Friend Button"
-        android:src="@android:drawable/ic_input_add"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+    <!-- Add Friends Section -->
+    <TextView
+        android:id="@+id/add_friends_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Add Friends:"
+        android:textSize="16sp"
+        android:textColor="@color/black"
+        android:textStyle="bold"
+        android:paddingTop="20dp"
+        android:paddingBottom="8dp" />
 
-    <!-- RecyclerView for Friends List -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <EditText
+            android:id="@+id/add_friend_input"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:hint="Enter Friend Code"
+            android:textColor="@color/black"
+            android:backgroundTint="#8BC34A"
+            android:padding="8dp"
+            />
+
+        <Button
+            android:id="@+id/add_friend_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:backgroundTint="#8BC34A"
+            android:text="Add"
+            android:layout_marginStart="8dp"/>
+    </LinearLayout>
+
+    <!-- Friends List -->
+    <TextView
+        android:id="@+id/your_friends_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Your friends:"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:paddingTop="16dp" />
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/friends_recycler_view"
-        android:layout_width="0dp"
+        android:layout_width="match_parent"
         android:layout_height="0dp"
-        app:layout_constraintTop_toBottomOf="@id/back_button"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent" />
-</androidx.constraintlayout.widget.ConstraintLayout>
+        android:layout_weight="1"
+        android:clipToPadding="false"
+        android:paddingTop="8dp" />
+
+    <Button
+        android:id="@+id/feed_button"
+        android:layout_width="match_parent"
+        android:layout_height="70dp"
+        android:layout_marginTop="5dp"
+        android:backgroundTint="#8BC34A"
+        android:padding="18dp"
+        android:text="Go to Friend Feed"
+        android:textColor="#FFFFFF"
+        android:textSize="18sp" />
+
+    <!-- Back button -->
+    <Button
+        android:id="@+id/back_button"
+        android:layout_width="match_parent"
+        android:layout_height="70dp"
+        android:layout_marginTop="5dp"
+        android:backgroundTint="#8BC34A"
+        android:padding="18dp"
+        android:text="Back"
+        android:textColor="#FFFFFF"
+        android:textSize="18sp" />
+</LinearLayout>

@@ -1,5 +1,7 @@
 package com.example.mainchameleon.ui.dashboard
 
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -12,10 +14,8 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
-import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.mainchameleon.R
 import com.example.mainchameleon.databinding.FragmentDashboardBinding
-import com.example.mainchameleon.ui.calendar.WeeklyCalendarAdapter
 import com.squareup.picasso.Picasso
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -39,9 +39,6 @@ class DashboardFragment : Fragment() {
     ): View {
         _binding = FragmentDashboardBinding.inflate(inflater, container, false)
 
-        // Initialize Weekly Calendar RecyclerView
-        setupWeeklyCalendar()
-
         // Initialize profile views
         setupProfileViews()
 
@@ -63,17 +60,6 @@ class DashboardFragment : Fragment() {
         return binding.root
     }
 
-    private fun setupWeeklyCalendar() {
-        val currentDate = Date()
-        val weeklyCalendarAdapter = WeeklyCalendarAdapter(requireContext(), currentDate) { selectedDate ->
-            navigateToCalendarFragment(selectedDate)
-        }
-        binding.weeklyCalendarRecycler.apply {
-            layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
-            adapter = weeklyCalendarAdapter
-        }
-    }
-
     private fun setupProfileViews() {
         profileImageView = binding.root.findViewById(R.id.profile_image)
         userNameTextView = binding.root.findViewById(R.id.user_name)
@@ -84,7 +70,6 @@ class DashboardFragment : Fragment() {
     private fun initializeViewModel(): ConstraintLayout {
         dashboardViewModel = ViewModelProvider(this).get(DashboardViewModel::class.java)
 
-        // Removed feed-related observer
         dashboardViewModel.streak.observe(viewLifecycleOwner) { streak ->
             streakTextView.text = if (streak.currentStreak > 0) "🔥 ${streak.currentStreak}" else "🔥 0"
         }
@@ -134,7 +119,6 @@ class DashboardFragment : Fragment() {
                 // Fetch user details (username and profile picture)
                 val userRef = dashboardViewModel.getUserReference(journal.userId)
 
-                // Fetch Username
                 userRef.child("Username").get().addOnSuccessListener { snapshot ->
                     binding.recentJournalUsername.text =
                         snapshot.getValue(String::class.java) ?: "Unknown User"
@@ -142,7 +126,6 @@ class DashboardFragment : Fragment() {
                     binding.recentJournalUsername.text = "Unknown User"
                 }
 
-                // Fetch Profile Picture
                 userRef.child("profilePictureUrl").get().addOnSuccessListener { snapshot ->
                     val profilePictureUrl = snapshot.getValue(String::class.java)
                     if (!profilePictureUrl.isNullOrEmpty()) {
@@ -158,7 +141,6 @@ class DashboardFragment : Fragment() {
                     binding.profileImageView.setImageResource(R.drawable.default_profile)
                 }
 
-                // On click listener
                 recentJournalCard.setOnClickListener {
                     findNavController().navigate(R.id.action_navigation_dashboard_to_navigation_journal)
                 }
@@ -167,7 +149,6 @@ class DashboardFragment : Fragment() {
             }
         }
     }
-
 
     private fun setupSwipeToRefresh() {
         binding.swipeRefreshLayout.setOnRefreshListener {
@@ -185,7 +166,14 @@ class DashboardFragment : Fragment() {
         }
 
         binding.MentalHealthButton.setOnClickListener {
-            it.findNavController().navigate(R.id.action_navigation_dashboard_to_navigation_mental_health)
+            it.findNavController().navigate(R.id.action_navigation_dashboard_to_navigation_calendar)
+        }
+
+        // Add Find a Specialist Button click listener
+        binding.FindSpecialistButton.setOnClickListener {
+            val url = "https://www.betterhelp.com/"
+            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+            startActivity(intent)
         }
     }
 
@@ -213,11 +201,6 @@ class DashboardFragment : Fragment() {
                 profileImageView.setImageResource(R.drawable.default_profile)
             }
         }
-    }
-
-    private fun navigateToCalendarFragment(selectedDate: Date) {
-        findNavController().navigate(R.id.action_navigation_dashboard_to_navigation_calendar)
-        Toast.makeText(requireContext(), "Selected Date: $selectedDate", Toast.LENGTH_SHORT).show()
     }
 
     override fun onDestroyView() {

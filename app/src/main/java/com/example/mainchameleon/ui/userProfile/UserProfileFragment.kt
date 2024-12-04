@@ -2,12 +2,10 @@ package com.example.mainchameleon.ui.userProfile
 
 import android.content.Intent
 import android.os.Bundle
-import android.text.InputType
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.*
-import androidx.appcompat.app.AlertDialog
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
@@ -24,7 +22,6 @@ class UserProfileFragment : Fragment() {
     private lateinit var profileViewModel: ProfileViewModel
     private lateinit var auth: FirebaseAuth
     private lateinit var database: FirebaseDatabase
-    private lateinit var buttonLogout: Button
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -36,49 +33,37 @@ class UserProfileFragment : Fragment() {
         auth = FirebaseAuth.getInstance()
         database = FirebaseDatabase.getInstance()
 
-        buttonLogout = binding.logoutButton
-
         profileViewModel = ViewModelProvider(this)[ProfileViewModel::class.java]
 
-        buttonLogout.setOnClickListener {
+        setupButtons()
+        loadUserProfile()
+        loadUserId() // Add this function to display userId
+
+        return binding.root
+    }
+
+    private fun setupButtons() {
+        // Logout Button
+        binding.logoutButton.setOnClickListener {
             auth.signOut()
             Toast.makeText(requireContext(), "Logged out successfully", Toast.LENGTH_SHORT).show()
             navigateToLoginScreen()
         }
 
-        loadUserProfile()
-
-        // Set up click listener for the edit button to navigate to ProfileCustomizationFragment
+        // Edit Profile Button
         binding.editButton.setOnClickListener {
             findNavController().navigate(R.id.action_navigation_profile_to_navigation_profile_customization)
         }
 
-        // Set up friend code and add friend functionality
-        val friendCodeText = binding.friendCodeText
-        val addFriendButton = binding.addFriendButton
-
-        val userId = profileViewModel.getCurrentUserId()
-        friendCodeText.text = "Friend Code: $userId"
-
-        addFriendButton.setOnClickListener {
-            val options = arrayOf("Add a Friend", "View Friends")
-            AlertDialog.Builder(requireContext())
-                .setTitle("Choose an option")
-                .setItems(options) { _, which ->
-                    when (which) {
-
-                        1 -> findNavController().navigate(R.id.navigation_friends_list)
-                    }
-                }
-                .show()
+        // Back Button
+        binding.backButton.setOnClickListener {
+            findNavController().navigateUp()
         }
 
-        val backButton: ImageButton = binding.root.findViewById(R.id.back_button)
-        backButton.setOnClickListener {
-            findNavController().navigateUp() // Navigate back to the previous fragment in the stack
+        // Friends List Button
+        binding.addFriendButton.setOnClickListener {
+            findNavController().navigate(R.id.navigation_friends_list) // Navigate to the friends list
         }
-
-        return binding.root
     }
 
     private fun navigateToLoginScreen() {
@@ -111,26 +96,13 @@ class UserProfileFragment : Fragment() {
             Toast.makeText(requireContext(), "Failed to load user data", Toast.LENGTH_SHORT).show()
         }
     }
-    
-    private fun navigateBack() {
-        requireActivity().onBackPressedDispatcher.onBackPressed() // Proper way to navigate back
-    }
 
-    private fun showAddFriendDialog() {
-        val dialog = AlertDialog.Builder(requireContext())
-            .setTitle("Add Friend")
-            .setMessage("Enter Friend Code:")
-            .setView(EditText(requireContext()).apply {
-                inputType = InputType.TYPE_CLASS_TEXT
-            })
-            .setPositiveButton("Add") { dialog, _ ->
-                val friendCode = (dialog as AlertDialog).findViewById<EditText>(android.R.id.text1)?.text.toString()
-                profileViewModel.addFriendByCode(friendCode)
-                dialog.dismiss()
-            }
-            .setNegativeButton("Cancel") { dialog, _ -> dialog.dismiss() }
-            .create()
-        dialog.show()
+    private fun loadUserId() {
+        val userId = auth.currentUser?.uid
+        if (userId != null) {
+            binding.friendCodeText.text = "Friend Code: $userId" // Update TextView dynamically
+        } else {
+            binding.friendCodeText.text = "Friend Code: N/A"
+        }
     }
 }
-

@@ -18,29 +18,30 @@ class MentalHealthFragment : Fragment() {
     ): View? {
         val rootView = inflater.inflate(R.layout.fragment_mental_health, container, false)
 
+        // Back Button
         val backButton = rootView.findViewById<MaterialCardView>(R.id.back_button)
         backButton.setOnClickListener {
-            findNavController().navigate(R.id.navigation_dashboard) // Navigate back to dashboard
+            findNavController().navigate(R.id.navigation_dashboard)
         }
 
         // Timer Button
         rootView.findViewById<Button>(R.id.timerButton).setOnClickListener {
-            // Navigate to Timer Screen
+            findNavController().navigate(R.id.action_navigation_mental_health_to_mentalMinuteFragment)
         }
 
         // Encouraging Phrase Button
         rootView.findViewById<Button>(R.id.encouragingPhraseButton).setOnClickListener {
-            // Navigate to Encouraging Phrase Screen
+            findNavController().navigate(R.id.encouraging_fragment)
         }
 
         // Achievements Button
         rootView.findViewById<Button>(R.id.achievementsButton).setOnClickListener {
-            // Navigate to Achievements Screen
+            // Navigate to Achievements Screen (implement when ready)
         }
 
         // Breathing Exercise Button
         rootView.findViewById<Button>(R.id.breathingExerciseButton).setOnClickListener {
-            // Navigate to Breathing Exercise Screen
+            findNavController().navigate(R.id.action_navigation_mental_health_to_breathTimerFragment)
         }
 
         return rootView

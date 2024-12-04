@@ -29,21 +29,36 @@ class ActivityAdapter(
     override fun onBindViewHolder(holder: ActivityViewHolder, position: Int) {
         val (activityName, isCompleted) = activities[position]
 
-        // Set the activity name
+        // Set the activity name and checkbox state
         holder.activityName.text = activityName
-
-        // Set the checkbox state
         holder.completedCheckBox.isChecked = isCompleted
+
+        // Handle completed state: Disable interactions and update visuals
+        if (isCompleted) {
+            holder.activityName.alpha = 0.5f // Dim text
+            holder.completedCheckBox.isEnabled = false // Disable checkbox
+            holder.deleteButton.isEnabled = false // Disable delete button
+            holder.deleteButton.alpha = 0.5f // Dim delete button
+        } else {
+            holder.activityName.alpha = 1f // Normal text
+            holder.completedCheckBox.isEnabled = true // Enable checkbox
+            holder.deleteButton.isEnabled = true // Enable delete button
+            holder.deleteButton.alpha = 1f // Normal delete button
+        }
 
         // Handle checkbox clicks to toggle completion
         holder.completedCheckBox.setOnCheckedChangeListener { _, isChecked ->
-            activities[position] = activityName to isChecked
-            onActivityCompleted(position) // Call the callback to save changes
+            if (isChecked && !isCompleted) { // Prevent redundant calls for already completed items
+                activities[position] = activityName to true // Mark as completed
+                onActivityCompleted(position) // Trigger callback for save and refresh
+            }
         }
 
         // Handle delete button click
         holder.deleteButton.setOnClickListener {
-            onDeleteClick(position)
+            if (!isCompleted) { // Prevent deleting completed activities
+                onDeleteClick(position)
+            }
         }
     }
 

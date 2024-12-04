@@ -73,6 +73,7 @@ dependencies {
     implementation libs.glide
     implementation libs.picasso
     implementation libs.firebase.crashlytics.buildtools
+    implementation libs.androidx.activity
 
     // Testing Libraries
     testImplementation libs.junit

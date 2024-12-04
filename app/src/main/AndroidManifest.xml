@@ -1,19 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest package="com.example.mainchameleon"
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools">
-
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    package="com.example.mainchameleon">
     <!-- Feature and Permission Declarations -->
     <!-- Specify that the app uses any camera (front or back) -->
-    <uses-feature android:name="android.hardware.camera.any" />
-
-    <!-- Request camera permission -->
-    <uses-permission android:name="android.permission.CAMERA" />
-
-    <!-- If you are recording audio with the camera, request this permission too -->
-    <uses-permission android:name="android.permission.RECORD_AUDIO" />
-
-    <!-- Permissions for reading and writing to external storage -->
+    <uses-feature android:name="android.hardware.camera.any" /> <!-- Request camera permission -->
+    <uses-permission android:name="android.permission.CAMERA" /> <!-- If you are recording audio with the camera, request this permission too -->
+    <uses-permission android:name="android.permission.RECORD_AUDIO" /> <!-- Permissions for reading and writing to external storage -->
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.INTERNET" />
@@ -29,36 +22,31 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.MainChameleon"
         tools:targetApi="31">
-
-        <!-- Launcher Activity -->
+        <activity
+            android:name=".ui.resources.ResourcesActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.breathTimer.BreathTimer"
+            android:exported="false" /> <!-- Launcher Activity -->
         <activity
             android:name=".LoginActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
-        <activity android:name=".ForgotPasswordActivity">
-        </activity>
-
-        <!-- Registration Screen Activity -->
+        <activity android:name=".ForgotPasswordActivity"></activity> <!-- Registration Screen Activity -->
         <activity
             android:name=".ui.loginScreen.RegisterScreen"
-            android:exported="true" />
-
-        <!-- Main Activity -->
+            android:exported="true" /> <!-- Main Activity -->
         <activity
             android:name=".MainActivity"
-            android:exported="true" />
-
-        <!-- Camera Activity (Added) -->
+            android:exported="true" /> <!-- Camera Activity (Added) -->
         <activity
             android:name=".ui.camera.CameraActivity"
-            android:exported="true" />
-
-        <!-- Add any other activities here, ensuring they are declared properly -->
+            android:exported="true" /> <!-- Add any other activities here, ensuring they are declared properly -->
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.provider"
@@ -68,9 +56,6 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/file_paths" />
         </provider>
-
     </application>
-
-
 
 </manifest>

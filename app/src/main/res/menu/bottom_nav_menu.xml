@@ -2,27 +2,18 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
-        android:id="@+id/navigation_journal"
-        android:icon="@drawable/ic_journal_black_24dp"
-        android:title="@string/journal" />
+        android:id="@+id/navigation_mental_health"
+        android:icon="@drawable/baseline_heart_broken_24"
+        android:title="Mental Health" />
 
     <item
-        android:id="@+id/navigation_home"
-        android:icon="@drawable/ic_home_black_24dp"
-        android:title="@string/title_home" />
-
-    <item
-        android:id="@+id/navigation_dashboard"
+        android:id="@+id/navigation_feed_fragment"
         android:icon="@drawable/ic_dashboard_black_24dp"
-        android:title="@string/title_dashboard" />
-
-    <item
-        android:id="@+id/navigation_calendar"
-        android:icon="@drawable/ic_calendar_black_24dp"
-        android:title="@string/title_calendar" />
+        android:title="Feed" />
 
     <item
         android:id="@+id/navigation_profile"
         android:icon="@drawable/ic_account_circle"
         android:title="@string/user_profile" />
+
 </menu>

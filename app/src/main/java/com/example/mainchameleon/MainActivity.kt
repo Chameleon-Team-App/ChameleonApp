@@ -18,25 +18,20 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        // Initialize NavController
         val navController = findNavController(R.id.nav_host_fragment_activity_main)
 
-        // Define top-level destinations for AppBarConfiguration
+        // Set up AppBarConfiguration for top-level destinations
         val appBarConfiguration = AppBarConfiguration(
             setOf(
-                R.id.navigation_journal, R.id.navigation_home, R.id.navigation_dashboard, R.id.navigation_calendar, R.id.navigation_profile
+                R.id.navigation_mental_health,
+                R.id.navigation_feed_fragment,
+                R.id.navigation_profile
             )
         )
 
-
-        // Remove this block:
-        // val shouldNavigateToCamera = intent.getBooleanExtra("navigateToCamera", false)
-        // val source = intent.getStringExtra("source") ?: "journal"
-        // if (shouldNavigateToCamera) {
-        //     val bundle = Bundle().apply { putString("source", source) }
-        //     navController.navigate(R.id.navigation_camera, bundle)
-        // }
-
-        // Handle bottom navigation item selection
-
+        // Set up the BottomNavigationView
+        val navView: BottomNavigationView = binding.navView // Assuming navView is in the layout (activity_main.xml)
+        navView.setupWithNavController(navController)  // Link BottomNavigationView with NavController
     }
 }

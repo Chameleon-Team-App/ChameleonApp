@@ -44,4 +44,7 @@
         <item>Mindfulness</item>
     </string-array>
 
+    <string name="Back">back</string>
+
+
 </resources>
