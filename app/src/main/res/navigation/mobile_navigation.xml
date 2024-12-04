@@ -136,4 +136,5 @@
         android:name="com.example.mainchameleon.ui.mentalhealth.MentalHealthFragment"
         android:label="Mental Health"
         tools:layout="@layout/fragment_mental_health" />
+
 </navigation>

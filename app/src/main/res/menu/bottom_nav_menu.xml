@@ -7,9 +7,9 @@
         android:title="Mental Health" />
 
     <item
-        android:id="@+id/navigation_dashboard"
+        android:id="@+id/navigation_feed_fragment"
         android:icon="@drawable/ic_dashboard_black_24dp"
-        android:title="@string/title_dashboard" />
+        android:title="Feed" />
 
     <item
         android:id="@+id/navigation_profile"

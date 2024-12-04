@@ -4,9 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#292929"
+    android:background="@drawable/background3"
     tools:context=".ui.dashboard.DashboardFragment">
-
     <!-- SwipeRefreshLayout for pull-to-refresh functionality -->
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
         android:id="@+id/swipeRefreshLayout"
@@ -30,25 +29,15 @@
                 <RelativeLayout
                     android:id="@+id/header"
                     android:layout_width="match_parent"
-                    android:layout_height="300dp"
+                    android:layout_height="100dp"
                     android:padding="20dp"
-                    android:background="#4CAF50">
+                    android:background="#8EDD02">
 
-                    <!-- Weekly Calendar RecyclerView -->
-                    <androidx.recyclerview.widget.RecyclerView
-                        android:id="@+id/weeklyCalendarRecycler"
-                        android:layout_width="match_parent"
-                        android:layout_height="70dp"
-                        android:orientation="horizontal"
-                        android:paddingStart="8dp"
-                        android:paddingEnd="8dp"
-                        android:paddingTop="16dp"
-                        android:paddingBottom="16dp" />
 
                     <ImageView
                         android:id="@+id/profile_image"
-                        android:layout_width="100dp"
-                        android:layout_height="100dp"
+                        android:layout_width="80dp"
+                        android:layout_height="80dp"
                         android:src="@drawable/default_profile"
                         android:layout_centerVertical="true"
                         android:visibility="visible" />
@@ -92,6 +81,25 @@
                     android:padding="5dp"
                     android:orientation="vertical">
 
+                    <RelativeLayout
+                        android:layout_width="371dp"
+                        android:layout_height="match_parent"
+                        android:layout_gravity="center"
+                        android:background="@color/white"
+                        android:layout_marginTop="60dp">
+
+                        <androidx.recyclerview.widget.RecyclerView
+                            android:id="@+id/weeklyCalendarRecycler"
+                            android:layout_width="match_parent"
+                            android:layout_height="70dp"
+                            android:layout_gravity="center"
+                            android:orientation="horizontal"
+                            android:paddingStart="8dp"
+                            android:paddingTop="16dp"
+                            android:paddingEnd="8dp"
+                            android:paddingBottom="16dp" />
+                    </RelativeLayout>
+
                     <!-- Journal Button -->
                     <com.google.android.material.card.MaterialCardView
                         android:id="@+id/JournalButton"
@@ -118,11 +126,13 @@
                                 android:visibility="visible" />
 
                             <TextView
+                                android:textStyle="bold"
                                 android:id="@+id/journalEntryText"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
+                                android:textColor="@color/white"
                                 android:text="Journal"
-                                android:textSize="20sp"
+                                android:textSize="30sp"
                                 android:layout_gravity="center_horizontal"
                                 android:layout_marginTop="8dp" />
 
@@ -248,12 +258,14 @@
                                 android:visibility="visible" />
 
                             <TextView
-                                android:id="@+id/mentalHealthText"
+                                android:textStyle="bold"
+                                android:id="@+id/activitiesText"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="Mental Health"
+                                android:text="Activities"
+                                android:textColor="@color/white"
                                 android:layout_centerInParent="true"
-                                android:textSize="20sp" />
+                                android:textSize="30dp" />
                         </RelativeLayout>
                     </com.google.android.material.card.MaterialCardView>
                 </LinearLayout>
