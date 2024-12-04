@@ -102,62 +102,45 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:padding="5dp"
-                    android:orientation="vertical">
+                    android:orientation="vertical"
+                    android:paddingTop="85dp">
 
-                    <RelativeLayout
-                        android:layout_width="371dp"
-                        android:layout_height="match_parent"
-                        android:layout_gravity="center"
-                        android:layout_marginTop="60dp">
-
-                        <androidx.recyclerview.widget.RecyclerView
-                            android:id="@+id/weeklyCalendarRecycler"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_gravity="center"
-                            android:orientation="horizontal"
-                            android:paddingStart="8dp"
-                            android:paddingTop="16dp"
-                            android:paddingEnd="8dp"
-                            android:paddingBottom="16dp" />
-                    </RelativeLayout>
 
                     <!-- Journal Button -->
                     <com.google.android.material.card.MaterialCardView
                         android:id="@+id/JournalButton"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        app:cardBackgroundColor="#8BC34A"
-                        app:cardElevation="10dp"
                         android:layout_margin="10dp"
                         android:clickable="true"
-                        android:focusable="true">
+                        android:focusable="true"
+                        app:cardBackgroundColor="#8BC34A"
+                        app:cardElevation="10dp">
 
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:orientation="vertical"
                             android:gravity="center"
+                            android:orientation="vertical"
                             android:padding="10dp">
 
                             <ImageView
                                 android:layout_width="60dp"
                                 android:layout_height="60dp"
-                                android:src="@drawable/journal_64dp"
                                 android:layout_gravity="center_horizontal"
+                                android:src="@drawable/journal_64dp"
                                 android:visibility="visible" />
 
                             <TextView
-                                android:textStyle="bold"
                                 android:id="@+id/journalEntryText"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:textColor="@color/white"
-                                android:text="Journal"
-                                android:textSize="30sp"
                                 android:layout_gravity="center_horizontal"
-                                android:layout_marginTop="8dp" />
+                                android:layout_marginTop="8dp"
+                                android:text="Journal"
+                                android:textColor="@color/white"
+                                android:textSize="30sp"
+                                android:textStyle="bold" />
 
                             <!-- Most Recent Journal Section -->
                             <androidx.cardview.widget.CardView
@@ -165,32 +148,32 @@
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="10dp"
-                                app:cardElevation="5dp"
-                                app:cardCornerRadius="8dp"
+                                android:foreground="?android:attr/selectableItemBackground"
                                 app:cardBackgroundColor="#FFFFFF"
-                                android:foreground="?android:attr/selectableItemBackground">
+                                app:cardCornerRadius="8dp"
+                                app:cardElevation="5dp">
 
                                 <LinearLayout
                                     android:layout_width="match_parent"
                                     android:layout_height="wrap_content"
-                                    android:padding="8dp"
-                                    android:orientation="vertical">
+                                    android:orientation="vertical"
+                                    android:padding="8dp">
 
                                     <!-- Header: Profile Picture and Username -->
                                     <LinearLayout
                                         android:layout_width="match_parent"
                                         android:layout_height="wrap_content"
-                                        android:orientation="horizontal"
-                                        android:gravity="center_vertical">
+                                        android:gravity="center_vertical"
+                                        android:orientation="horizontal">
 
                                         <!-- Profile Picture -->
                                         <ImageView
                                             android:id="@+id/profileImageView"
                                             android:layout_width="40dp"
                                             android:layout_height="40dp"
-                                            android:src="@drawable/default_profile"
+                                            android:layout_marginEnd="8dp"
                                             android:scaleType="centerCrop"
-                                            android:layout_marginEnd="8dp" />
+                                            android:src="@drawable/default_profile" />
 
                                         <!-- Username -->
                                         <TextView
@@ -198,20 +181,20 @@
                                             android:layout_width="wrap_content"
                                             android:layout_height="wrap_content"
                                             android:text="Username"
-                                            android:textStyle="bold"
-                                            android:textSize="16sp" />
+                                            android:textSize="16sp"
+                                            android:textStyle="bold" />
 
                                         <!-- Mood Emoji -->
                                         <TextView
                                             android:id="@+id/recentJournalMood"
                                             android:layout_width="wrap_content"
                                             android:layout_height="wrap_content"
-                                            android:text="😊"
-                                            android:textSize="24sp"
                                             android:layout_gravity="end"
+                                            android:layout_marginStart="8dp"
                                             android:layout_weight="1"
                                             android:gravity="end"
-                                            android:layout_marginStart="8dp" />
+                                            android:text="😊"
+                                            android:textSize="24sp" />
                                     </LinearLayout>
 
                                     <!-- Title -->
@@ -219,28 +202,28 @@
                                         android:id="@+id/recentJournalTitle"
                                         android:layout_width="match_parent"
                                         android:layout_height="wrap_content"
+                                        android:layout_marginTop="8dp"
                                         android:text="Title"
-                                        android:textStyle="bold"
                                         android:textSize="18sp"
-                                        android:layout_marginTop="8dp" />
+                                        android:textStyle="bold" />
 
                                     <!-- Photo (if applicable) -->
                                     <ImageView
                                         android:id="@+id/recentJournalImage"
                                         android:layout_width="match_parent"
                                         android:layout_height="200dp"
+                                        android:layout_marginTop="8dp"
                                         android:adjustViewBounds="true"
                                         android:scaleType="centerCrop"
-                                        android:visibility="gone"
-                                        android:layout_marginTop="8dp" />
+                                        android:visibility="gone" />
 
                                     <!-- Entry Text -->
                                     <TextView
                                         android:id="@+id/recentJournalText"
                                         android:layout_width="match_parent"
                                         android:layout_height="wrap_content"
-                                        android:text="Entry text goes here..."
                                         android:layout_marginTop="8dp"
+                                        android:text="Entry text goes here..."
                                         android:textSize="16sp" />
 
                                     <!-- Created Date -->
@@ -248,9 +231,9 @@
                                         android:id="@+id/recentJournalDate"
                                         android:layout_width="wrap_content"
                                         android:layout_height="wrap_content"
-                                        android:text="Date: MM/dd/yyyy"
                                         android:layout_gravity="end"
                                         android:layout_marginTop="8dp"
+                                        android:text="Date: MM/dd/yyyy"
                                         android:textSize="14sp" />
                                 </LinearLayout>
                             </androidx.cardview.widget.CardView>
@@ -262,11 +245,11 @@
                         android:id="@+id/MentalHealthButton"
                         android:layout_width="match_parent"
                         android:layout_height="120dp"
-                        app:cardBackgroundColor="#8BC34A"
-                        app:cardElevation="10dp"
                         android:layout_margin="10dp"
                         android:clickable="true"
-                        android:focusable="true">
+                        android:focusable="true"
+                        app:cardBackgroundColor="#8BC34A"
+                        app:cardElevation="10dp">
 
                         <RelativeLayout
                             android:layout_width="match_parent"
@@ -281,14 +264,14 @@
                                 android:visibility="visible" />
 
                             <TextView
-                                android:textStyle="bold"
                                 android:id="@+id/activitiesText"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
+                                android:layout_centerInParent="true"
                                 android:text="Calendar"
                                 android:textColor="@color/white"
-                                android:layout_centerInParent="true"
-                                android:textSize="30dp" />
+                                android:textSize="30dp"
+                                android:textStyle="bold" />
                         </RelativeLayout>
                     </com.google.android.material.card.MaterialCardView>
                 </LinearLayout>

@@ -40,7 +40,7 @@ class DashboardFragment : Fragment() {
         _binding = FragmentDashboardBinding.inflate(inflater, container, false)
 
         // Initialize Weekly Calendar RecyclerView
-        setupWeeklyCalendar()
+
 
         // Initialize profile views
         setupProfileViews()
@@ -63,16 +63,7 @@ class DashboardFragment : Fragment() {
         return binding.root
     }
 
-    private fun setupWeeklyCalendar() {
-        val currentDate = Date()
-        val weeklyCalendarAdapter = WeeklyCalendarAdapter(requireContext(), currentDate) { selectedDate ->
-            navigateToCalendarFragment(selectedDate)
-        }
-        binding.weeklyCalendarRecycler.apply {
-            layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
-            adapter = weeklyCalendarAdapter
-        }
-    }
+
 
     private fun setupProfileViews() {
         profileImageView = binding.root.findViewById(R.id.profile_image)

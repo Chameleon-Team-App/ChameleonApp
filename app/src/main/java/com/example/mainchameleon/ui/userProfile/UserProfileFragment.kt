@@ -2,12 +2,10 @@ package com.example.mainchameleon.ui.userProfile
 
 import android.content.Intent
 import android.os.Bundle
-import android.text.InputType
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.*
-import androidx.appcompat.app.AlertDialog
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
@@ -39,6 +37,7 @@ class UserProfileFragment : Fragment() {
 
         setupButtons()
         loadUserProfile()
+        loadUserId() // Add this function to display userId
 
         return binding.root
     }
@@ -95,6 +94,15 @@ class UserProfileFragment : Fragment() {
             // Handle any errors, such as network failure or database issues
             binding.profileImage.setImageResource(R.drawable.default_profile)
             Toast.makeText(requireContext(), "Failed to load user data", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun loadUserId() {
+        val userId = auth.currentUser?.uid
+        if (userId != null) {
+            binding.friendCodeText.text = "Friend Code: $userId" // Update TextView dynamically
+        } else {
+            binding.friendCodeText.text = "Friend Code: N/A"
         }
     }
 }
