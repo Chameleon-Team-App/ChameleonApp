@@ -35,6 +35,7 @@ class CalendarFragment : Fragment(), OnDayClickListener {
     private lateinit var activityAdapter: ActivityAdapter
     private var activitiesForSelectedDate = mutableListOf<Pair<String, Boolean>>()
     private var activitiesMap: MutableMap<String, MutableList<Pair<String, Boolean>>> = mutableMapOf()
+    private var journalMap: MutableMap<String, Boolean> = mutableMapOf()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -42,8 +43,9 @@ class CalendarFragment : Fragment(), OnDayClickListener {
     ): View? {
         val rootView = inflater.inflate(R.layout.fragment_calendar, container, false)
 
-        // Load all activities from SharedPreferences
+        // Load all activities and journals from SharedPreferences
         loadAllActivities()
+        loadAllJournals()
 
         val backButton = rootView.findViewById<MaterialCardView>(R.id.back_button)
         backButton.setOnClickListener {
@@ -69,7 +71,7 @@ class CalendarFragment : Fragment(), OnDayClickListener {
         activityAdapter = ActivityAdapter(
             activitiesForSelectedDate,
             onActivityCompleted = { position ->
-                saveActivities(selectedDate.format(DateTimeFormatter.ofPattern("MMMM d, yyyy")))
+                markActivityAsCompleted(position)
             },
             onDeleteClick = { position ->
                 deleteActivity(position)
@@ -79,7 +81,7 @@ class CalendarFragment : Fragment(), OnDayClickListener {
         activitiesRecyclerView.adapter = activityAdapter
 
         // Add listener for Add Activity button
-        val addActivityButton = rootView.findViewById<Button>(R.id.addActivityButton)
+        val addActivityButton = rootView.findViewById<MaterialCardView>(R.id.addActivityButton)
         addActivityButton.setOnClickListener {
             val formattedDate = selectedDate.format(DateTimeFormatter.ofPattern("MMMM d, yyyy"))
             showAddActivityDialog(formattedDate)
@@ -98,8 +100,34 @@ class CalendarFragment : Fragment(), OnDayClickListener {
         // Update the RecyclerView
         calendarRecyclerView.apply {
             layoutManager = GridLayoutManager(requireContext(), 7) // 7 columns for the days of the week
-            adapter = CalendarAdapter(daysInMonth, this@CalendarFragment)
+            calendarRecyclerView.addItemDecoration(GridSpacingItemDecoration(4)) // 4dp spacing
+            adapter = CalendarAdapter(
+                daysInMonth,
+                this@CalendarFragment,
+                getCompletionScore = { date -> getCompletionScore(date) } // Pass the logic
+            )
         }
+    }
+
+    private fun getCompletionScore(date: LocalDate): Float {
+        val formattedDate = date.format(DateTimeFormatter.ofPattern("MMMM d, yyyy"))
+        val activities = activitiesMap[formattedDate] ?: mutableListOf()
+
+        // Count completed activities
+        val completedActivities = activities.count { it.second }
+        val activityScore = completedActivities.coerceAtMost(5) / 10.0f // Max 0.5 for 5 activities
+
+        // Check for journal entry
+        val journalScore = if (journalMap[formattedDate] == true) 0.5f else 0.0f
+
+        return activityScore + journalScore // Total score max 1.0
+    }
+
+    private fun loadAllJournals() {
+        val sharedPreferences = requireContext().getSharedPreferences("journals", Context.MODE_PRIVATE)
+        val journalJson = sharedPreferences.getString("journal_map", "{}")
+        val type = object : TypeToken<MutableMap<String, Boolean>>() {}.type
+        journalMap = Gson().fromJson(journalJson, type) ?: mutableMapOf()
     }
 
     private fun daysInMonthArray(date: LocalDate): List<LocalDate?> {
@@ -107,11 +135,13 @@ class CalendarFragment : Fragment(), OnDayClickListener {
         val yearMonth = YearMonth.from(date)
         val daysInMonth = yearMonth.lengthOfMonth()
         val firstOfMonth = date.withDayOfMonth(1)
-        val dayOfWeek = firstOfMonth.dayOfWeek.value % 7 // Adjust for Sunday as the start of the week
 
-        // Add empty placeholders for days from the previous month
+        // Adjust day of the week to start with Sunday as the first day
+        val dayOfWeek = (firstOfMonth.dayOfWeek.value % 7) // Sunday = 0, Monday = 1, ...
+
+        // Add placeholders for days from the previous month
         for (i in 1..dayOfWeek) {
-            daysInMonthArray.add(null) // Use null to represent empty placeholders
+            daysInMonthArray.add(null)
         }
 
         // Add actual days of the current month
@@ -119,7 +149,7 @@ class CalendarFragment : Fragment(), OnDayClickListener {
             daysInMonthArray.add(firstOfMonth.withDayOfMonth(day))
         }
 
-        // Add empty placeholders for days of the next month to fill the grid (6 weeks total)
+        // Add placeholders for days of the next month to fill the grid (6 rows of 7 days)
         while (daysInMonthArray.size < 42) {
             daysInMonthArray.add(null)
         }
@@ -197,6 +227,9 @@ class CalendarFragment : Fragment(), OnDayClickListener {
         // Save the updated list
         val formattedDate = selectedDate.format(DateTimeFormatter.ofPattern("MMMM d, yyyy"))
         saveActivities(formattedDate)
+
+        // Refresh calendar heatmap
+        setMonthView()
     }
 
     private fun handleDateSelection(day: LocalDate) {
@@ -206,8 +239,15 @@ class CalendarFragment : Fragment(), OnDayClickListener {
     }
 
     private fun loadActivities(date: String) {
+        // Log the current state of activitiesMap for debugging
+        println("Loading activities for date: $date")
+        println("Current activitiesMap: $activitiesMap")
+
+        // Fetch and assign activities for the selected date
         activitiesForSelectedDate = activitiesMap[date]?.toMutableList() ?: mutableListOf()
-        activityAdapter.updateActivities(activitiesForSelectedDate) // Call the new method
+
+        // Update the adapter with the fetched activities
+        activityAdapter.updateActivities(activitiesForSelectedDate)
     }
 
     private fun loadAllActivities() {
@@ -218,9 +258,17 @@ class CalendarFragment : Fragment(), OnDayClickListener {
     }
 
     private fun deleteActivity(position: Int) {
-        activitiesForSelectedDate.removeAt(position)
-        activityAdapter.notifyItemRemoved(position)
-        saveActivities(selectedDate.format(DateTimeFormatter.ofPattern("MMMM d, yyyy")))
-    }
+        if (position >= 0 && position < activitiesForSelectedDate.size) {
+            // Remove the activity from the list
+            activitiesForSelectedDate.removeAt(position)
 
+            // Save updated list
+            saveActivities(selectedDate.format(DateTimeFormatter.ofPattern("MMMM d, yyyy")))
+
+            // Reload activities to ensure UI is updated
+            loadActivities(selectedDate.format(DateTimeFormatter.ofPattern("MMMM d, yyyy")))
+        } else {
+            Toast.makeText(requireContext(), "Invalid activity position", Toast.LENGTH_SHORT).show()
+        }
+    }
 }

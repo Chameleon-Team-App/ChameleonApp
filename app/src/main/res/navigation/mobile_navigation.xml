@@ -11,6 +11,7 @@
         android:label="@string/title_dashboard"
         tools:layout="@layout/fragment_dashboard">
 
+
         <!-- Navigate to Journal -->
         <action
             android:id="@+id/action_navigation_dashboard_to_navigation_journal"
@@ -26,6 +27,7 @@
             android:id="@+id/action_navigation_dashboard_to_navigation_calendar"
             app:destination="@id/navigation_calendar" />
 
+        <!-- Navigate to Mental Health -->
         <action
             android:id="@+id/action_navigation_dashboard_to_navigation_mental_health"
             app:destination="@id/navigation_mental_health" />
@@ -39,7 +41,7 @@
         android:label="@string/title_journal"
         tools:layout="@layout/fragment_journal">
 
-        <!-- Navigate to Dashboard -->
+        <!-- Navigate Back to Dashboard -->
         <action
             android:id="@+id/action_navigation_journal_to_navigation_dashboard"
             app:destination="@id/navigation_dashboard" />
@@ -66,6 +68,11 @@
         <action
             android:id="@+id/action_navigation_profile_to_navigation_dashboard"
             app:destination="@id/navigation_dashboard" />
+
+        <!-- Navigate to Friends List -->
+        <action
+            android:id="@+id/action_navigation_profile_to_navigation_friends_list"
+            app:destination="@id/navigation_friends_list" />
     </fragment>
 
     <!-- Profile Customization Fragment -->
@@ -81,6 +88,8 @@
         android:name="com.example.mainchameleon.ui.userProfile.FriendsListFragment"
         android:label="Friends List"
         tools:layout="@layout/fragment_friends_lists">
+
+        <!-- Navigate to Friend Profile -->
         <action
             android:id="@+id/action_friends_list_to_friend_profile"
             app:destination="@id/navigation_friend_profile">
@@ -88,6 +97,14 @@
                 android:name="friendId"
                 app:argType="string" />
         </action>
+
+        <!-- Navigate to Feed -->
+        <action
+            android:id="@+id/action_friends_list_to_navigation_feed_fragment"
+            app:destination="@id/navigation_feed_fragment" />
+        <action
+            android:id="@+id/action_friends_list_to_user_profile"
+            app:destination="@id/navigation_profile" />
     </fragment>
 
     <!-- Friend Profile Fragment -->
@@ -96,6 +113,13 @@
         android:name="com.example.mainchameleon.ui.userProfile.FriendProfileFragment"
         android:label="Friend Profile"
         tools:layout="@layout/fragment_friend_profile" />
+
+    <!-- Feed Fragment -->
+    <fragment
+        android:id="@+id/navigation_feed_fragment"
+        android:name="com.example.mainchameleon.ui.feed.FeedFragment"
+        android:label="Feed"
+        tools:layout="@layout/fragment_feed" />
 
     <!-- Camera Fragment -->
     <fragment
@@ -108,13 +132,37 @@
     <fragment
         android:id="@+id/navigation_calendar"
         android:name="com.example.mainchameleon.ui.calendar.CalendarFragment"
-        android:label="@string/title_calendar"
-        tools:layout="@layout/fragment_calendar" />
+        tools:layout="@layout/fragment_calendar">
+        <argument
+            android:name="selectedDate"
+            app:argType="java.util.Date" />
+    </fragment>
 
+    <!-- Mental Health Fragment -->
     <fragment
         android:id="@+id/navigation_mental_health"
         android:name="com.example.mainchameleon.ui.mentalhealth.MentalHealthFragment"
         android:label="Mental Health"
         tools:layout="@layout/fragment_mental_health" />
+
+    <!-- Encouraging Fragment -->
+    <fragment
+        android:id="@+id/encouraging_fragment"
+        android:name="com.example.mainchameleon.ui.phrases.PhrasesFragment"
+        android:label="Encouraging Phrases"
+        tools:layout="@layout/fragment_encouraging" />
+
+    <fragment
+        android:id="@+id/fragment_mental_health"
+        android:name="com.example.mainchameleon.ui.mentalhealth.MentalHealthFragment"
+        android:label="mental_health"
+        tools:layout="@layout/fragment_mental_health">
+
+    <action
+        android:id="@+id/action_dashboard_to_encouraging_fragment"
+        app:destination="@id/encouraging_fragment" />
+
+    </fragment>
+
 
 </navigation>

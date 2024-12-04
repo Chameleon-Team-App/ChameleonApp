@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#292929">
+    android:background="@drawable/background3">
 
     <!-- Header -->
     <TextView
@@ -12,7 +12,7 @@
         android:layout_height="wrap_content"
         android:text="How can we help you?"
         android:textSize="24sp"
-        android:textColor="#FFFFFF"
+        android:textColor="@color/black"
         android:textStyle="bold"
         android:gravity="center"
         app:layout_constraintTop_toTopOf="parent"
@@ -86,7 +86,7 @@
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/back_button"
         android:layout_width="0dp"
-        android:layout_height="60dp"
+        android:layout_height="50dp"
         android:backgroundTint="#8BC34A"
         app:cardElevation="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
