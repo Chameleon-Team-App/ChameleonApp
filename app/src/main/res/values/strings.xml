@@ -35,4 +35,16 @@
     <string name="title_journal" />
     <string name="title_profile" />
 
+    <string-array name="mental_health_activities">
+        <item>Meditation</item>
+        <item>Exercise</item>
+        <item>Journaling</item>
+        <item>Yoga</item>
+        <item>Reading</item>
+        <item>Mindfulness</item>
+    </string-array>
+
+    <string name="Back">back</string>
+
+
 </resources>

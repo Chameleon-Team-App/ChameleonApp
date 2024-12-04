@@ -1,0 +1,108 @@
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#292929">
+
+    <!-- Header -->
+    <TextView
+        android:id="@+id/headerText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="How can we help you?"
+        android:textSize="24sp"
+        android:textColor="#FFFFFF"
+        android:textStyle="bold"
+        android:gravity="center"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="32dp"/>
+
+    <!-- Button 1 -->
+    <Button
+        android:id="@+id/timerButton"
+        android:layout_width="160dp"
+        android:layout_height="160dp"
+        android:backgroundTint="#8BC34A"
+        android:text="Timers"
+        android:textColor="#FFFFFF"
+        android:textStyle="bold"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/encouragingPhraseButton"
+        app:layout_constraintHorizontal_chainStyle="spread"
+        app:layout_constraintVertical_chainStyle="spread"
+        app:layout_constraintBottom_toTopOf="@+id/achievementsButton"
+        android:layout_margin="16dp"/>
+
+    <!-- Button 2 -->
+    <Button
+        android:id="@+id/encouragingPhraseButton"
+        android:layout_width="160dp"
+        android:layout_height="160dp"
+        android:backgroundTint="#8BC34A"
+        android:text="Encouraging Phrases"
+        android:textColor="#FFFFFF"
+        android:textStyle="bold"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/timerButton"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/breathingExerciseButton"
+        android:layout_margin="16dp"/>
+
+    <!-- Button 3 -->
+    <Button
+        android:id="@+id/achievementsButton"
+        android:layout_width="160dp"
+        android:layout_height="160dp"
+        android:backgroundTint="#8BC34A"
+        android:text="Achievements"
+        android:textColor="#FFFFFF"
+        android:textStyle="bold"
+        app:layout_constraintTop_toBottomOf="@+id/timerButton"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/breathingExerciseButton"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_margin="16dp"/>
+
+    <!-- Button 4 -->
+    <Button
+        android:id="@+id/breathingExerciseButton"
+        android:layout_width="160dp"
+        android:layout_height="160dp"
+        android:backgroundTint="#8BC34A"
+        android:text="Breathing Exercises"
+        android:textColor="#FFFFFF"
+        android:textStyle="bold"
+        app:layout_constraintTop_toBottomOf="@+id/encouragingPhraseButton"
+        app:layout_constraintStart_toEndOf="@+id/achievementsButton"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_margin="16dp"/>
+
+    <!-- Back Button -->
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/back_button"
+        android:layout_width="0dp"
+        android:layout_height="60dp"
+        android:backgroundTint="#8BC34A"
+        app:cardElevation="8dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_margin="16dp">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:text="Back"
+            android:textColor="#FFFFFF"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+    </com.google.android.material.card.MaterialCardView>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
+

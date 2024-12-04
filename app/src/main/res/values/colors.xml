@@ -10,5 +10,7 @@
     <color name="teal_200">#FF03DAC5</color>
     <color name="teal_700">#FF018786</color>
     <color name="highlight">#FFEB3B</color>
+    <color name="selected">#00FFFF</color>
+    <color name="red">#FF0000</color>"
 
 </resources>

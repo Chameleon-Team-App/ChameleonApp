@@ -3,6 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@drawable/background"
     android:padding="16dp">
 
     <!-- Friend Profile Image -->
@@ -53,7 +54,7 @@
         android:padding="8dp"
         android:background="@drawable/ic_rounded_corner"
         android:textSize="16sp"
-        android:textColor="@android:color/black"
+        android:textColor="@color/white"
         app:layout_constraintTop_toBottomOf="@id/username_text"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
