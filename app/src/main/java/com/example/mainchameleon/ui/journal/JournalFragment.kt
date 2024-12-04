@@ -2,6 +2,7 @@
 package com.example.mainchameleon.ui.journal
 
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -18,7 +19,10 @@ import com.example.mainchameleon.databinding.FragmentJournalBinding
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.storage.FirebaseStorage
+import com.google.gson.Gson
 import com.squareup.picasso.Picasso
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 import java.util.*
 
 class JournalFragment : Fragment() {
@@ -30,6 +34,8 @@ class JournalFragment : Fragment() {
     private var imageUri: Uri? = null
     private var imageUrl: String? = null
     private var selectedMood: String? = null
+    private var journalMap: MutableMap<String, Boolean> = mutableMapOf()
+
 
     companion object {
         private const val REQUEST_IMAGE_PICK = 2
@@ -144,11 +150,22 @@ class JournalFragment : Fragment() {
 
     private fun saveJournalToDatabase(journalEntry: JournalEntry) {
         val userId = journalEntry.userId
+        val formattedDate = LocalDate.ofEpochDay(journalEntry.timestamp / 86400000L)
+            .format(DateTimeFormatter.ofPattern("MMMM d, yyyy"))
+
         FirebaseDatabase.getInstance()
             .getReference("Users/$userId/journals")
             .child(journalEntry.id)
             .setValue(journalEntry)
             .addOnSuccessListener {
+                // Update journal map for the heatmap
+                val sharedPreferences = requireContext().getSharedPreferences("journals", Context.MODE_PRIVATE)
+                val editor = sharedPreferences.edit()
+                journalMap[formattedDate] = true
+                val journalJson = Gson().toJson(journalMap)
+                editor.putString("journal_map", journalJson)
+                editor.apply()
+
                 Toast.makeText(requireContext(), "Journal saved!", Toast.LENGTH_SHORT).show()
                 findNavController().navigate(R.id.action_navigation_journal_to_navigation_dashboard)
             }

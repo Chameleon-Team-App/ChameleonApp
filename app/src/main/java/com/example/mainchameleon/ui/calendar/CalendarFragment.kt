@@ -35,6 +35,7 @@ class CalendarFragment : Fragment(), OnDayClickListener {
     private lateinit var activityAdapter: ActivityAdapter
     private var activitiesForSelectedDate = mutableListOf<Pair<String, Boolean>>()
     private var activitiesMap: MutableMap<String, MutableList<Pair<String, Boolean>>> = mutableMapOf()
+    private var journalMap: MutableMap<String, Boolean> = mutableMapOf()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -42,8 +43,9 @@ class CalendarFragment : Fragment(), OnDayClickListener {
     ): View? {
         val rootView = inflater.inflate(R.layout.fragment_calendar, container, false)
 
-        // Load all activities from SharedPreferences
+        // Load all activities and journals from SharedPreferences
         loadAllActivities()
+        loadAllJournals()
 
         val backButton = rootView.findViewById<MaterialCardView>(R.id.back_button)
         backButton.setOnClickListener {
@@ -98,18 +100,34 @@ class CalendarFragment : Fragment(), OnDayClickListener {
         // Update the RecyclerView
         calendarRecyclerView.apply {
             layoutManager = GridLayoutManager(requireContext(), 7) // 7 columns for the days of the week
+            calendarRecyclerView.addItemDecoration(GridSpacingItemDecoration(4)) // 4dp spacing
             adapter = CalendarAdapter(
                 daysInMonth,
                 this@CalendarFragment,
-                hasHeatmapEffect = { date -> hasHeatmapEffect(date) } // Pass heatmap logic
+                getCompletionScore = { date -> getCompletionScore(date) } // Pass the logic
             )
         }
     }
 
-    private fun hasHeatmapEffect(date: LocalDate): Boolean {
+    private fun getCompletionScore(date: LocalDate): Float {
         val formattedDate = date.format(DateTimeFormatter.ofPattern("MMMM d, yyyy"))
-        val activities = activitiesMap[formattedDate] ?: return false
-        return activities.count { it.second } >= 5 // Check if 5 or more activities are completed
+        val activities = activitiesMap[formattedDate] ?: mutableListOf()
+
+        // Count completed activities
+        val completedActivities = activities.count { it.second }
+        val activityScore = completedActivities.coerceAtMost(5) / 10.0f // Max 0.5 for 5 activities
+
+        // Check for journal entry
+        val journalScore = if (journalMap[formattedDate] == true) 0.5f else 0.0f
+
+        return activityScore + journalScore // Total score max 1.0
+    }
+
+    private fun loadAllJournals() {
+        val sharedPreferences = requireContext().getSharedPreferences("journals", Context.MODE_PRIVATE)
+        val journalJson = sharedPreferences.getString("journal_map", "{}")
+        val type = object : TypeToken<MutableMap<String, Boolean>>() {}.type
+        journalMap = Gson().fromJson(journalJson, type) ?: mutableMapOf()
     }
 
     private fun daysInMonthArray(date: LocalDate): List<LocalDate?> {
@@ -117,11 +135,13 @@ class CalendarFragment : Fragment(), OnDayClickListener {
         val yearMonth = YearMonth.from(date)
         val daysInMonth = yearMonth.lengthOfMonth()
         val firstOfMonth = date.withDayOfMonth(1)
-        val dayOfWeek = firstOfMonth.dayOfWeek.value % 7 // Adjust for Sunday as the start of the week
 
-        // Add empty placeholders for days from the previous month
+        // Adjust day of the week to start with Sunday as the first day
+        val dayOfWeek = (firstOfMonth.dayOfWeek.value % 7) // Sunday = 0, Monday = 1, ...
+
+        // Add placeholders for days from the previous month
         for (i in 1..dayOfWeek) {
-            daysInMonthArray.add(null) // Use null to represent empty placeholders
+            daysInMonthArray.add(null)
         }
 
         // Add actual days of the current month
@@ -129,7 +149,7 @@ class CalendarFragment : Fragment(), OnDayClickListener {
             daysInMonthArray.add(firstOfMonth.withDayOfMonth(day))
         }
 
-        // Add empty placeholders for days of the next month to fill the grid (6 weeks total)
+        // Add placeholders for days of the next month to fill the grid (6 rows of 7 days)
         while (daysInMonthArray.size < 42) {
             daysInMonthArray.add(null)
         }

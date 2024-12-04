@@ -12,24 +12,12 @@ import java.time.LocalDate
 class CalendarAdapter(
     private val days: List<LocalDate?>,
     private val onDayClickListener: OnDayClickListener,
-    private val hasHeatmapEffect: (LocalDate) -> Boolean // Lambda for heatmap logic
+    private val getCompletionScore: (LocalDate) -> Float // Pass completion score logic
 ) : RecyclerView.Adapter<CalendarAdapter.DayViewHolder>() {
-
-    private var selectedPosition: Int = RecyclerView.NO_POSITION
 
     inner class DayViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val dayText: TextView = itemView.findViewById(R.id.dayText)
-
-        init {
-            itemView.setOnClickListener {
-                val position = adapterPosition
-                if (position != RecyclerView.NO_POSITION) {
-                    selectedPosition = position
-                    notifyDataSetChanged()
-                    onDayClickListener.onItemClick(position, days[position])
-                }
-            }
-        }
+        val heatmapCircle: View = itemView.findViewById(R.id.heatmapCircle) // Add circle in layout
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): DayViewHolder {
@@ -46,27 +34,27 @@ class CalendarAdapter(
             holder.dayText.setTextColor(ContextCompat.getColor(holder.itemView.context, R.color.white))
             holder.itemView.isClickable = true
 
-            // Apply heatmap effect if day qualifies
-            if (hasHeatmapEffect(day)) {
-                holder.itemView.background = ContextCompat.getDrawable(holder.itemView.context, R.drawable.glow_effect)
+            // Get completion score for the day
+            val completionScore = getCompletionScore(day)
+            if (completionScore > 0) {
+                // Adjust heatmap circle size and opacity
+                holder.heatmapCircle.apply {
+                    visibility = View.VISIBLE
+                    scaleX = completionScore * 2 // Scale based on completion score
+                    scaleY = completionScore * 2
+                    alpha = completionScore // Set opacity
+                }
             } else {
-                holder.itemView.background = null
+                holder.heatmapCircle.visibility = View.GONE
             }
 
-            // Highlight current day or selected day
-            if (day == LocalDate.now()) {
-                holder.dayText.background = ContextCompat.getDrawable(holder.itemView.context, R.drawable.highlight_background)
-            } else if (position == selectedPosition) {
-                holder.dayText.background = ContextCompat.getDrawable(holder.itemView.context, R.drawable.selected_background)
-            } else {
-                holder.dayText.background = null
+            // Handle click events
+            holder.itemView.setOnClickListener {
+                onDayClickListener.onItemClick(position, day)
             }
         } else {
-            // Display empty placeholders
             holder.dayText.text = ""
-            holder.dayText.setTextColor(ContextCompat.getColor(holder.itemView.context, R.color.gray))
-            holder.itemView.isClickable = false
-            holder.itemView.background = null
+            holder.heatmapCircle.visibility = View.GONE
         }
     }
 
