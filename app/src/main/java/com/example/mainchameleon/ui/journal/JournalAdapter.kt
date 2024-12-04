@@ -38,9 +38,13 @@ class JournalAdapter :
         private val imageView: ImageView = view.findViewById(R.id.imageView)
         private val profileImageView: ImageView = view.findViewById(R.id.profileImageView)
         private val createdDateTextView: TextView = view.findViewById(R.id.createdDateTextView)
+        private val cardView: androidx.cardview.widget.CardView = view.findViewById(R.id.cardView)
         private val database: DatabaseReference = FirebaseDatabase.getInstance().reference
 
         fun bind(entry: JournalEntry) {
+            // Set the card background color
+            cardView.setCardBackgroundColor(entry.backgroundColor)
+
             // Set the title and entry text
             titleTextView.text = entry.title
             entryTextView.text = entry.text
@@ -61,10 +65,7 @@ class JournalAdapter :
                     .placeholder(R.drawable.default_profile)
                     .error(R.drawable.default_profile)
                     .into(imageView, object : Callback {
-                        override fun onSuccess() {
-                            // Successfully loaded
-                        }
-
+                        override fun onSuccess() {}
                         override fun onError(e: Exception?) {
                             imageView.setImageResource(R.drawable.default_profile)
                         }
@@ -74,12 +75,8 @@ class JournalAdapter :
             }
 
             // Format and display the created date
-            try {
-                val dateFormat = SimpleDateFormat("MM/dd/yyyy", Locale.getDefault())
-                createdDateTextView.text = "Date: ${dateFormat.format(Date(entry.timestamp))}"
-            } catch (e: Exception) {
-                createdDateTextView.text = "Date: Unknown"
-            }
+            val dateFormat = SimpleDateFormat("MM/dd/yyyy", Locale.getDefault())
+            createdDateTextView.text = "Date: ${dateFormat.format(Date(entry.timestamp))}"
         }
 
         fun loadUserDetails(userId: String) {
@@ -99,10 +96,7 @@ class JournalAdapter :
                                 .placeholder(R.drawable.default_profile)
                                 .error(R.drawable.default_profile)
                                 .into(profileImageView, object : Callback {
-                                    override fun onSuccess() {
-                                        // Successfully loaded
-                                    }
-
+                                    override fun onSuccess() {}
                                     override fun onError(e: Exception?) {
                                         profileImageView.setImageResource(R.drawable.default_profile)
                                     }
@@ -113,7 +107,6 @@ class JournalAdapter :
                     }
 
                     override fun onCancelled(error: DatabaseError) {
-                        // Handle errors gracefully
                         usernameTextView.text = "Unknown User"
                         profileImageView.setImageResource(R.drawable.default_profile)
                     }
