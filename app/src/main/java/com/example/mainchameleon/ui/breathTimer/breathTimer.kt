@@ -69,7 +69,6 @@ class BreathTimer : AppCompatActivity() {
                 ProgressBar.setProgress(100 - (millisUntilFinished/40).toInt())
             }
 
-
             override fun onFinish() {
                 // Action to take when the timer finishes
                 currentstate++
@@ -79,13 +78,6 @@ class BreathTimer : AppCompatActivity() {
                 if (currentstate == 2) {breatheTextView.text = "Exhale"}
                 startBreathingActivity()
             }
-
         }.start()
-    }
-
-    private fun setupBackButton() {
-        binding.backButton.setOnClickListener {
-            //findNavController().navigateUp()
-        }
     }
 }
