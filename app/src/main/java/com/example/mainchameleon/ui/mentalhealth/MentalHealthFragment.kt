@@ -30,7 +30,7 @@ class MentalHealthFragment : Fragment() {
 
         // Encouraging Phrase Button
         rootView.findViewById<Button>(R.id.encouragingPhraseButton).setOnClickListener {
-            // Navigate to Encouraging Phrase Screen
+            findNavController().navigate(R.id.encouraging_fragment)
         }
 
         // Achievements Button

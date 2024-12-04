@@ -43,6 +43,7 @@
             android:layout_weight="1"
             android:hint="Enter Friend Code"
             android:textColor="@color/black"
+            android:backgroundTint="#8BC34A"
             android:padding="8dp"
             />
 
