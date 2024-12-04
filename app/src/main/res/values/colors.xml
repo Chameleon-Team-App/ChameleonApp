@@ -11,6 +11,7 @@
     <color name="teal_700">#FF018786</color>
     <color name="highlight">#FFEB3B</color>
     <color name="selected">#00FFFF</color>
-    <color name="red">#FF0000</color>"
+    <color name="red">#FF0000</color>
+    <color name="bottom_nav_background">#4B4B4B</color>
 
 </resources>
