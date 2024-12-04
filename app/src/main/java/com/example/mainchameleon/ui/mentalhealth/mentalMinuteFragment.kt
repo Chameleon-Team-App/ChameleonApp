@@ -15,6 +15,7 @@ class MentalMinuteFragment : Fragment() {
     private var countDownTimer: CountDownTimer? = null
     private var timeRemaining: Long = 60000 // 1 minute in milliseconds
 
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
