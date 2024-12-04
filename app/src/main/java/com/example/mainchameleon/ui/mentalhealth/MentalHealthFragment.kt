@@ -26,7 +26,7 @@ class MentalHealthFragment : Fragment() {
         // Timer Button
         rootView.findViewById<Button>(R.id.timerButton).setOnClickListener {
             // Navigate to Timer Screen
-            //findNavController().navigate(R.id.)
+            //findNavController().navigate(R.id.timer_fragment)
         }
 
         // Encouraging Phrase Button
