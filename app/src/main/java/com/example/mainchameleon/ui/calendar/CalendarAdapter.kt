@@ -11,7 +11,8 @@ import java.time.LocalDate
 
 class CalendarAdapter(
     private val days: List<LocalDate?>,
-    private val onDayClickListener: OnDayClickListener
+    private val onDayClickListener: OnDayClickListener,
+    private val hasHeatmapEffect: (LocalDate) -> Boolean // Lambda for heatmap logic
 ) : RecyclerView.Adapter<CalendarAdapter.DayViewHolder>() {
 
     private var selectedPosition: Int = RecyclerView.NO_POSITION
@@ -45,20 +46,27 @@ class CalendarAdapter(
             holder.dayText.setTextColor(ContextCompat.getColor(holder.itemView.context, R.color.white))
             holder.itemView.isClickable = true
 
-            // Highlight the current day
+            // Apply heatmap effect if day qualifies
+            if (hasHeatmapEffect(day)) {
+                holder.itemView.background = ContextCompat.getDrawable(holder.itemView.context, R.drawable.glow_effect)
+            } else {
+                holder.itemView.background = null
+            }
+
+            // Highlight current day or selected day
             if (day == LocalDate.now()) {
                 holder.dayText.background = ContextCompat.getDrawable(holder.itemView.context, R.drawable.highlight_background)
             } else if (position == selectedPosition) {
                 holder.dayText.background = ContextCompat.getDrawable(holder.itemView.context, R.drawable.selected_background)
             } else {
-                holder.dayText.background = null // Reset background
+                holder.dayText.background = null
             }
         } else {
             // Display empty placeholders
             holder.dayText.text = ""
             holder.dayText.setTextColor(ContextCompat.getColor(holder.itemView.context, R.color.gray))
             holder.itemView.isClickable = false
-            holder.dayText.background = null
+            holder.itemView.background = null
         }
     }
 

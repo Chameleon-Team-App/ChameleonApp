@@ -69,7 +69,7 @@ class CalendarFragment : Fragment(), OnDayClickListener {
         activityAdapter = ActivityAdapter(
             activitiesForSelectedDate,
             onActivityCompleted = { position ->
-                saveActivities(selectedDate.format(DateTimeFormatter.ofPattern("MMMM d, yyyy")))
+                markActivityAsCompleted(position)
             },
             onDeleteClick = { position ->
                 deleteActivity(position)
@@ -79,7 +79,7 @@ class CalendarFragment : Fragment(), OnDayClickListener {
         activitiesRecyclerView.adapter = activityAdapter
 
         // Add listener for Add Activity button
-        val addActivityButton = rootView.findViewById<Button>(R.id.addActivityButton)
+        val addActivityButton = rootView.findViewById<MaterialCardView>(R.id.addActivityButton)
         addActivityButton.setOnClickListener {
             val formattedDate = selectedDate.format(DateTimeFormatter.ofPattern("MMMM d, yyyy"))
             showAddActivityDialog(formattedDate)
@@ -98,8 +98,18 @@ class CalendarFragment : Fragment(), OnDayClickListener {
         // Update the RecyclerView
         calendarRecyclerView.apply {
             layoutManager = GridLayoutManager(requireContext(), 7) // 7 columns for the days of the week
-            adapter = CalendarAdapter(daysInMonth, this@CalendarFragment)
+            adapter = CalendarAdapter(
+                daysInMonth,
+                this@CalendarFragment,
+                hasHeatmapEffect = { date -> hasHeatmapEffect(date) } // Pass heatmap logic
+            )
         }
+    }
+
+    private fun hasHeatmapEffect(date: LocalDate): Boolean {
+        val formattedDate = date.format(DateTimeFormatter.ofPattern("MMMM d, yyyy"))
+        val activities = activitiesMap[formattedDate] ?: return false
+        return activities.count { it.second } >= 5 // Check if 5 or more activities are completed
     }
 
     private fun daysInMonthArray(date: LocalDate): List<LocalDate?> {
@@ -197,6 +207,9 @@ class CalendarFragment : Fragment(), OnDayClickListener {
         // Save the updated list
         val formattedDate = selectedDate.format(DateTimeFormatter.ofPattern("MMMM d, yyyy"))
         saveActivities(formattedDate)
+
+        // Refresh calendar heatmap
+        setMonthView()
     }
 
     private fun handleDateSelection(day: LocalDate) {
@@ -206,8 +219,15 @@ class CalendarFragment : Fragment(), OnDayClickListener {
     }
 
     private fun loadActivities(date: String) {
+        // Log the current state of activitiesMap for debugging
+        println("Loading activities for date: $date")
+        println("Current activitiesMap: $activitiesMap")
+
+        // Fetch and assign activities for the selected date
         activitiesForSelectedDate = activitiesMap[date]?.toMutableList() ?: mutableListOf()
-        activityAdapter.updateActivities(activitiesForSelectedDate) // Call the new method
+
+        // Update the adapter with the fetched activities
+        activityAdapter.updateActivities(activitiesForSelectedDate)
     }
 
     private fun loadAllActivities() {
@@ -222,12 +242,11 @@ class CalendarFragment : Fragment(), OnDayClickListener {
             // Remove the activity from the list
             activitiesForSelectedDate.removeAt(position)
 
-            // Notify adapter of the change
-            activityAdapter.notifyItemRemoved(position)
-            activityAdapter.notifyItemRangeChanged(position, activitiesForSelectedDate.size)
-
             // Save updated list
             saveActivities(selectedDate.format(DateTimeFormatter.ofPattern("MMMM d, yyyy")))
+
+            // Reload activities to ensure UI is updated
+            loadActivities(selectedDate.format(DateTimeFormatter.ofPattern("MMMM d, yyyy")))
         } else {
             Toast.makeText(requireContext(), "Invalid activity position", Toast.LENGTH_SHORT).show()
         }
